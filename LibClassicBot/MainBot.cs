@@ -11,6 +11,7 @@ using LibClassicBot.Networking;
 using LibClassicBot.Remote;
 using LibClassicBot.Events;
 using LibClassicBot.Remote.Events;
+using LibClassicBot.Drawing;
 
 namespace LibClassicBot
 {
@@ -183,6 +184,18 @@ namespace LibClassicBot
 		public string ServerMOTD {
 			get {  if (_servermotd != null) return _servermotd; else return null; }
 		}
+		
+		/// <summary>This determines whether or not the bot is cuboiding.</summary>
+		public bool IsCuboiding {
+			get { return _isCuboiding; }
+		}
+		
+		/// <summary>The time in milliseconds in which the bot will wait before placing the next block in a cuboid.
+		/// If this is too low, the bot may be kicked for potential block spam.</summary>
+		public int CuboidSleepTime {
+			get { return sleepTime; }
+			set { sleepTime = value; }
+		}
 		#endregion
 		
 		/// <summary>
@@ -196,23 +209,23 @@ namespace LibClassicBot
 		{
 			if(x > _mapsizeX || y > _mapsizeY || z > _mapsizeZ || x < 0 || y < 0 || z < 0) return false;
 			else return true;
-		}		
+		}
 		/// <summary>Events that are raised by the bot.</summary>
 		public BotEvents Events = new BotEvents();
 		
 		#region Public Constructors
 
-		/// <summary>Connects the bot to a server via a hash, username, and password. Hash does NOT start with http://minecraft.net/classic/play/.</summary>
+		/// <summary>Connects the bot to a server via an address, username, and password.</summary>
 		/// <param name="username">Username for the bot to use.</param>
 		/// <param name="pass">Password for the bot to use.</param>
 		/// <param name="hash">Hash for thre bot to use. Eg, r432fd57gf5j876f</param>
 		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
 		/// <example>ClassicBot c = new ClassicBot("Bot","admin","r432fd57gf5j876f","ops.txt")</example>
-		public ClassicBot(string username, string pass, string hash, string oppath)
+		public ClassicBot(string username, string pass, string adress, string oppath)
 		{
 			this._username = username;
 			this._password = pass;
-			this._hash = hash;
+			this._hash = adress;
 			this._Opspath = oppath;
 			this.isStandard = true;
 		}
@@ -249,7 +262,7 @@ namespace LibClassicBot
 		/// <param name="Port">The int containing the port number for which to connect onto.</param>
 		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
 		/// <example>ClassicBot c = new ClassicBot("bot","ver",IPAddress.Parse("127.0.0.1",25565,"ops.txt")</example>
-		public ClassicBot(string username, string verkey,IPAddress serverIP, int port, string oppath)
+		public ClassicBot(string username, string verkey, IPAddress serverIP, int port, string oppath)
 		{
 			this._username = username;
 			this._serverIP = serverIP;
@@ -282,6 +295,14 @@ namespace LibClassicBot
 		PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", name);
 		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);
 		private MemoryStream mapStream;
+		//Drawing ---
+		int sleepTime = 10;
+		byte cuboidType;
+		Vector3I firstCPos, secondCPos;
+		bool criticalAbort = false;
+		bool _isCuboiding = false;
+		bool wantingPositionOne = false, wantingPositionTwo = false;
+		//--
 		
 		/// <summary>This is used to prevent the bot from continuing to try to login to a server. (Eg, after a ban.)</summary>
 		bool CanReconnectAfterKick = false;
@@ -336,7 +357,7 @@ namespace LibClassicBot
 		{
 			Exception actualException = (Exception)e.ExceptionObject; //Get actual exception.
 			BotExceptionEventArgs socketEvent = new BotExceptionEventArgs("Unhandled exception, exiting.", actualException);
-			Events.RaiseBotError(socketEvent);		
+			Events.RaiseBotError(socketEvent);
 			System.IO.File.WriteAllText("error.txt","");
 			System.IO.File.AppendAllText("error.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
 			System.IO.File.AppendAllText("error.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
@@ -601,7 +622,20 @@ namespace LibClassicBot
 								int blockY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								int blockZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								byte blockType = reader.ReadByte();
-
+								if (wantingPositionOne && blockType == 39) {
+									firstCPos = new Vector3I(blockX, blockZ, blockY);
+									wantingPositionOne = false;
+									wantingPositionTwo = true;
+								}
+								else if (wantingPositionTwo && blockType == 39) {
+									secondCPos = new Vector3I(blockX, blockZ, blockY);
+									wantingPositionTwo = false;
+									if(QueuedDrawers.Count > 0)
+									{
+										IDrawer current = QueuedDrawers.Dequeue();
+										Draw(current, firstCPos,secondCPos, cuboidType);
+									}
+								}
 							}
 							break;
 
@@ -712,6 +746,7 @@ namespace LibClassicBot
 													}
 												}
 											}
+											if(QueuedDrawers.Count > 0) { wantingPositionOne = true; }
 										}
 										
 										catch (IndexOutOfRangeException) {

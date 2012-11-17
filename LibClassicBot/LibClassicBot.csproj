@@ -51,7 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BotCommands.cs" />
+    <Compile Include="BotDrawing.cs" />
     <Compile Include="BotNetworking.cs" />
+    <Compile Include="Drawing\CancelDrawingToken.cs" />
+    <Compile Include="Drawing\Cuboid.cs" />
+    <Compile Include="Drawing\IDrawer.cs" />
+    <Compile Include="Drawing\Vector3I.cs" />
     <Compile Include="Events\BotEvents.cs" />
     <Compile Include="MapFCM3.cs" />
     <Compile Include="Networking\PacketCreator.cs" />
@@ -69,6 +74,7 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Drawing" />
     <Folder Include="Networking" />
     <Folder Include="Events" />
     <Folder Include="Remote\Events" />

@@ -9,6 +9,7 @@ using LibClassicBot.Networking;
 using LibClassicBot.Remote;
 using LibClassicBot.Events;
 using LibClassicBot.Remote.Events;
+using LibClassicBot.Drawing;
 
 namespace LibClassicBotTest
 {
@@ -49,6 +50,7 @@ namespace LibClassicBotTest
 			Bot1.Events.GotKicked += Bot1_GotKicked;
 			Bot1.Events.PacketReceived += Bot1_PacketReceived;
 			Bot1.Events.BotException += Bot1_SocketError;
+			Bot1.Events.PlayerMoved += Bot1_PlayerMoved;
 			Bot1.RemoteServerEvents.RemoteSessionStarted += RemoteSessionStarted;
 			Bot1.RemoteServerEvents.RemoteUserLoggedIn += RemoteUserLoggedIn;
 			Bot1.RemoteServerEvents.RemoteSessionEnded += RemoteSessionEnded;
@@ -146,7 +148,40 @@ namespace LibClassicBotTest
 				}
 			};
 			Bot1.RegisteredCommands.Add("haspaid",HasPaidCommand);
-			#endregion		
+			
+			ClassicBot.CommandDelegate FollowCommand = delegate(string Line)
+			{
+				string[] LineSplit = Extensions.StripColors(Line).Split(new char[] {' '}, 3);
+				personfollowed = LineSplit[2];
+				Bot1.SendMessagePacket("Following user "+LineSplit[2]);
+			};
+			Bot1.RegisteredCommands.Add("follow",AddOpCommand);
+			
+			ClassicBot.CommandDelegate CuboidCommand = delegate(string Line)
+			{
+				Bot1.HandleCuboid(Line);
+				Cuboid cuboid = new Cuboid();
+				Bot1.QueuedDrawers.Enqueue(cuboid);
+			};
+			Bot1.RegisteredCommands.Add("cuboid",CuboidCommand);
+			
+			ClassicBot.CommandDelegate AbortCommand = delegate(string Line)
+			{
+				Bot1.CancelDrawer();
+			};
+			Bot1.RegisteredCommands.Add("abort",AbortCommand);
+			
+			ClassicBot.CommandDelegate SpeedCommand = delegate(string Line)
+			{
+				try
+				{
+					string[] full = Extensions.StripColors(Line).Split(new char[] { ' ' }, 3);
+					Bot1.CuboidSleepTime = Int32.Parse(full[2]);
+				}
+				catch (FormatException) { throw new IndexOutOfRangeException(); }
+			};
+			Bot1.RegisteredCommands.Add("speed",SpeedCommand);			
+			#endregion
 			
 			StaticBot1 = Bot1;
 			Bot1.Start(false);
@@ -159,6 +194,16 @@ namespace LibClassicBotTest
 				goto loop;
 			}
 		}
+		static string personfollowed = String.Empty;
+		static void Bot1_PlayerMoved(object sender, PositionEventArgs e)
+		{
+			string name = e.Name;
+			if(name.StartsWith("&")) name = name.Substring(2);
+			if(personfollowed == name)
+			{
+				StaticBot1.SendPositionPacket((short)e.X, (short)e.Y, (short)e.Z);
+			}
+		}
 
 		/// <summary>
 		/// This catches all unhandled exceptions and logs them to error.txt. Useful for finding issues, although I really do hope
@@ -169,11 +214,11 @@ namespace LibClassicBotTest
 		static void UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			Exception actualException = (Exception)e.ExceptionObject; //Get actual exception.
-			System.IO.File.WriteAllText("error.txt","");
-			System.IO.File.AppendAllText("error.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
-			System.IO.File.AppendAllText("error.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
-			System.IO.File.AppendAllText("error.txt","Message - " + actualException.Message + Environment.NewLine);
-			System.IO.File.AppendAllText("error.txt","Source - " + actualException.Source + Environment.NewLine);
+			System.IO.File.WriteAllText("unhandlederror.txt","");
+			System.IO.File.AppendAllText("unhandlederror.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
+			System.IO.File.AppendAllText("unhandlederror.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
+			System.IO.File.AppendAllText("unhandlederror.txt","Message - " + actualException.Message + Environment.NewLine);
+			System.IO.File.AppendAllText("unhandlederror.txt","Source - " + actualException.Source + Environment.NewLine);
 			//Don't bother with innerexception, seems never to be raised.
 		}
 

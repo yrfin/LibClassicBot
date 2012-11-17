@@ -17,10 +17,9 @@ namespace LibClassicBot
 		/// Bot1.Commands.Add("test",c);</code> When a chatline contains the words ".test", the command will be executed, writing Hello to Console.</example>
 		/// </summary>
 		/// <remarks>The dynamic command invoking is deisgned to be flexible. You can even dynamically create more bots, but you will have to still add commands in like normal.</remarks>
-		public Dictionary<string,CommandDelegate> RegisteredCommands = new Dictionary<string,CommandDelegate>();			
-			
+		public Dictionary<string,CommandDelegate> RegisteredCommands = new Dictionary<string,CommandDelegate>();					
 		
-		public class CommandsClass
+		private class CommandsClass
 		{
 			/// <summary>Although this could be done with a Tuple in .NET 4, this method is easier to understand, and it works in .NET 2.</summary>
 			private class InternalCommand
