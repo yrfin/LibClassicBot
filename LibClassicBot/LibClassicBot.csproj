@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="BotCommands.cs" />
     <Compile Include="BotEvents.cs" />
+    <Compile Include="BotNetworking.cs" />
     <Compile Include="Networking\PacketCreator.cs" />
     <Compile Include="Networking\ServerPacketsEnum.cs" />
     <Compile Include="MainBot.cs" />
