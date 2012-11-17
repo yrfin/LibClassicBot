@@ -2,74 +2,71 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LibClassicBot
+namespace LibClassicBot.Events
 {
-	public partial class ClassicBot
+	public class BotEvents
 	{
-		public class BotEvents
+		/// <summary>Occurs when the bot receives a message.</summary>
+		public event EventHandler<MessageEventArgs> ChatMessage;
+
+		/// <summary>Occurs when a player has moved. Includes orientation as well.</summary>
+		public event EventHandler<PositionEventArgs> PlayerMoved;
+		
+		/// <summary>Occurs when a packet is received. Contains the opcode, but does NOT contain any of the packet data</summary>
+		public event EventHandler<PacketEventArgs> PacketReceived;
+		
+		/// <summary>Occurs when the bot is kicked. To automatically make it reconnect, use ReconnectAfterKick = true;</summary>
+		public event EventHandler<KickedEventArgs> GotKicked;
+		
+		/// <summary>Occurs when a socket exception is raised during connecting to a server.</summary>
+		public event EventHandler<SocketExceptionEventArgs> BotSocketError;
+
+
+		/// <summary>Raises a new ChatMessage Event.</summary>
+		/// <param name="e">MessageEventArgs to send</param>
+		internal void RaiseChatMessage(MessageEventArgs e)
 		{
-			/// <summary>Occurs when the bot receives a message.</summary>
-			public event EventHandler<MessageEventArgs> ChatMessage;
-
-			/// <summary>Occurs when a player has moved. Includes orientation as well.</summary>
-			public event EventHandler<PositionEventArgs> PlayerMoved;
-			
-			/// <summary>Occurs when a packet is received. Contains the opcode, but does NOT contain any of the packet data</summary>
-			public event EventHandler<PacketEventArgs> PacketReceived;
-			
-			/// <summary>Occurs when the bot is kicked. To automatically make it reconnect, use ReconnectAfterKick = true;</summary>
-			public event EventHandler<KickedEventArgs> GotKicked;
-			
-			/// <summary>Occurs when a socket exception is raised during connecting to a server.</summary>
-			public event EventHandler<SocketExceptionEventArgs> BotSocketError;
-
-
-			/// <summary>Raises a new ChatMessage Event.</summary>
-			/// <param name="e">MessageEventArgs to send</param>
-			internal void RaiseChatMessage(MessageEventArgs e)
-			{
-				System.EventHandler<MessageEventArgs> chatEvent = ChatMessage;
-				if (chatEvent == null) return;
-				chatEvent(null, e);
-			}
-
-			/// <summary>Raises a new PlayerMoved Event.</summary>
-			/// <param name="e">PositionEventArgs to send</param>
-			internal void RaisePlayerMoved(PositionEventArgs e)
-			{
-				System.EventHandler<PositionEventArgs> movedEvent = PlayerMoved;
-				if (movedEvent == null) return;
-				movedEvent(null, e);
-			}
-			
-			/// <summary>Raises a new PacketReceived Event.</summary>
-			/// <param name="e">PacketEventArgs to send</param>
-			internal void RaisePacketReceived(PacketEventArgs e)
-			{
-				System.EventHandler<PacketEventArgs> packetEvent = PacketReceived;
-				if (packetEvent == null) return;
-				packetEvent(null, e);
-			}
-
-			/// <summary>Raises a new GotKicked Event.</summary>
-			/// <param name="e">KickedEventArgs to send</param>
-			internal void RaiseGotKicked(KickedEventArgs e)
-			{
-				System.EventHandler<KickedEventArgs> kickedEvent = GotKicked;
-				if(kickedEvent == null) return;
-				kickedEvent(null,e);
-			}
-			
-			/// <summary>Raises a new BotSocketError Event.</summary>
-			/// <param name="e">SocketExceptionEventArgs to send</param>
-			internal void RaiseBotSocketError(SocketExceptionEventArgs e)
-			{
-				System.EventHandler<SocketExceptionEventArgs> socketEvent = BotSocketError;
-				if(socketEvent == null) return;
-				socketEvent(null,e);
-			}
-			
+			System.EventHandler<MessageEventArgs> chatEvent = ChatMessage;
+			if (chatEvent == null) return;
+			chatEvent(null, e);
 		}
+
+		/// <summary>Raises a new PlayerMoved Event.</summary>
+		/// <param name="e">PositionEventArgs to send</param>
+		internal void RaisePlayerMoved(PositionEventArgs e)
+		{
+			System.EventHandler<PositionEventArgs> movedEvent = PlayerMoved;
+			if (movedEvent == null) return;
+			movedEvent(null, e);
+		}
+		
+		/// <summary>Raises a new PacketReceived Event.</summary>
+		/// <param name="e">PacketEventArgs to send</param>
+		internal void RaisePacketReceived(PacketEventArgs e)
+		{
+			System.EventHandler<PacketEventArgs> packetEvent = PacketReceived;
+			if (packetEvent == null) return;
+			packetEvent(null, e);
+		}
+
+		/// <summary>Raises a new GotKicked Event.</summary>
+		/// <param name="e">KickedEventArgs to send</param>
+		internal void RaiseGotKicked(KickedEventArgs e)
+		{
+			System.EventHandler<KickedEventArgs> kickedEvent = GotKicked;
+			if(kickedEvent == null) return;
+			kickedEvent(null,e);
+		}
+		
+		/// <summary>Raises a new BotSocketError Event.</summary>
+		/// <param name="e">SocketExceptionEventArgs to send</param>
+		internal void RaiseBotSocketError(SocketExceptionEventArgs e)
+		{
+			System.EventHandler<SocketExceptionEventArgs> socketEvent = BotSocketError;
+			if(socketEvent == null) return;
+			socketEvent(null,e);
+		}
+		
 	}
 
 	public sealed class MessageEventArgs : EventArgs
@@ -78,12 +75,12 @@ namespace LibClassicBot
 		public string Line;
 
 		/// <summary>
-		/// A MessageEventArg containing the full message, including color codes. Use NetEx.StripColors(line) 
+		/// A MessageEventArg containing the full message, including color codes. Use NetEx.StripColors(line)
 		/// if you are wanting a version of the message without colour codes.
 		/// </summary>
 		/// <param name="line">Full message with colour codes.</param>
 		internal MessageEventArgs(string line)
-		{			
+		{
 			Line = line;
 		}
 	}

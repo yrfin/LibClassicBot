@@ -84,7 +84,7 @@ namespace LibClassicBot.Networking
 			{
 				ChatWriter.Write((byte)ServerPackets.Message);
 				ChatWriter.Write((byte)255);//Unused.
-				Extensions.WriteString(ChatWriter, message);
+				ChatWriter.Write(StringToBytes(message));
 				return ChatMemStream.ToArray();
 			}
 		}

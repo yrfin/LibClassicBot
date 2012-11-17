@@ -5,30 +5,13 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Collections.Specialized;
-
 namespace LibClassicBot
 {
-
 	/// <summary>
-	/// Various utilities to 
+	/// Various utilities relating to chat messages and logging in.
 	/// </summary>
 	public static class Extensions
-	{
-		public static void WriteString(BinaryWriter bw, string s)
-		{
-			byte[] MessageBytes = Encoding.ASCII.GetBytes(s);
-			byte[] FullArray = new byte[64];
-			for (int i = 0; i < FullArray.Length; i++)
-			{
-				FullArray[i] = 32; //32 = ' '
-				//This is mainly for fCraft server logging in, Vanilla doesn't have a problem if we use 0.
-			}
-			Buffer.BlockCopy(MessageBytes,0,FullArray,0,MessageBytes.Length);
-			bw.Write(FullArray);
-		}
-		
+	{	
 		/// <summary>
 		/// Strips all colours from a given chatline. Based on code from fCraft.
 		/// </summary>
@@ -51,9 +34,15 @@ namespace LibClassicBot
 			}
 		}
 
-		public static byte[] StringToBytes(string s)
+		/// <summary>
+		/// Converts a string into a byte array compatible with classic servers.
+		/// </summary>
+		/// <param name="s">The string used to convert.</param>
+		/// <returns>A converted byte array of the string.</returns>
+		public static byte[] StringToBytes(string message)
 		{
-			byte[] MessageBytes = System.Text.Encoding.ASCII.GetBytes(s);
+			if(message.Length > 64) message = message.Substring(0, 64); //Failsafe
+			byte[] MessageBytes = System.Text.Encoding.ASCII.GetBytes(message);
 			byte[] FullArray = new byte[64];
 			for (int i = 0; i < FullArray.Length; i++)
 			{
@@ -168,6 +157,8 @@ namespace LibClassicBot
 							loggedincookie.Add(s);
 						}
 					}
+					sr.Dispose();
+					sw.Dispose();
 				}
 			}
 			

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using LibClassicBot.Networking;
 using LibClassicBot.Remote;
+using LibClassicBot.Events;
 
 namespace LibClassicBot
 {
@@ -147,11 +148,26 @@ namespace LibClassicBot
 		public Process BotProcess {
 			get { return Process.GetCurrentProcess(); }
 		}
+		
+        /// <summary>
+        /// Returns the CPU usage of the bot.
+        /// </summary>
+        public double CPUUsage {
+        	get { Thread.Sleep(500);
+                return cpuCounter.NextValue(); }
+        }
 
+        /// <summary>
+        /// Returns the RAM usage of the bot in Megabytes.
+        /// </summary>
+        public double RamUsage {
+            get { Thread.Sleep(500);
+        		return ramCounter.NextValue() / 1024 / 1024; }
+        }
 		#endregion
 		
 		/// <summary>Events that are raised by the bot.</summary>
-		public ClassicBot.BotEvents Events = new ClassicBot.BotEvents();
+		public BotEvents Events = new BotEvents();
 		
 		/// <summary>
 		/// Generates a somewhat user friendly reason as to why the bot crashed, easier to understand than an error code.
@@ -269,6 +285,9 @@ namespace LibClassicBot
 		Server server = new Server();
 		List<string> _ignored = new List<string>();
 		CommandsClass CommandClass = new CommandsClass();
+        static string name = Process.GetCurrentProcess().ProcessName;
+        PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", name);
+        PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);		
 		
 		private bool IsValidPosition(short x, short y, short z)
 		{
@@ -291,7 +310,7 @@ namespace LibClassicBot
 		public void Send(byte[] data)
 		{
 			if(_serverSocket == null || _serverSocket.Connected == false) return;
-			_serverSocket.Send(data, 0, data.Length);
+			_serverSocket.Send(data, data.Length, SocketFlags.None);
 		}
 		/// <summary>
 		/// Starts the bot. It can optionally run on the same thread as the method that called it.

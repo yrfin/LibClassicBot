@@ -51,8 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BotCommands.cs" />
-    <Compile Include="BotEvents.cs" />
     <Compile Include="BotNetworking.cs" />
+    <Compile Include="Events\BotEvents.cs" />
     <Compile Include="Networking\PacketCreator.cs" />
     <Compile Include="Networking\ServerPacketsEnum.cs" />
     <Compile Include="MainBot.cs" />
@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Networking" />
+    <Folder Include="Events" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

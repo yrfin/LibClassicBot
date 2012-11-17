@@ -7,6 +7,7 @@ using System.Text;
 using System.Collections.Generic;
 using LibClassicBot.Networking;
 using LibClassicBot.Remote;
+using LibClassicBot.Events;
 
 namespace LibClassicBotTest
 {
@@ -42,7 +43,7 @@ namespace LibClassicBotTest
 				if(hash.StartsWith("minecraft")) hash = "http://"+hash;
 				else hash = "http://minecraft.net/classic/play/" + hash;
 			}
-			
+			ClassicBot r = new ClassicBot(null,null,null,null);
 			ClassicBot Bot1 = new ClassicBot(username,password,hash,"operators.txt");
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
 			Bot1.Events.GotKicked += Bot1_GotKicked;
