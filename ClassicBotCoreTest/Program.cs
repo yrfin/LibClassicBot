@@ -43,7 +43,6 @@ namespace LibClassicBotTest
 				if(hash.StartsWith("minecraft")) hash = "http://"+hash;
 				else hash = "http://minecraft.net/classic/play/" + hash;
 			}
-			ClassicBot r = new ClassicBot(null,null,null,null);
 			ClassicBot Bot1 = new ClassicBot(username,password,hash,"operators.txt");
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
 			Bot1.Events.GotKicked += Bot1_GotKicked;
@@ -146,10 +145,7 @@ namespace LibClassicBotTest
 				}
 			};
 			Bot1.RegisteredCommands.Add("haspaid",HasPaidCommand);
-			
-			
-			
-			#endregion
+			#endregion		
 			
 			StaticBot1 = Bot1;
 			Bot1.Start(false);

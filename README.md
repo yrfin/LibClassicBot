@@ -9,8 +9,8 @@ LibClassicBot is known to run well on .NET Framework 2.0 with the Microsoft Comp
 LibClassicBot is further divided into two namespaces:
 * LibClassicBot: A base library to connect to Classic Servers.
 * LibClassicBot.Networking: Contains enumerations with the packet IDs of both Server and Client packets.
-Also contains the static class Packets, which can be used to create packets. (Unfortunately, as of right now, they cannot
-be sent via the bot. Add that to the list of stuff to do..)
+Also contains the static class Packets, which can be used to create packets that can be sent via ClassicBot.Send(byte []).
+* LibClassicBot.Events: Events that are raised by the bot, such as socket errors and chat messages.
 * LibClassicBot.Remote: Contains classes and events for creating a server that remote clients are able to connect to.
 The remote protocol used also has the option of sending log files across.
 
@@ -20,7 +20,7 @@ LibClassicBot is incomplete. Work on further additions are currently at a stands
 schoolwork. However, I decided that I might as well release the source code of the bot 
 as it currently stands.
 
-Some cool technical things about Craft.Net that are already implemented:
+Some things about LibClassicBot that are already implemented:
 
 * **Plugins:** *Plugins are designed to be easy to implement, although at the moment they can only
 be added internally. I intend to add the ability to load .dll plugins later.*

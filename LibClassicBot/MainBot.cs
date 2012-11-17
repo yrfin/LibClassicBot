@@ -164,6 +164,18 @@ namespace LibClassicBot
             get { Thread.Sleep(500);
         		return ramCounter.NextValue() / 1024 / 1024; }
         }
+        
+        /// <summary>
+        /// Whether to load settings from botsettings.txt. By default, this is set to true.
+        /// Disable this if you intend to enforce settings that might be overriden otherwise.
+        /// </summary>
+        public bool LoadSettings {
+        	get { return _loadsettings; }
+        	set {_loadsettings = value;
+        	}
+        }
+        
+		public event EventHandler LoadSettingsChanged;
 		#endregion
 		
 		/// <summary>Events that are raised by the bot.</summary>
@@ -300,6 +312,7 @@ namespace LibClassicBot
 		bool isDirect = false;
 		bool isStandard = false;
 		byte ProtocolVersion;
+		bool _loadsettings = true;
 		#endregion
 
 		
@@ -317,13 +330,27 @@ namespace LibClassicBot
 		/// </summary>
 		public void Start(bool RunOnSameThreadAsCaller)
 		{
-			LoadSettings();
+			if(!Debugger.IsAttached) AppDomain.CurrentDomain.UnhandledException += UnhandledException; //Might interfere with debugging
+			if(_loadsettings) LoadSettings();
 			if(RunOnSameThreadAsCaller == true)
 			{
 				IOLoop();
 			}
 			Thread thread = new Thread(IOLoop);
 			thread.Start();
+		}
+
+		/// <summary>
+		/// Raised when an exception is uncaught.
+		/// </summary>
+		void UnhandledException(object sender, UnhandledExceptionEventArgs e)
+		{
+			Exception actualException = (Exception)e.ExceptionObject; //Get actual exception.
+			System.IO.File.WriteAllText("error.txt","");
+			System.IO.File.AppendAllText("error.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
+			System.IO.File.AppendAllText("error.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
+			System.IO.File.AppendAllText("error.txt","Message - " + actualException.Message + Environment.NewLine);
+			System.IO.File.AppendAllText("error.txt","Source - " + actualException.Source + Environment.NewLine);
 		}
 		
 		/// <summary>
