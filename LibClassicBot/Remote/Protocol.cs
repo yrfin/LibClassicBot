@@ -22,7 +22,6 @@ namespace LibClassicBot.Remote
 		/// <summary>Sent to the client once the client has been authorised, and that the server can start receiving chat.</summary>
 		ClientAuthorised = 7,
 		/// <summary>Sent to the client once the server has acknowledged a server command from the client..</summary>
-		ServerResponse = 8
-			
+		ServerResponse = 8		
 	}
 }

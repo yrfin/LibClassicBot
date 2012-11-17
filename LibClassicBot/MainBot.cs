@@ -10,6 +10,7 @@ using System.Threading;
 using LibClassicBot.Networking;
 using LibClassicBot.Remote;
 using LibClassicBot.Events;
+using LibClassicBot.Remote.Events;
 
 namespace LibClassicBot
 {
@@ -137,30 +138,24 @@ namespace LibClassicBot
 		}
 		
 		/// <summary>
-		/// Returns the server that remote clients connect to.
+		/// Events that are raised by the server listening for remote clients.
 		/// </summary>
-		public Server RemoteServer {
-			get { return server; }
+		public RemoteEvents RemoteServerEvents {
+			get { return server.RemoteBotEvents; }
 		}
 
-		/// <summary>
-		/// Gets the current process associated with the bot.
-		/// </summary>
+		/// <summary>Gets the current process associated with the bot.</summary>
 		public Process BotProcess {
 			get { return Process.GetCurrentProcess(); }
 		}
 		
-		/// <summary>
-		/// Returns the CPU usage of the bot.
-		/// </summary>
-		public double CPUUsage {
+		/// <summary>Returns the CPU usage of the bot.</summary>
+		public double CpuUsage {
 			get { Thread.Sleep(500);
 				return cpuCounter.NextValue(); }
 		}
 
-		/// <summary>
-		/// Returns the RAM usage of the bot in Megabytes.
-		/// </summary>
+		/// <summary>Returns the RAM usage of the bot in Megabytes.</summary>
 		public double RamUsage {
 			get { Thread.Sleep(500);
 				return ramCounter.NextValue() / 1024 / 1024; }
@@ -168,7 +163,7 @@ namespace LibClassicBot
 		
 		/// <summary>
 		/// Whether to load settings from botsettings.txt. By default, this is set to true.
-		/// Disable this if you intend to enforce settings that might be overriden otherwise.
+		/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
 		/// </summary>
 		public bool LoadInternalSettings {
 			get { return _loadsettings; }
@@ -178,22 +173,30 @@ namespace LibClassicBot
 		/// <summary>
 		/// When the bot first joins a server, a packet containing the server name and MOTD are sent.
 		/// All further world joins are ignored, as unfortunately there's no unified "joining world X" between
-		/// all the different servers.
+		/// all the different server software.
 		/// </summary>
 		public string ServerName {
-			get { return _servername; }
+			get {  if (_servername != null) return _servername; else return null; }
 		}
 		
-		/// <summary>
-		/// When the bot first joins a server, a packet containing the server name and MOTD are sent.
-		/// </summary>
+		/// <summary>When the bot first joins a server, a packet containing the server name and MOTD are sent.</summary>
 		public string ServerMOTD {
-			get { return _servermotd; }
+			get {  if (_servermotd != null) return _servermotd; else return null; }
 		}
-		
-		
 		#endregion
 		
+		/// <summary>
+		/// Determines if the given three coordinates are inside the map. If any of them are false, the boolean returns false.
+		/// </summary>
+		/// <param name="x">The x coordinate to check.</param>
+		/// <param name="y">The y coordinate to check.</param>
+		/// <param name="z">The z coordinate to check.</param>
+		/// <returns>True if all three points were in the map, false if not.</returns>
+		public bool IsValidPosition(short x, short y, short z)
+		{
+			if(x > _mapsizeX || y > _mapsizeY || z > _mapsizeZ || x < 0 || y < 0 || z < 0) return false;
+			else return true;
+		}		
 		/// <summary>Events that are raised by the bot.</summary>
 		public BotEvents Events = new BotEvents();
 		
@@ -272,7 +275,7 @@ namespace LibClassicBot
 		Dictionary<int, Player> _players = new Dictionary<int, Player>();
 		byte _userType;
 		bool _requiresop = true;
-		Server server = new Server();
+		Server server = new Server(); //TODO: Add support for not using remote server without breaking the events.
 		List<string> _ignored = new List<string>();
 		CommandsClass CommandClass = new CommandsClass();
 		static string name = Process.GetCurrentProcess().ProcessName;
@@ -280,11 +283,6 @@ namespace LibClassicBot
 		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);
 		private MemoryStream mapStream;
 		
-		private bool IsValidPosition(short x, short y, short z)
-		{
-			if(x > _mapsizeX || y > _mapsizeY || z > _mapsizeZ || x < 0 || y < 0 || z < 0) return false;
-			else return true;
-		}
 		/// <summary>This is used to prevent the bot from continuing to try to login to a server. (Eg, after a ban.)</summary>
 		bool CanReconnectAfterKick = false;
 		string DirectURL;
@@ -294,9 +292,18 @@ namespace LibClassicBot
 		bool _loadsettings = true;
 		bool _savemap = false;
 		bool serverLoaded = false;
+		bool UseRemoteServer = false;
 		#endregion
 
-		
+		/// <summary>
+		/// Sends a message to all remotely connected clients. If the server has not been started,
+		/// it will not send a message.
+		/// </summary>
+		/// <param name="message">The message to send to all remotely connected clients.</param>
+		public void MessageAllRemoteClients(string message)
+		{
+			if (server != null && server.started) server.SendMessageToAllRemoteClients(message);
+		}
 		/// <summary>
 		/// Sends a byte array to the currently connected server. (Usually, a packet of some sort.)
 		/// </summary>
@@ -355,7 +362,6 @@ namespace LibClassicBot
 				{
 					string[] Lines = File.ReadAllLines("botsettings.txt");
 					string[] splitLineURS = Lines[0].Split(':');
-					bool UseRemoteServer;
 					bool.TryParse(splitLineURS[1].Replace(" ",""), out UseRemoteServer);
 					if (UseRemoteServer)
 					{

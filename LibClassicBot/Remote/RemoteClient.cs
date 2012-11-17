@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Net;
-using System.Threading;
-using System.Net.Sockets;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using LibClassicBot.Remote.Events;
 
 namespace LibClassicBot.Remote
 {

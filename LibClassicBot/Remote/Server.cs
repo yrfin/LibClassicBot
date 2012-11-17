@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using LibClassicBot.Remote.Events;
 
 namespace LibClassicBot.Remote
 {
@@ -16,26 +17,29 @@ namespace LibClassicBot.Remote
 			set { _password = value; }
 		}
 		
-		/// <summary>
-		/// The port the server is listening on for remote clients.
-		/// </summary>
+		/// <summary>The port the server is listening on for remote clients.</summary>
 		public int RemoteServerPort {
 			get { return _port; }
 		}
 		
-		/// <summary>
-		/// A list of all remotely connected clients to the bot.
-		/// </summary>
+		/// <summary>Whether or not the server has started listening for remote clients.</summary>
+		public bool Started {
+			get { return started; }
+		}		
+		/// <summary>A list of all remotely connected clients to the bot.</summary>
 		public List<RemoteClient> Clients = new List<RemoteClient>();
 		
-		public Server.RemoteEvents RemoteBotEvents = new Server.RemoteEvents();
+		/// <summary>Events that are raised by the server listening for remote clients.</summary>
+		public RemoteEvents RemoteBotEvents = new RemoteEvents();
 		#endregion
 		
 		private int _port;
-		
 		internal string _password;
-
+		/// <summary>Used for sending message packets and stuff.</summary>
 		internal ClassicBot MinecraftBot;
+		internal bool started;
+		
+
 		
 		/// <summary>
 		/// Starts a server for remote clients to connect to on the specified port, with the specified password.
@@ -49,7 +53,7 @@ namespace LibClassicBot.Remote
 			_password = remotePassword;
 			_port = remotePort;
 			Thread listenThread = new Thread(ListenForClients);
-			listenThread.IsBackground = true; //Don't hold off stopping the main interface.
+			listenThread.IsBackground = true;
 			listenThread.Start();
 		}
 
@@ -66,11 +70,14 @@ namespace LibClassicBot.Remote
 			}
 		}
 		
+		/// <summary>
+		/// Thread which listens for remotely connected clients.
+		/// </summary>
 		private void ListenForClients()
 		{
-			TcpListener tcpListener = new TcpListener(IPAddress.Any,_port);
+			started = true;
+			TcpListener tcpListener = new TcpListener(IPAddress.Any,_port); //TODO: Add support for specified IP addresses.
 			tcpListener.Start();
-			
 			while (true)
 			{
 				//Blocks the thread until a client had connected.

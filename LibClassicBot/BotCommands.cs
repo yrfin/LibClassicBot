@@ -41,6 +41,7 @@ namespace LibClassicBot
 			/// <summary>True if the command thread has been started.</summary>
 			public bool Started;
 			
+			/// <summary>The event used for blocking the command thread.</summary>
 			private AutoResetEvent CommandQueueReset = new AutoResetEvent(false);
 			
 			/// <summary>The current queue of command to be executed by the bot.</summary>
@@ -73,23 +74,26 @@ namespace LibClassicBot
 				Started = true;
 				if(RunOnSeparateThread)
 				{
-					Thread CommandsThread = new Thread(CommandQueueWorker);
+					Thread CommandsThread = new Thread(CommandQueueThread);
 					CommandsThread.IsBackground = true;
 					CommandsThread.Name = "CommandThread";
 					CommandsThread.Start();
 				}
 				else
 				{
-					CommandQueueWorker();
+					CommandQueueThread();
 				}
 			}
 			
-			private void CommandQueueWorker()
+			/// <summary>
+			/// The internal thread used for processing commands. 
+			/// The thread will sleep until ProcessCommandQueue() is called.
+			/// </summary>
+			private void CommandQueueThread()
 			{
 				while (true)
 				{
-					CommandQueueReset.Reset();//Initially set to false.
-					
+					CommandQueueReset.Reset();//Start at false.
 					CommandQueueReset.WaitOne(); //Wait until the bot calls ProccessCommandQueue();
 					while (CommandQueue.Count != 0)
 					{

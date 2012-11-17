@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using LibClassicBot.Networking;
 using LibClassicBot.Remote;
 using LibClassicBot.Events;
+using LibClassicBot.Remote.Events;
 
 namespace LibClassicBotTest
 {
@@ -48,9 +49,9 @@ namespace LibClassicBotTest
 			Bot1.Events.GotKicked += Bot1_GotKicked;
 			Bot1.Events.PacketReceived += Bot1_PacketReceived;
 			Bot1.Events.BotException += Bot1_SocketError;
-			Bot1.RemoteServer.RemoteBotEvents.RemoteSessionStarted += RemoteSessionStarted;
-			Bot1.RemoteServer.RemoteBotEvents.RemoteUserLoggedIn += RemoteUserLoggedIn;
-			Bot1.RemoteServer.RemoteBotEvents.RemoteSessionEnded += RemoteSessionEnded;
+			Bot1.RemoteServerEvents.RemoteSessionStarted += RemoteSessionStarted;
+			Bot1.RemoteServerEvents.RemoteUserLoggedIn += RemoteUserLoggedIn;
+			Bot1.RemoteServerEvents.RemoteSessionEnded += RemoteSessionEnded;
 			
 			#region Plugins
 			
@@ -230,7 +231,7 @@ namespace LibClassicBotTest
 		static void Bot1_ChatMessage(object sender, MessageEventArgs e)
 		{
 			AppendLog("&fBot: "+e.Line+"&");
-			StaticBot1.RemoteServer.SendMessageToAllRemoteClients(e.Line);
+			StaticBot1.MessageAllRemoteClients(e.Line);
 		}
 		
 		/// <summary>
