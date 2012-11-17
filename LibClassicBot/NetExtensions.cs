@@ -11,7 +11,7 @@ namespace LibClassicBot
 	/// Various utilities relating to chat messages and logging in.
 	/// </summary>
 	public static class Extensions
-	{	
+	{
 		/// <summary>
 		/// Strips all colours from a given chatline. Based on code from fCraft.
 		/// </summary>
@@ -66,7 +66,7 @@ namespace LibClassicBot
 		private static string LoginAndReadPage(string username, string password, string gameurl)
 		{
 			//Check if we have an invalid URL first.
-			LoginCheck(username, password);
+			//LoginCheck(username, password);
 			//Step 1.
 			LoginCookie(username,password);
 			
@@ -82,7 +82,6 @@ namespace LibClassicBot
 			{
 				string html = new StreamReader(s4).ReadToEnd();
 				return html;
-				
 			}
 		}
 		private static string ReadValue(string s)
@@ -96,7 +95,7 @@ namespace LibClassicBot
 		
 		static List<string> loggedincookie = new List<string>();
 		
-		static void LoginCheck(string username, string password)
+		/*static void LoginCheck(string username, string password)
 		{
 			string loginString = String.Format( "username={0}&password={1}", username, password);
 			string loginResponse = MakeLoginRequest( loginString );
@@ -119,47 +118,41 @@ namespace LibClassicBot
 			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 			using( StreamReader reader = new StreamReader(response.GetResponseStream() ))
 			{ return reader.ReadToEnd(); }
-		}
+		}*/
 		
 		static void LoginCookie(string username, string password)
 		{
-			
 			string formData = string.Format("username={0}&password={1}", username, password);
 			//Step 1.
 			//Go to http://minecraft.net/login and POST "username={0}&password={1}" using JSESSIONID cookie.
 			//You will receive logged in cookie ("_uid").
 			//Because of multipart http page, HttpWebRequest has some trouble receiving cookies in step 2,
 			//so it is easier to just use raw TcpClient for this.
+			using (TcpClient step2Client = new TcpClient("minecraft.net", 80))
 			{
-				using (TcpClient step2Client = new TcpClient("minecraft.net", 80))
+				NetworkStream stream = step2Client.GetStream();
+				StreamWriter sw = new StreamWriter(stream);
+				sw.WriteLine("POST /login HTTP/1.0");
+				sw.WriteLine("Content-Type: application/x-www-form-urlencoded");
+				sw.WriteLine("Content-Length: " + formData.Length);
+				sw.WriteLine("");
+				sw.WriteLine(formData);
+				sw.Flush();
+				loggedincookie.Clear(); //Clear all existing cookies.
+				using(StreamReader sr = new StreamReader(stream))
 				{
-					NetworkStream stream = step2Client.GetStream();
-					StreamWriter sw = new StreamWriter(stream);
-
-					sw.WriteLine("POST /login HTTP/1.0");
-					sw.WriteLine("Content-Type: application/x-www-form-urlencoded");
-					sw.WriteLine("Content-Length: " + formData.Length);
-					sw.WriteLine("");
-					sw.WriteLine(formData);
-					sw.Flush();
-					
-					StreamReader sr = new StreamReader(stream);
-					loggedincookie.Clear(); //Clear all existing cookies.
 					for (; ; )
 					{
-						string s = sr.ReadLine();
-						if (s == null)
+						string rawLine = sr.ReadLine();
+						if (rawLine == null) { break; }
+						if (rawLine.Contains("Set-Cookie"))
 						{
-							break;
-						}
-						if (s.Contains("Set-Cookie"))
-						{
-							loggedincookie.Add(s);
+							if(rawLine.Contains("secure.error")) throw new InvalidOperationException(); //Incorrect username or password.
+							loggedincookie.Add(rawLine);
 						}
 					}
-					sr.Dispose();
-					sw.Dispose();
 				}
+				sw.Dispose(); //If we call dispose earlier, the stream is closed before we can read it.
 			}
 			
 			for (int i = 0; i < loggedincookie.Count; i++)

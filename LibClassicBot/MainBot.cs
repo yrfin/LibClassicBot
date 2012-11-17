@@ -299,7 +299,7 @@ namespace LibClassicBot
 		int sleepTime = 10;
 		byte cuboidType;
 		Vector3I firstCPos, secondCPos;
-		bool criticalAbort = false;
+		//bool criticalAbort = false;
 		bool _isCuboiding = false;
 		bool wantingPositionOne = false, wantingPositionTwo = false;
 		//--

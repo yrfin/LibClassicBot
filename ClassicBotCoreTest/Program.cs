@@ -10,6 +10,7 @@ using LibClassicBot.Remote;
 using LibClassicBot.Events;
 using LibClassicBot.Remote.Events;
 using LibClassicBot.Drawing;
+using System.IO;
 
 namespace LibClassicBotTest
 {
@@ -30,14 +31,12 @@ namespace LibClassicBotTest
 			Console.WriteLine(".move <x,y,z> - Moves the bot to the specified coordinates.");
 			Console.WriteLine(".place <x,y,z> - Attempts to place a block at the specified coordinates.");
 			Console.WriteLine(".haspaid <username> - Announces if a user has paid or not.");
-			
 			Console.ResetColor();
+			
 			Console.WriteLine("Enter the username to be used by the bot: (Minecraft account)");
-			string username = Console.ReadLine();
-			
+			string username = Console.ReadLine();			
 			Console.WriteLine("Enter the password to be used by the bot: (Minecraft account)");
-			string password = Console.ReadLine();
-			
+			string password = Console.ReadLine();		
 			Console.WriteLine("Enter the address of the server to connect to: ");
 			string hash = Console.ReadLine();
 			if(!hash.StartsWith("http"))
@@ -45,6 +44,7 @@ namespace LibClassicBotTest
 				if(hash.StartsWith("minecraft")) hash = "http://"+hash;
 				else hash = "http://minecraft.net/classic/play/" + hash;
 			}
+
 			ClassicBot Bot1 = new ClassicBot(username,password,hash,"operators.txt");
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
 			Bot1.Events.GotKicked += Bot1_GotKicked;
@@ -180,7 +180,7 @@ namespace LibClassicBotTest
 				}
 				catch (FormatException) { throw new IndexOutOfRangeException(); }
 			};
-			Bot1.RegisteredCommands.Add("speed",SpeedCommand);			
+			Bot1.RegisteredCommands.Add("speed",SpeedCommand);
 			#endregion
 			
 			StaticBot1 = Bot1;
@@ -194,7 +194,9 @@ namespace LibClassicBotTest
 				goto loop;
 			}
 		}
+
 		static string personfollowed = String.Empty;
+		
 		static void Bot1_PlayerMoved(object sender, PositionEventArgs e)
 		{
 			string name = e.Name;
@@ -255,14 +257,14 @@ namespace LibClassicBotTest
 		static void Bot1_SocketError(object sender, BotExceptionEventArgs e)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Bot1 Error: "+e.Output);
+			Console.WriteLine("Bot Error: "+e.Output);
 			Console.ResetColor();
 		}
 
 		static void Bot1_GotKicked(object sender, KickedEventArgs e)
 		{
 			Console.ForegroundColor = ConsoleColor.Yellow;
-			Console.Write("Bot1 kicked: ");
+			Console.Write("Bot kicked: ");
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine(e.Reason);
 			Console.ResetColor();
@@ -312,7 +314,7 @@ namespace LibClassicBotTest
 
 		public static void AppendLog(string input)
 		{
-			//StringBuilder output = new StringBuilder(input.Length);
+			if(!input.EndsWith("&")) input += "&"; //Since I can't seem to do it any other way.
 			ConsoleColor currentColor = ConsoleColor.White;
 			for (int i = 0; i < input.Length; i++)
 			{

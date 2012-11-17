@@ -6,7 +6,7 @@ namespace LibClassicBot.Drawing
 	/// Vector3I contains three points, which is used by Drawing commands. (Included with the bot is Cuboid)<br/>
 	/// Th
 	/// </summary>
-	public struct Vector3I : IEquatable<Vector3I>
+	public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>
 	{
 		/// <summary>
 		/// The X coordinate of the Vector3I. The X coordinate should be positive, and this is checked when drawing.
@@ -55,6 +55,37 @@ namespace LibClassicBot.Drawing
 		{
 			return !left.Equals(right);
 		}
+		
+		public static bool operator >(Vector3I left, Vector3I right)
+		{
+			if(left.X > right.X && left.Y > right.Y && left.Z > right.Z) return true;
+			else return false;
+		}
+		
+		public static bool operator <(Vector3I left, Vector3I right)
+		{
+			if(left.X < right.X && left.Y < right.Y && left.Z < right.Z) return true;
+			else return false;
+			}
+
+		/// <summary>
+		/// Compares this instance to another Vector3I.
+		/// </summary>
+		/// <param name="value">Vector3I to compare values with.</param>
+		/// <returns>A signed number indicating the relative values of this instance and value.
+		/// If the number is -1, all three coordinates are less than the value. If the number is zero,
+		/// all three coordinates are equal. If the number is 1, all three coordinates are greater than the value.</returns>
+		public int CompareTo(Vector3I value)
+		{
+			if (this < value) {
+				return -1;
+			}
+			if (this > value) {
+				return 1;
+			}
+			return 0;
+		}
+		
 		#endregion
 		
 		
@@ -113,7 +144,7 @@ namespace LibClassicBot.Drawing
 			val.Y = Math.Max(val1.Y, val2.Y);
 			val.Z = Math.Max(val1.Z, val2.Z);
 			return val;
-		}	
+		}
 
 		/// <summary>
 		/// Returns a Vector3I containing the absolute value of the X coordinate,Y coordinate and Z coordinate.
@@ -129,12 +160,12 @@ namespace LibClassicBot.Drawing
 			val.Y = Math.Abs(val1.Y);
 			val.Z = Math.Abs(val1.Z);
 			return val;
-		}		
+		}
 		#endregion
 		
-        public override string ToString() 
-        {
-            return String.Format("{0},{1},{2}", X, Y, Z );
-        }		
+		public override string ToString()
+		{
+			return String.Format("{0},{1},{2}", X, Y, Z );
+		}
 	}
 }
