@@ -174,6 +174,24 @@ namespace LibClassicBot
 			get { return _loadsettings; }
 			set {_loadsettings = value; }
 		}
+		
+		/// <summary>
+		/// When the bot first joins a server, a packet containing the server name and MOTD are sent.
+		/// All further world joins are ignored, as unfortunately there's no unified "joining world X" between
+		/// all the different servers.
+		/// </summary>
+		public string ServerName {
+			get { return _servername; }
+		}
+		
+		/// <summary>
+		/// When the bot first joins a server, a packet containing the server name and MOTD are sent.
+		/// </summary>
+		public string ServerMOTD {
+			get { return _servermotd; }
+		}
+		
+		
 		#endregion
 		
 		/// <summary>Events that are raised by the bot.</summary>
@@ -244,14 +262,10 @@ namespace LibClassicBot
 		Socket _serverSocket;
 		List<string> _users = new List<string>();
 		int _serverPort;
-		string _username;
-		string _password;
-		string _hash;
+		string _username, _password, _hash, _ver;
+		string _servername, _servermotd;
 		bool _connected;
-		string _ver = String.Empty;
-		int _mapsizeX;
-		int _mapsizeY;
-		int _mapsizeZ;
+		int _mapsizeX, _mapsizeY, _mapsizeZ;
 		char _delimiter = ':';
 		string _Opspath = "operators.txt";
 		bool _reconnectonkick = false;
@@ -279,6 +293,7 @@ namespace LibClassicBot
 		byte ProtocolVersion;
 		bool _loadsettings = true;
 		bool _savemap = false;
+		bool serverLoaded = false;
 		#endregion
 
 		
@@ -303,6 +318,7 @@ namespace LibClassicBot
 				IOLoop();
 			}
 			Thread thread = new Thread(IOLoop);
+			thread.IsBackground = true;
 			thread.Start();
 		}
 
@@ -312,6 +328,8 @@ namespace LibClassicBot
 		void UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			Exception actualException = (Exception)e.ExceptionObject; //Get actual exception.
+			BotExceptionEventArgs socketEvent = new BotExceptionEventArgs("Unhandled exception, exiting.", actualException);
+			Events.RaiseBotError(socketEvent);		
 			System.IO.File.WriteAllText("error.txt","");
 			System.IO.File.AppendAllText("error.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
 			System.IO.File.AppendAllText("error.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
@@ -459,18 +477,17 @@ namespace LibClassicBot
 			else if(isStandard == true)
 			{
 				try { Extensions.Login(_username, _password, _hash, out this._serverIP, out this._serverPort, out this._ver); }
-				catch(InvalidOperationException)
+				catch(InvalidOperationException ex)
 				{
-					SocketException ex = new SocketException(-2);
-					SocketExceptionEventArgs socketEvent = new SocketExceptionEventArgs(HandleSocketError(-2),ex);
-					Events.RaiseBotSocketError(socketEvent);
+					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs("Wrong username or password, or the account has been migrated.",ex);
+					Events.RaiseBotError(socketEvent);
 					return;
 				}
-				catch(ArgumentOutOfRangeException)
+				catch(ArgumentOutOfRangeException ex)
 				{
-					SocketException ex = new SocketException(-3);
-					SocketExceptionEventArgs socketEvent = new SocketExceptionEventArgs(HandleSocketError(-3),ex);
-					Events.RaiseBotSocketError(socketEvent);
+					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
+						"Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.",ex);
+					Events.RaiseBotError(socketEvent);
 					return;
 				}
 			}
@@ -487,8 +504,8 @@ namespace LibClassicBot
 			}
 			catch(SocketException ex)
 			{
-				SocketExceptionEventArgs socketEvent = new SocketExceptionEventArgs(HandleSocketError(ex.ErrorCode),ex);
-				Events.RaiseBotSocketError(socketEvent);
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(HandleSocketError(ex.ErrorCode),ex);
+				Events.RaiseBotError(socketEvent);
 				return;
 			}
 			CommandClass.Start(true);
@@ -507,11 +524,15 @@ namespace LibClassicBot
 						case ServerPackets.ServerIdentification://Server identification.
 							{
 								ProtocolVersion = reader.ReadByte(); //Get the protocol, should be seven.
-								string serverName = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								string serverMOTD = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								//Read the Name & MOTD, nothing with it.
-								_userType = reader.ReadByte();
-								//Get the type. 0x64 = Op, 0x00 = Normal user.
+								string Name = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
+								string MOTD = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
+								if(!serverLoaded)
+								{
+									_servername = Name;
+									_servermotd = MOTD;
+									serverLoaded = true;
+								}
+								_userType = reader.ReadByte();//Get the type. 0x64 = Op, 0x00 = Normal user.
 								CanReconnectAfterKick = true;
 							}
 							break;
@@ -562,7 +583,7 @@ namespace LibClassicBot
 										}
 									}
 									mapStream.Dispose();
-									map.Save("main"); //TODO: Add suppot for world names.
+									map.Save("map_" + DateTime.Now.ToString("ddHHmmssfffffff"));
 									map.Dispose();
 								}
 							}
@@ -655,9 +676,7 @@ namespace LibClassicBot
 								string Line = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								MessageEventArgs e = new MessageEventArgs(Line); //No way to know who the user and who the message is.
 								Events.RaiseChatMessage(e);
-								if (Line.Contains(_delimiter.ToString()))
-									//By default, servers use : as the delimiter.
-								{
+								if (Line.Contains(_delimiter.ToString())) { //By default, servers use : as the delimiter.
 									string[] lineSplit = Line.Split(new char[] { _delimiter }, 2);
 									string Message = Extensions.StripColors(lineSplit[1]).TrimStart(' ');
 									string User = Extensions.StripColors(lineSplit[0]);
@@ -673,19 +692,15 @@ namespace LibClassicBot
 												{
 													if(_requiresop == true)
 													{
-														if(_users.Contains(User))
-														{
+														if(_users.Contains(User)) {
 															CommandClass.EnqueueCommand(command.Value,Line);
 															break;
 														}
-														else
-														{
+														else {
 															SendMessagePacket(User +", you are not allowed to use the bot.");
 														}
 													}
-													
-													else
-													{
+													else {
 														CommandClass.EnqueueCommand(command.Value,Line);
 														break;
 													}
@@ -693,11 +708,9 @@ namespace LibClassicBot
 											}
 										}
 										
-										catch (IndexOutOfRangeException)
-										{
+										catch (IndexOutOfRangeException) {
 											SendMessagePacket("Error: Wrong number of arguements supplied to command.");
 										}
-										
 									}
 								}
 								CommandClass.ProcessCommandQueue();
@@ -717,15 +730,18 @@ namespace LibClassicBot
 								{
 									CanReconnectAfterKick = false;
 									Thread thread = new Thread(IOLoop);
+									thread.IsBackground = true;
 									thread.Start();
 								}
-								else if(_reconnectonkick == false)
-								{
-									Console.WriteLine("Bot was kicked from the server. Exiting.");
+								else if(_reconnectonkick == false) {
+									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
+										"Kicked from the server.",new IOException());
+									Events.RaiseBotError(socketEvent);
 								}
-								else
-								{
-									Console.WriteLine("It looks like the bot was banned from reconnecting. Aborting. (Kick packet received before a server identification packet)");
+								else {
+									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
+										"It looks like the bot was banned from reconnecting. (Kick packet received before a handshake packet)",new IOException());
+									Events.RaiseBotError(socketEvent);
 								}
 								return;
 							}
@@ -741,19 +757,21 @@ namespace LibClassicBot
 				}
 				catch (IOException ex)
 				{
-					Console.WriteLine("Inner exception: "+ ex.Message);
 					if(_reconnectonkick == true && CanReconnectAfterKick == true)
 					{
-						Console.WriteLine("Attempting to reconnect once.");
 						CanReconnectAfterKick = false;
 						Thread thread = new Thread(IOLoop);
+						thread.IsBackground = true;
 						thread.Start();
 					}
 					else
 					{
-						Console.WriteLine("An error has occurred with the socket. Exiting bot.");
+						BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
+							"An error has occurred, or the bot has been kicked without the kick packet being sent cleanly. Exiting bot.",ex);
+						Events.RaiseBotError(socketEvent);
 					}
 					return;
+					
 				}
 			}
 		}
@@ -777,4 +795,3 @@ namespace LibClassicBot
 		public byte Pitch;
 	}
 }
-

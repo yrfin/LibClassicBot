@@ -80,7 +80,6 @@ namespace LibClassicBot
 				using (DeflateStream ds = new DeflateStream(mapStream, CompressionMode.Compress, true))
 				{
 					offset = mapStream.Position; // inaccurate, but who cares
-					Console.WriteLine(offset);
 					ds.Write(blocksCache, 0, blocksCache.Length);
 					compressedLength = (int)(mapStream.Position - offset);
 				}

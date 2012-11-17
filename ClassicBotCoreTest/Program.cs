@@ -18,7 +18,7 @@ namespace LibClassicBotTest
 			AppDomain.CurrentDomain.UnhandledException += UnhandledException; //When an uncaught exception occurs, use this for helpful debug information.
 			
 			Console.ForegroundColor = ConsoleColor.Green;
-			Console.WriteLine("Hello, and welcome to LibClassicBot beta.");
+			Console.WriteLine("Welcome to LibClassicBot beta.");
 			Console.WriteLine("Below is a list of commands and how to use them");
 			Console.WriteLine(".position - Announces the position of the bot in the map.");
 			Console.WriteLine(".allow <user> - Adds a user to a list of allowed operators.");
@@ -30,10 +30,10 @@ namespace LibClassicBotTest
 			Console.WriteLine(".haspaid <username> - Announces if a user has paid or not.");
 			
 			Console.ResetColor();
-			Console.WriteLine("Enter the username to be used by the bot: ");
+			Console.WriteLine("Enter the username to be used by the bot: (Minecraft account)");
 			string username = Console.ReadLine();
 			
-			Console.WriteLine("Enter the password to be used by the bot: ");
+			Console.WriteLine("Enter the password to be used by the bot: (Minecraft account)");
 			string password = Console.ReadLine();
 			
 			Console.WriteLine("Enter the address of the server to connect to: ");
@@ -47,7 +47,7 @@ namespace LibClassicBotTest
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
 			Bot1.Events.GotKicked += Bot1_GotKicked;
 			Bot1.Events.PacketReceived += Bot1_PacketReceived;
-			Bot1.Events.BotSocketError += Bot1_SocketError;
+			Bot1.Events.BotException += Bot1_SocketError;
 			Bot1.RemoteServer.RemoteBotEvents.RemoteSessionStarted += RemoteSessionStarted;
 			Bot1.RemoteServer.RemoteBotEvents.RemoteUserLoggedIn += RemoteUserLoggedIn;
 			Bot1.RemoteServer.RemoteBotEvents.RemoteSessionEnded += RemoteSessionEnded;
@@ -206,7 +206,7 @@ namespace LibClassicBotTest
 			Console.ResetColor();
 		}
 		
-		static void Bot1_SocketError(object sender, SocketExceptionEventArgs e)
+		static void Bot1_SocketError(object sender, BotExceptionEventArgs e)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine("Bot1 Error: "+e.Output);

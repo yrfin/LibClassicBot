@@ -19,7 +19,7 @@ namespace LibClassicBot.Events
 		public event EventHandler<KickedEventArgs> GotKicked;
 		
 		/// <summary>Occurs when a socket exception is raised during connecting to a server.</summary>
-		public event EventHandler<SocketExceptionEventArgs> BotSocketError;
+		public event EventHandler<BotExceptionEventArgs> BotException;
 
 
 		/// <summary>Raises a new ChatMessage Event.</summary>
@@ -60,9 +60,9 @@ namespace LibClassicBot.Events
 		
 		/// <summary>Raises a new BotSocketError Event.</summary>
 		/// <param name="e">SocketExceptionEventArgs to send</param>
-		internal void RaiseBotSocketError(SocketExceptionEventArgs e)
+		internal void RaiseBotError(BotExceptionEventArgs e)
 		{
-			System.EventHandler<SocketExceptionEventArgs> socketEvent = BotSocketError;
+			System.EventHandler<BotExceptionEventArgs> socketEvent = BotException;
 			if(socketEvent == null) return;
 			socketEvent(null,e);
 		}
@@ -164,20 +164,20 @@ namespace LibClassicBot.Events
 		}
 	}
 	
-	public sealed class SocketExceptionEventArgs : EventArgs
+	public sealed class BotExceptionEventArgs : EventArgs
 	{
 		/// <summary>Formatted output message, designed to be easy for the user to read. (For example, when the target host is unreachable)</summary>
 		public string Output;
 		
 		/// <summary>The actual exception that occurred.</summary>
-		public System.Net.Sockets.SocketException ActualException;
+		public Exception ActualException;
 
 		/// <summary>
 		/// SocketExceptionEventArg containg a formatted output, and a socket exception of the actual error.
 		/// </summary>
 		/// <param name="output">A formatted output of the erorr, designed for the user to be able to understand.</param>
 		/// <param name="exception"></param>
-		internal SocketExceptionEventArgs(string output, System.Net.Sockets.SocketException exception)
+		internal BotExceptionEventArgs(string output, Exception exception)
 		{
 			Output = output;
 			ActualException = exception;

@@ -19,9 +19,7 @@ namespace LibClassicBot
 		{
 			switch(errorcode)
 			{
-					case -3: return "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
-					case -2: return "Wrong username or password, or the account has been migrated."; //Custom used errors.
-					case -1: return "The port was either too large or too small.";
+					case -1: return "The port was either too large or too small.";//Custom used error.
 					case 8: return "Not enough memory to complete the socket operation.";
 					case 995: return "The operation was aborted, check if the server closed and/or if something happened to your connection.";
 					case 10013: return "Permission was denied. Another service may be exclusively using the socket.";

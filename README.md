@@ -62,7 +62,6 @@ namespace LibClassicBotTest
 }
 ```
 
-
 This bot will connect to a locally hosted on port 25565, using the username Bot. Note that the bot will not connect in a verified state,
 and may be kicked if verification is turned to on. This bot will also send "Test." whenever a user on the operators list starts
 a chat message with the word ".test". The bot also used the ChatMessage event to display every chat line it receives. (Including
@@ -76,9 +75,9 @@ Each bot must have a username and a path for it to store information regarding o
 
 LibClassicBot uses the [MIT license](http://www.opensource.org/licenses/mit-license.php/).
 
-Additionally, LibClassicBot uses the StripColors method from fCraft. fCraft is also released under the MIT license, licensing information
+Additionally, LibClassicBot uses the StripColors method from fCraft, as well as a cut down version of the [map](http://svn.fcraft.net:8080/svn/fcraft/branch-0.64x/fCraft/MapConversion/MapFCMv3.cs) file. fCraft is also released under the MIT license, licensing information
 regarding fCraft is avaliable [here](http://www.fcraft.net/wiki/Licensing).
 
 LibClassicBot also uses a LoginClient based on code from [here](http://manicdigger.git.sourceforge.net/git/gitweb.cgi?p=manicdigger/manicdigger;a=commitdiff_plain;h=f6ad911). ManicDigger is released under the Public Domain license, as started on [this](http://manicdigger.sourceforge.net/wiki/index.php/Credits) page.
 
-[Minecraft](http://minecraft.net) is not officially affiliated with LibClassicbot, nor any of the aforementioned projects.
+[Minecraft](http://minecraft.net) is not officially affiliated with LibClassicBot, nor any of the aforementioned projects.
