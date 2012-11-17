@@ -1,15 +1,7 @@
-﻿/*
- * Created by SharpDevelop.
- * User: BJORN
- * Date: 29/10/2012
- * Time: 7:47 PM
- * 
- * To change this template use Tools | Options | Coding | Edit Standard Headers.
- */
-using System;
+﻿using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace ClassicRemoteBotClient
@@ -30,8 +22,6 @@ namespace ClassicRemoteBotClient
 		OutgoingMessage = 6,
 		/// <summary>Sent to the client once the client has been authorised, and that the server can start receiving chat.</summary>
 		ClientAuthorised = 7
-			
-			
 	}
 	
 	class Program

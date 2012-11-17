@@ -1,5 +1,6 @@
 ﻿//Static methods to perform conversions on ints, strings, shorts, and bytes
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -65,11 +66,8 @@ namespace LibClassicBot
 		}
 		private static string LoginAndReadPage(string username, string password, string gameurl)
 		{
-			//Check if we have an invalid URL first.
-			//LoginCheck(username, password);
 			//Step 1.
-			LoginCookie(username,password);
-			
+			LoginCookie(username,password);			
 			//Step 2.
 			//Go to game url and GET using JSESSIONID cookie and _uid cookie.
 			//Parse the page to find server, port, mpass strings.
@@ -94,31 +92,6 @@ namespace LibClassicBot
 		}
 		
 		static List<string> loggedincookie = new List<string>();
-		
-		/*static void LoginCheck(string username, string password)
-		{
-			string loginString = String.Format( "username={0}&password={1}", username, password);
-			string loginResponse = MakeLoginRequest( loginString );
-			if( loginResponse.Contains( "Oops, unknown username or password." ) ) { }
-			//First, as occasionly we still have the username in the page
-			else if ( loginResponse.Contains( username ) )
-				return;
-			throw new InvalidOperationException();
-		}
-		
-		static string MakeLoginRequest( string dataToPost )
-		{
-			HttpWebRequest request = (HttpWebRequest)WebRequest.Create( "https://minecraft.net/login" );
-			request.CookieContainer = new CookieContainer();
-			request.Method = "POST";
-			request.ContentType = "application/x-www-form-urlencoded";
-			byte[] data = Encoding.UTF8.GetBytes( dataToPost );
-			request.ContentLength = data.Length;
-			request.GetRequestStream().Write( data, 0, data.Length );
-			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-			using( StreamReader reader = new StreamReader(response.GetResponseStream() ))
-			{ return reader.ReadToEnd(); }
-		}*/
 		
 		static void LoginCookie(string username, string password)
 		{
@@ -147,17 +120,14 @@ namespace LibClassicBot
 						if (rawLine == null) { break; }
 						if (rawLine.Contains("Set-Cookie"))
 						{
+							Console.WriteLine(rawLine);
 							if(rawLine.Contains("secure.error")) throw new InvalidOperationException(); //Incorrect username or password.
+							rawline = rawLine.Substring(4);
 							loggedincookie.Add(rawLine);
 						}
 					}
 				}
 				sw.Dispose(); //If we call dispose earlier, the stream is closed before we can read it.
-			}
-			
-			for (int i = 0; i < loggedincookie.Count; i++)
-			{
-				loggedincookie[i] = loggedincookie[i].Replace("Set-", "");
 			}
 		}
 		#endregion

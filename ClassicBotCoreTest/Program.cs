@@ -1,16 +1,12 @@
 ﻿using System;
-using LibClassicBot;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Text;
 using System.Collections.Generic;
-using LibClassicBot.Networking;
-using LibClassicBot.Remote;
+using System.Net;
+using System.Text;
+
+using LibClassicBot;
+using LibClassicBot.Drawing;
 using LibClassicBot.Events;
 using LibClassicBot.Remote.Events;
-using LibClassicBot.Drawing;
-using System.IO;
 
 namespace LibClassicBotTest
 {
@@ -18,8 +14,6 @@ namespace LibClassicBotTest
 	{
 		public static void Main(string[] args)
 		{
-			AppDomain.CurrentDomain.UnhandledException += UnhandledException; //When an uncaught exception occurs, use this for helpful debug information.
-			
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");
 			Console.WriteLine("Below is a list of commands and how to use them");
@@ -34,9 +28,9 @@ namespace LibClassicBotTest
 			Console.ResetColor();
 			
 			Console.WriteLine("Enter the username to be used by the bot: (Minecraft account)");
-			string username = Console.ReadLine();			
+			string username = Console.ReadLine();
 			Console.WriteLine("Enter the password to be used by the bot: (Minecraft account)");
-			string password = Console.ReadLine();		
+			string password = Console.ReadLine();
 			Console.WriteLine("Enter the address of the server to connect to: ");
 			string hash = Console.ReadLine();
 			if(!hash.StartsWith("http"))

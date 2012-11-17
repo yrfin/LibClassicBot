@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using LibClassicBot.Drawing;
 using System.Threading;
+
+using LibClassicBot.Drawing;
 
 namespace LibClassicBot
 {
