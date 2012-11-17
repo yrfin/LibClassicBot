@@ -53,6 +53,7 @@
     <Compile Include="BotCommands.cs" />
     <Compile Include="BotNetworking.cs" />
     <Compile Include="Events\BotEvents.cs" />
+    <Compile Include="MapFCM3.cs" />
     <Compile Include="Networking\PacketCreator.cs" />
     <Compile Include="Networking\ServerPacketsEnum.cs" />
     <Compile Include="MainBot.cs" />

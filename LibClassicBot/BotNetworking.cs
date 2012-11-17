@@ -8,6 +8,41 @@ namespace LibClassicBot
 {
 	public partial class ClassicBot
 	{
+		
+		/// <summary>
+		/// Generates a somewhat user friendly reason as to why the bot crashed, easier to understand than an error code.
+		/// </summary>
+		/// <param name="errorcode">The error code that the socket exception raised.</param>
+		/// <returns>A string containing a user friendly reason as to the exception. If the error code is not in this list, the method
+		/// will return Unhandled socket error: Error code : (errorcode)</returns>
+		public string HandleSocketError(int errorcode)
+		{
+			switch(errorcode)
+			{
+					case -3: return "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
+					case -2: return "Wrong username or password, or the account has been migrated."; //Custom used errors.
+					case -1: return "The port was either too large or too small.";
+					case 8: return "Not enough memory to complete the socket operation.";
+					case 995: return "The operation was aborted, check if the server closed and/or if something happened to your connection.";
+					case 10013: return "Permission was denied. Another service may be exclusively using the socket.";
+					case 10037: return "Socket already in use. Did you try to call connect on the same address twice?";
+					case 10038: return "Attempted to perform an operation on a non socket. Something went wrong.";
+					case 10039: return "No destination address was entered into the socket. This can also happen if you use IPAddress.Any";
+					case 10041: return "Incorrect protocol. Check you are connecting to a classic server.";
+					case 10043: return "Protocol type not supported. Check you are connecting to a classic server.";
+					case 10044: return "Socket type not supported. Check you are connecting to a classic server.";
+					case 10047: return "Incompatible address family. Check you are connecting to a classic server.";
+					case 10048: return "The socket the bot attempted to connect on is already in use by another application.";
+					case 10049: return "The address was invalid. The supplied IP address or port is probably invalid.";
+					case 10056: return "The socket is already connected. The socket may be in use by another application.";
+					case 10057: return "The socket is not connected. This should not happen under normal circumstances.";
+					case 10060: return "The connection timed out. This may be a problem with the server or your connection.";
+					case 10061: return "Unable to connect to the server, as the connection was refused. Check if the server is up and if it is port forwarded.";
+					case 10064: return "Unable to connect to remote server. Check if the server is up and port forwarded.";
+					default : return String.Format("Unhandled socket error. Error code : {0}",errorcode);
+			}
+		}
+		
 		#region Packet making
 		private static byte[] CreateLoginPacket(string username, string verificationKey)
 		{

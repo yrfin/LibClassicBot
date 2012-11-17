@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -149,71 +150,34 @@ namespace LibClassicBot
 			get { return Process.GetCurrentProcess(); }
 		}
 		
-        /// <summary>
-        /// Returns the CPU usage of the bot.
-        /// </summary>
-        public double CPUUsage {
-        	get { Thread.Sleep(500);
-                return cpuCounter.NextValue(); }
-        }
+		/// <summary>
+		/// Returns the CPU usage of the bot.
+		/// </summary>
+		public double CPUUsage {
+			get { Thread.Sleep(500);
+				return cpuCounter.NextValue(); }
+		}
 
-        /// <summary>
-        /// Returns the RAM usage of the bot in Megabytes.
-        /// </summary>
-        public double RamUsage {
-            get { Thread.Sleep(500);
-        		return ramCounter.NextValue() / 1024 / 1024; }
-        }
-        
-        /// <summary>
-        /// Whether to load settings from botsettings.txt. By default, this is set to true.
-        /// Disable this if you intend to enforce settings that might be overriden otherwise.
-        /// </summary>
-        public bool LoadSettings {
-        	get { return _loadsettings; }
-        	set {_loadsettings = value;
-        	}
-        }
-        
-		public event EventHandler LoadSettingsChanged;
+		/// <summary>
+		/// Returns the RAM usage of the bot in Megabytes.
+		/// </summary>
+		public double RamUsage {
+			get { Thread.Sleep(500);
+				return ramCounter.NextValue() / 1024 / 1024; }
+		}
+		
+		/// <summary>
+		/// Whether to load settings from botsettings.txt. By default, this is set to true.
+		/// Disable this if you intend to enforce settings that might be overriden otherwise.
+		/// </summary>
+		public bool LoadInternalSettings {
+			get { return _loadsettings; }
+			set {_loadsettings = value; }
+		}
 		#endregion
 		
 		/// <summary>Events that are raised by the bot.</summary>
 		public BotEvents Events = new BotEvents();
-		
-		/// <summary>
-		/// Generates a somewhat user friendly reason as to why the bot crashed, easier to understand than an error code.
-		/// </summary>
-		/// <param name="errorcode">The error code that the socket exception raised.</param>
-		/// <returns>A string containing a user friendly reason as to the exception. If the error code is not in this list, the method
-		/// will return Unhandled socket error: Error code : (errorcode)</returns>
-		public string HandleSocketError(int errorcode)
-		{
-			switch(errorcode)
-			{
-					case -3: return "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
-					case -2: return "Wrong username or password, or the account has been migrated."; //Custom used errors.
-					case -1: return "The port was either too large or too small.";
-					case 8: return "Not enough memory to complete the socket operation.";
-					case 995: return "The operation was aborted, check if the server closed and/or if something happened to your connection.";
-					case 10013: return "Permission was denied. Another service may be exclusively using the socket.";
-					case 10037: return "Socket already in use. Did you try to call connect on the same address twice?";
-					case 10038: return "Attempted to perform an operation on a non socket. Something went wrong.";
-					case 10039: return "No destination address was entered into the socket. This can also happen if you use IPAddress.Any";
-					case 10041: return "Incorrect protocol. Check you are connecting to a classic server.";
-					case 10043: return "Protocol type not supported. Check you are connecting to a classic server.";
-					case 10044: return "Socket type not supported. Check you are connecting to a classic server.";
-					case 10047: return "Incompatible address family. Check you are connecting to a classic server.";
-					case 10048: return "The socket the bot attempted to connect on is already in use by another application.";
-					case 10049: return "The address was invalid. The supplied IP address or port is probably invalid.";
-					case 10056: return "The socket is already connected. The socket may be in use by another application.";
-					case 10057: return "The socket is not connected. This should not happen under normal circumstances.";
-					case 10060: return "The connection timed out. This may be a problem with the server or your connection.";
-					case 10061: return "Unable to connect to the server, as the connection was refused. Check if the server is up and if it is port forwarded.";
-					case 10064: return "Unable to connect to remote server. Check if the server is up and port forwarded.";
-					default : return String.Format("Unhandled socket error. Error code : {0}",errorcode);
-			}
-		}
 		
 		#region Public Constructors
 
@@ -297,9 +261,10 @@ namespace LibClassicBot
 		Server server = new Server();
 		List<string> _ignored = new List<string>();
 		CommandsClass CommandClass = new CommandsClass();
-        static string name = Process.GetCurrentProcess().ProcessName;
-        PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", name);
-        PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);		
+		static string name = Process.GetCurrentProcess().ProcessName;
+		PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", name);
+		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);
+		private MemoryStream mapStream;
 		
 		private bool IsValidPosition(short x, short y, short z)
 		{
@@ -313,6 +278,7 @@ namespace LibClassicBot
 		bool isStandard = false;
 		byte ProtocolVersion;
 		bool _loadsettings = true;
+		bool _savemap = false;
 		#endregion
 
 		
@@ -362,6 +328,7 @@ namespace LibClassicBot
 		/// RemotePassword (No spaces allowed):<br/>
 		/// CommandsRequireOperator: false<br/>
 		/// ReconnectAfterKick: true<br/>
+		/// SaveMap: false<br/>
 		private void LoadSettings()
 		{
 			try
@@ -385,8 +352,11 @@ namespace LibClassicBot
 					string[] splitLineCRQ = Lines[3].Split(':');
 					bool.TryParse(splitLineCRQ[1].Replace(" ",""), out _requiresop);
 					
-					string[] splitLineRAK = Lines[3].Split(':');
-					bool.TryParse(splitLineRAK[1].Replace(" ",""), out _reconnectonkick);
+					string[] splitLineRecOnKick = Lines[3].Split(':');
+					bool.TryParse(splitLineRecOnKick[1].Replace(" ",""), out _reconnectonkick);
+					
+					string[] splitLineSaveMap = Lines[4].Split(':');
+					bool.TryParse(splitLineSaveMap[1].Replace(" ",""), out _savemap);
 				}
 				else
 				{
@@ -397,6 +367,7 @@ namespace LibClassicBot
 						sw.WriteLine("RemotePassword (No spaces allowed): ");
 						sw.WriteLine("CommandsRequireOperator: true");
 						sw.WriteLine("ReconnectAfterKick: true");
+						sw.WriteLine("SaveMap: false");
 						sw.WriteLine("#And now, a little explaination on what all these mean.");
 						sw.WriteLine("#UseRemoteServer - Allows remote clients to connect and perform actions on the bot / chat through it. By default, this is disabled." +
 						             "If you choose to use the remote function, you may need to forward the port and/or add an exception to your firewall.");
@@ -407,8 +378,9 @@ namespace LibClassicBot
 						             "Usually you would want this to be true.");
 						sw.WriteLine("#ReconnectAfterKick - This determines if the bot will reconnect after being kicked. Note that if the bot receives a kick packet before" +
 						             "a ServerIdentification packet, it will abort, and assume it has been banned from connecting.");
-						
-						
+						sw.WriteLine("#SaveMap - This determines if the bot will save the map when the chunk packets are sent to it." +
+						             "If this is true, it will be saved as a fCraft compatible map. (Large maps of 512 x 512 x 512 " +
+						             "can use up to ~150 megabytes of RAM when saving, so be wary. After saving, memory usage should return to normal.");
 					}
 				}
 				
@@ -549,6 +521,7 @@ namespace LibClassicBot
 
 						case ServerPackets.LevelInitialize://0x02
 							_players.Clear();//Start loading map, wipe players.
+							if(_savemap) mapStream = new MemoryStream();
 							break;
 
 
@@ -556,7 +529,11 @@ namespace LibClassicBot
 							{
 								int ChunkLength = IPAddress.HostToNetworkOrder(reader.ReadInt16()); //Get the length of non null bytes
 								byte[] ChunkData = reader.ReadBytes(1024); //Should always be 1024.
-								reader.ReadByte(); //Read the percentage, do nothing.
+								reader.ReadByte(); //Read the percentage, do nothing as of yet.
+								if(_savemap) {
+									byte[] chunkDataWithoutPadding = new byte[ChunkLength];
+									Buffer.BlockCopy(ChunkData, 0, chunkDataWithoutPadding, 0, ChunkLength);
+									mapStream.Write(chunkDataWithoutPadding, 0, chunkDataWithoutPadding.Length); }
 							}
 							break;
 
@@ -566,6 +543,28 @@ namespace LibClassicBot
 								_mapsizeZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								_mapsizeY = IPAddress.HostToNetworkOrder(reader.ReadInt16()); //Yes, even map sizes are sent in the wrong order.
 								_connected = true; //At this state, we've loaded the map and we're ready to send chat etc.
+								if(_savemap) {
+									mapStream.Seek(0, SeekOrigin.Begin);
+									Map map = new Map(_mapsizeX, _mapsizeY, _mapsizeZ);
+									using (GZipStream decompressed = new GZipStream(mapStream,CompressionMode.Decompress))
+									{
+										decompressed.Read(new byte[4],0,4); //Ignore size.
+										for (int z = 0; z < _mapsizeZ; z++)
+										{
+											for (int y = 0; y < _mapsizeY; y++)
+											{
+												for (int x = 0; x < _mapsizeX; x++)
+												{
+													byte next = (byte)decompressed.ReadByte();
+													if(next != 255) map.SetBlock(x, y, z, next);
+												}
+											}
+										}
+									}
+									mapStream.Dispose();
+									map.Save("main"); //TODO: Add suppot for world names.
+									map.Dispose();
+								}
 							}
 							break;
 
