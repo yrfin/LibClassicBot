@@ -46,6 +46,27 @@ namespace LibClassicBot.Drawing
 			return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
 		}
 		
+		/// <summary>
+		/// Compares this instance to another Vector3I.
+		/// </summary>
+		/// <param name="value">Vector3I to compare values with.</param>
+		/// <returns>A signed number indicating the relative values of this instance and value.
+		/// If the number is -1, all three coordinates are less than the value. If the number is zero,
+		/// all three coordinates are equal. If the number is 1, all three coordinates are greater than the value.</returns>
+		public int CompareTo(Vector3I value)
+		{
+			if (this < value) {
+				return -1;
+			}
+			if (this > value) {
+				return 1;
+			}
+			return 0;
+		}
+		#endregion
+		
+		
+		#region Operators
 		public static bool operator ==(Vector3I left, Vector3I right)
 		{
 			return left.Equals(right);
@@ -66,26 +87,34 @@ namespace LibClassicBot.Drawing
 		{
 			if(left.X < right.X && left.Y < right.Y && left.Z < right.Z) return true;
 			else return false;
-			}
-
-		/// <summary>
-		/// Compares this instance to another Vector3I.
-		/// </summary>
-		/// <param name="value">Vector3I to compare values with.</param>
-		/// <returns>A signed number indicating the relative values of this instance and value.
-		/// If the number is -1, all three coordinates are less than the value. If the number is zero,
-		/// all three coordinates are equal. If the number is 1, all three coordinates are greater than the value.</returns>
-		public int CompareTo(Vector3I value)
-		{
-			if (this < value) {
-				return -1;
-			}
-			if (this > value) {
-				return 1;
-			}
-			return 0;
 		}
 		
+		public static bool operator >=(Vector3I left, Vector3I right)
+		{
+			if(left.X >= right.X && left.Y >= right.Y && left.Z >= right.Z) return true;
+			else return false;
+		}
+		
+		public static bool operator <=(Vector3I left, Vector3I right)
+		{
+			if(left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z) return true;
+			else return false;
+		}		
+
+		public static Vector3I operator+(Vector3I left, Vector3I right)
+		{
+			return new Vector3I(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
+		}
+		
+		public static Vector3I operator-(Vector3I left, Vector3I right)
+		{
+			return new Vector3I(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
+		}
+
+		public static Vector3I operator+(Vector3I value)
+		{
+			return new Vector3I(+ value.X, + value.Y,+ value.Z);
+		}
 		#endregion
 		
 		
@@ -160,7 +189,7 @@ namespace LibClassicBot.Drawing
 			val.Y = Math.Abs(val1.Y);
 			val.Z = Math.Abs(val1.Z);
 			return val;
-		}
+		}		
 		#endregion
 		
 		public override string ToString()

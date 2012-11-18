@@ -104,15 +104,17 @@ namespace LibClassicBot
 			_serverSocket.Send(packet);
 		}
 
-		/// <summary>Sends a teleportation packet at the specified coordinates.</summary>
-		/// <param name="x">A short marking the point along the X-Axis the block is to be placed at.</param>
-		/// <param name="y">A short marking the point along the Y-Axis the block is to be placed at.</param>
-		/// <param name="z">A short marking the point along the Z-Axis the block is to be placed at.</param>
-		public void SendPositionPacket(short x, short y, short z)
+		/// <summary>Sends a position update packet at the specified coordinates.</summary>
+		/// <param name="x">A float marking the point along the X-Axis the bot will move to.</param>
+		/// <param name="y">A float marking the point along the Y-Axis the bot will move to.</param>
+		/// <param name="z">A float marking the point along the Z-Axis the bot will move to.</param>
+		/// <param name="yaw">The yaw of the bot.</param>
+		/// <param name="pitch">The pitch of the bot.</param> 
+		public void SendPositionPacket(float x, float y, float z, byte yaw, byte pitch)
 		{
 			if (_serverSocket == null || _serverSocket.Connected == false ) return;
 			if(!_players.ContainsKey(255)) return;
-			if (IsValidPosition(x,y,z) == false) return;
+			//if (IsValidPosition(x,y,z) == false) return;
 			_players[255].X = x; //Set the X of the bot.
 			_players[255].Y = y; //Set the Z of the bot.
 			_players[255].Z = z; //Set the Y of the bot.
@@ -122,7 +124,7 @@ namespace LibClassicBot
 			short xConverted = IPAddress.HostToNetworkOrder((short)(x * 32));
 			packet[2] = (byte)(xConverted);
 			packet[3] = (byte)(xConverted >> 8);
-			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//((z + 1.21f) * 32)); character height
+			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//Account for character height.
 			packet[4] = (byte)(yConverted);
 			packet[5] = (byte)(yConverted >> 8);
 			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
@@ -131,9 +133,40 @@ namespace LibClassicBot
 			packet[8] = _players[255].Yaw;
 			packet[9] = _players[255].Pitch;
 			_serverSocket.Send(packet);
-			PositionEventArgs e = new PositionEventArgs(255, _players[255].Name, _players[255].X, _players[255].Y, _players[255].Z, _players[255].Yaw, _players[255].Pitch);
+			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
 			Events.RaisePlayerMoved(e);
 		}
+		
+		/// <summary>Sends a teleportation packet at the specified coordinates.</summary>
+		/// <param name="x">A short marking the point along the X-Axis the block is to be placed at.</param>
+		/// <param name="y">A short marking the point along the Y-Axis the block is to be placed at.</param>
+		/// <param name="z">A short marking the point along the Z-Axis the block is to be placed at.</param>
+		public void SendPositionPacket(short x, short y, short z)
+		{
+			if (_serverSocket == null || _serverSocket.Connected == false ) return;
+			if(!_players.ContainsKey(255)) return;
+			//if (IsValidPosition(x,y,z) == false) return;
+			_players[255].X = x; //Set the X of the bot.
+			_players[255].Y = y; //Set the Z of the bot.
+			_players[255].Z = z; //Set the Y of the bot.
+			byte[] packet = new byte[10];
+			packet[0] = (byte)0x08; //Packet ID.
+			packet[1] = (byte)255; //Player ID of self.
+			short xConverted = IPAddress.HostToNetworkOrder((short)(x * 32));
+			packet[2] = (byte)(xConverted);
+			packet[3] = (byte)(xConverted >> 8);
+			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//Do not account for character height in this one.
+			packet[4] = (byte)(yConverted);
+			packet[5] = (byte)(yConverted >> 8);
+			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
+			packet[6] = (byte)(zConverted);
+			packet[7] = (byte)(zConverted >> 8);
+			packet[8] = _players[255].Yaw;
+			packet[9] = _players[255].Pitch;
+			_serverSocket.Send(packet);
+			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
+			Events.RaisePlayerMoved(e);
+		}		
 
 		/// <summary>Sends a chat message in game. Has a maximum length of 64 characters.</summary>
 		/// <param name="message">String to send.</param>

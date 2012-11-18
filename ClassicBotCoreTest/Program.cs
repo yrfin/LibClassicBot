@@ -14,6 +14,7 @@ namespace LibClassicBotTest
 	{
 		public static void Main(string[] args)
 		{
+			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");
 			Console.WriteLine("Below is a list of commands and how to use them");
@@ -149,7 +150,7 @@ namespace LibClassicBotTest
 				personfollowed = LineSplit[2];
 				Bot1.SendMessagePacket("Following user "+LineSplit[2]);
 			};
-			Bot1.RegisteredCommands.Add("follow",AddOpCommand);
+			Bot1.RegisteredCommands.Add("follow",FollowCommand);
 			
 			ClassicBot.CommandDelegate CuboidCommand = delegate(string Line)
 			{
@@ -178,8 +179,7 @@ namespace LibClassicBotTest
 			#endregion
 			
 			StaticBot1 = Bot1;
-			Bot1.Start(false);
-			
+			Bot1.Start(false);	
 			
 		loop:
 			{
@@ -193,11 +193,12 @@ namespace LibClassicBotTest
 		
 		static void Bot1_PlayerMoved(object sender, PositionEventArgs e)
 		{
-			string name = e.Name;
+			string name = e.player.Name;
 			if(name.StartsWith("&")) name = name.Substring(2);
 			if(personfollowed == name)
 			{
-				StaticBot1.SendPositionPacket((short)e.X, (short)e.Y, (short)e.Z);
+				Console.WriteLine("Moving to "+e.player.X +","+ e.player.Y +","+e.player.Z);
+				StaticBot1.SendPositionPacket(e.player.X, e.player.Y, e.player.Z, e.player.Yaw, e.player.Pitch);
 			}
 		}
 

@@ -120,15 +120,16 @@ namespace LibClassicBot
 						if (rawLine == null) { break; }
 						if (rawLine.Contains("Set-Cookie"))
 						{
-							Console.WriteLine(rawLine);
 							if(rawLine.Contains("secure.error")) throw new InvalidOperationException(); //Incorrect username or password.
-							rawline = rawLine.Substring(4);
+							rawLine = rawLine.Substring(4);
 							loggedincookie.Add(rawLine);
 						}
 					}
 				}
 				sw.Dispose(); //If we call dispose earlier, the stream is closed before we can read it.
 			}
+			
+			
 		}
 		#endregion
 	}

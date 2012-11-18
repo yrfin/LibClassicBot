@@ -89,38 +89,17 @@ namespace LibClassicBot.Events
 	{
 		/// <summary>ID of the player who moved.</summary>
 		public byte playerID;
-		/// <summary> Name of the player who moved. Does include colour codes. </summary>
-		public string Name;
-		/// <summary>X coordinate of the player.</summary>
-		public int X;
-		/// <summary>Y coordinate of the player.</summary>
-		public int Y;
-		/// <summary>Z coordinate of the player.</summary>
-		public int Z;
-		/// <summary>Yaw of the player.</summary>
-		public byte Yaw;
-		/// <summary>Pitch of the player.</summary>
-		public byte Pitch;
+		/// <summary> Player who moved. Name does include colour codes. </summary>
+		public Player player;
 
 
 		/// <summary> PositionEventArg containing the id, and a name with colour codes.
 		/// It also contains X,Y,Z,Yaw and Pitch.</summary>
-		/// <param name="id">The ID of the player that moved.</param>
-		/// <param name="name">The name of the player that moved.</param>
-		/// <param name="x">X coordinate of the player.</param>
-		/// <param name="y">Y coordinate of the player.</param>
-		/// <param name="z">Z coordinate of the player.</param>
-		/// <param name="yaw">Yaw of the player.</param>
-		/// <param name="pitch">Pitch of the player.</param>
-		internal PositionEventArgs(byte id, string name, int x, int y, int z, byte yaw, byte pitch)
+		/// <param name="id">The Player that moved.</param>
+		internal PositionEventArgs(byte id, Player ply)
 		{
 			playerID = id;
-			Name = name;
-			X = x;
-			Y = y;
-			Z = z;
-			Yaw = yaw;
-			Pitch = pitch;
+			player = ply;
 		}
 	}
 	

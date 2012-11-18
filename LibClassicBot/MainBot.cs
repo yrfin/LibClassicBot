@@ -19,17 +19,17 @@ namespace LibClassicBot
 	{
 		#region Public Fields
 		/// <summary>Returns the X coordinate of the bot in the world.</summary>
-		public int X {
+		public float X {
 			get { if (this._players[255] != null) return this._players[255].X; else return 0; }
 		}
 
 		/// <summary> Returns the Y coordinate of the bot in the world.</summary>
-		public int Y {
+		public float Y {
 			get { if (_players[255] != null) return _players[255].Y; else return 0; }
 		}
 
 		/// <summary>Returns the Z coordinate of the bot in the world.</summary>
-		public int Z {
+		public float Z {
 			get { if (_players[255] != null) return _players[255].Z; else return 0; }
 		}
 
@@ -428,7 +428,6 @@ namespace LibClassicBot
 						             "can use up to ~150 megabytes of RAM when saving, so be wary. After saving, memory usage should return to normal.");
 					}
 				}
-				
 			}
 			catch {}
 		}
@@ -645,12 +644,12 @@ namespace LibClassicBot
 								string playername = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								_players[pID] = new Player(); //Create a new player to add to the list later.
 								_players[pID].Name = playername; //Get name.
-								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32; //Set the X of player.
-								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32; //Set the Z of the player. Yes, I know they're the wrong way around.
-								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32; //Set the Y of player.
+								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Set the X of player.
+								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Set the Z of the player. Yes, I know they're the wrong way around.
+								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Set the Y of player.
 								_players[pID].Yaw = reader.ReadByte();
 								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID].Name, _players[pID].X, _players[pID].Y, _players[pID].Z, _players[pID].Yaw, _players[pID].Pitch);
+								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -658,12 +657,12 @@ namespace LibClassicBot
 						case ServerPackets.PlayerTeleport://0x08
 							{
 								byte pID = reader.ReadByte();
-								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32;
-								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32; //Z and Y are flipped.
-								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32;
+								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Z and Y are flipped.
+								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
 								_players[pID].Yaw = reader.ReadByte();
 								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID].Name, _players[pID].X, _players[pID].Y, _players[pID].Z, _players[pID].Yaw, _players[pID].Pitch);
+								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -671,33 +670,33 @@ namespace LibClassicBot
 						case ServerPackets.PositionandOrientationUpdate://0x09
 							{
 								byte pID = reader.ReadByte();
-								_players[pID].X += reader.ReadSByte() / 32;
-								_players[pID].Z += reader.ReadSByte() / 32; //Z and Y are flipped.
-								_players[pID].Y += reader.ReadSByte() / 32;
+								_players[pID].X += reader.ReadSByte() / 32f;
+								_players[pID].Z += reader.ReadSByte() / 32f;//Z and Y are flipped.
+								_players[pID].Y += reader.ReadSByte() / 32f;
 								_players[pID].Yaw = reader.ReadByte();
 								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID].Name, _players[pID].X, _players[pID].Y, _players[pID].Z, _players[pID].Yaw, _players[pID].Pitch);
+								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
 
 						case ServerPackets.PositionUpdate://0x0a
 							{
-								byte playerID = reader.ReadByte();
-								_players[playerID].X += reader.ReadSByte() / 32;
-								_players[playerID].Z += reader.ReadSByte() / 32; //Z and Y are flipped.
-								_players[playerID].Y += reader.ReadSByte() / 32;
-								PositionEventArgs e = new PositionEventArgs(playerID, _players[playerID].Name, _players[playerID].X, _players[playerID].Y, _players[playerID].Z, _players[playerID].Yaw, _players[playerID].Pitch);
+								byte pID = reader.ReadByte();
+								_players[pID].X += (reader.ReadSByte() / 32f);
+								_players[pID].Z += (reader.ReadSByte() / 32f);//Z and Y are flipped.
+								_players[pID].Y += (reader.ReadSByte() / 32f); 
+								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
 
 						case ServerPackets.OrientationUpdate://0x0b
 							{
-								byte playerID = reader.ReadByte();
-								_players[playerID].Yaw = reader.ReadByte();
-								_players[playerID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(playerID, _players[playerID].Name, _players[playerID].X, _players[playerID].Y, _players[playerID].Z, _players[playerID].Yaw, _players[playerID].Pitch);
+								byte pID = reader.ReadByte();
+								_players[pID].Yaw = reader.ReadByte();
+								_players[pID].Pitch = reader.ReadByte();
+								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -823,11 +822,11 @@ namespace LibClassicBot
 	public class Player
 	{
 		/// <summary>Represents the X position of the connected player.</summary>
-		public int X;
+		public float X;
 		/// <summary>Represents the Y position of the connected player. Classic sends Z and Y in the wrong order, but the bot represents the Y and Z correctly.</summary>
-		public int Y;
+		public float Y;
 		/// <summary>Represents the Z position of the connected player.</summary>
-		public int Z;
+		public float Z;
 		/// <summary>Represents the name of the connected player.</summary>
 		public string Name;
 		/// <summary>Represents the yaw of the player.</summary>
