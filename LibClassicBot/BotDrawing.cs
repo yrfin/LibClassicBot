@@ -47,7 +47,7 @@ namespace LibClassicBot
 			drawingAborted = true;
 		}
 
-		public void HandleCuboid(string s)
+		public void HandleCuboid(string s) //TODO: Use better handling of chat.
 		{
 			string[] message = s.Split(':');
 			wantingPositionOne = true;

@@ -7,15 +7,15 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using LibClassicBot.Drawing;
+using LibClassicBot.Events;
 using LibClassicBot.Networking;
 using LibClassicBot.Remote;
-using LibClassicBot.Events;
 using LibClassicBot.Remote.Events;
-using LibClassicBot.Drawing;
 
 namespace LibClassicBot
 {
-	public partial class ClassicBot
+	public partial class ClassicBot 
 	{
 		#region Public Fields
 		/// <summary>Returns the X coordinate of the bot in the world.</summary>

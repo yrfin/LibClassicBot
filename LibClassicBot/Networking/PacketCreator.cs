@@ -9,21 +9,25 @@ namespace LibClassicBot.Networking
 	/// </summary>
 	public static class Packets
 	{
-		/// <summary>
-		/// Creates a login packet from the given username and verification key / mppass.
-		/// </summary>
+		/// <summary>Classic protocol version. Currently stands at seven.</summary>
+		public const byte ProtocolVersion = 7;
+		
+		/// <summary>Creates a login packet from the given username and verification key / mppass.</summary>
 		/// <param name="username">The username to use. This should ideally be 16 characters or less,
-		/// as fCraft kicks usernames with more than sixteen characters.</param>
+		/// as servers kick usernames with more than sixteen characters.</param>
 		/// <param name="verificationKey">The verification key to use, can be simply used as String.Empty.</param>		
 		public static byte[] CreateLoginPacket(string username, string verkey)
 		{
-			byte[] packet = new byte[131]; //PID + P version + user + mppass + unused
-			packet[0] = (byte)0x00; //Packet ID.
-			packet[1] = (byte)0x07; //Classic has version 7 protocol.
-			Buffer.BlockCopy(StringToBytes(username), 0, packet, 2, 64);
-			Buffer.BlockCopy(StringToBytes(verkey), 0, packet, 66, 64);
-			packet[130] = 0x00; //Unused
-			return packet;
+			using (MemoryStream LogMemStream = new MemoryStream())
+				using (BinaryWriter LoginWriter = new BinaryWriter(LogMemStream))
+			{
+				LoginWriter.Write((byte)ClientPackets.PlayerIdentification); //PacketID
+				LoginWriter.Write((byte)ProtocolVersion); //Unused
+				LoginWriter.Write(StringToBytes(username));
+				LoginWriter.Write(StringToBytes(verkey));
+				LoginWriter.Write((byte)0);
+				return LogMemStream.ToArray();
+			}			
 		}
 		
 		public static byte[] StringToBytes(string s)

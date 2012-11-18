@@ -6,16 +6,7 @@ namespace LibClassicBot.Drawing
 	/// The interface from which all block drawers inherit.
 	/// </summary>
 	public interface IDrawer
-	{
-		/// <summary>The lower point of the cuboided area.
-		/// The derived drawing class should be able to cope if this point is larger.</summary>
-		Vector3I Point1{ get; set;}
-		
-		/// <summary>The upper point of the cuboided area.
-		/// The derived drawing class should be able to cope if this point is smaller.</summary>		
-		/// <remarks>To ensure that the cuboid is being done in the correct order, Vector3I.Max(Point1, Point2)</remarks>
-		Vector3I Point2{ get; set;}
-		
+	{		
 		/// <summary>
 		/// Executes the drawer, and should be executed on a separate thread. 
 		/// The token is there if the user finds a need to stop the drawing. (This happens when CriticalAbort is set to true.)
