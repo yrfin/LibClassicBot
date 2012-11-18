@@ -18,6 +18,7 @@
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <SourceAnalysisOverrideSettingsFile>C:\Documents and Settings\BJORN\Application Data\ICSharpCode/SharpDevelop4\Settings.SourceAnalysis</SourceAnalysisOverrideSettingsFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Optimize>false</Optimize>
@@ -53,7 +54,6 @@
     <Compile Include="BotCommands.cs" />
     <Compile Include="BotDrawing.cs" />
     <Compile Include="BotNetworking.cs" />
-    <Compile Include="Drawing\CancelDrawingToken.cs" />
     <Compile Include="Drawing\Cuboid.cs" />
     <Compile Include="Drawing\IDrawer.cs" />
     <Compile Include="Drawing\Vector3I.cs" />

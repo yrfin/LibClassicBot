@@ -95,7 +95,7 @@ namespace LibClassicBot
 		
 		static void LoginCookie(string username, string password)
 		{
-			string formData = string.Format("username={0}&password={1}", username, password);
+			string formData = string.Format(null, "username={0}&password={1}", username, password);
 			//Step 1.
 			//Go to http://minecraft.net/login and POST "username={0}&password={1}" using JSESSIONID cookie.
 			//You will receive logged in cookie ("_uid").

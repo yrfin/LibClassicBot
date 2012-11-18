@@ -115,7 +115,7 @@ namespace LibClassicBot
 		}
 		
 		/// <summary>The character delimiter used for the splitting of chat packets into message and username. By default, this will be ':'.</summary>
-		public char DeLimiter {
+		public char Delimiter {
 			get { return _delimiter; }
 			set { _delimiter = value; }
 		}
@@ -304,6 +304,10 @@ namespace LibClassicBot
 		bool wantingPositionOne = false, wantingPositionTwo = false;
 		//--
 		
+		const string IncorrectUserPass = "Wrong username or password, or the account has been migrated.";
+		
+		const string ErrorInPage = "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
+		
 		/// <summary>This is used to prevent the bot from continuing to try to login to a server. (Eg, after a ban.)</summary>
 		bool CanReconnectAfterKick = false;
 		string DirectURL;
@@ -337,11 +341,11 @@ namespace LibClassicBot
 		/// <summary>
 		/// Starts the bot. It can optionally run on the same thread as the method that called it.
 		/// </summary>
-		public void Start(bool RunOnSameThreadAsCaller)
+		public void Start(bool RunOnThreadAsCaller)
 		{
 			if(!Debugger.IsAttached) AppDomain.CurrentDomain.UnhandledException += UnhandledException; //Might interfere with debugging
 			if(_loadsettings) LoadSettings();
-			if(RunOnSameThreadAsCaller == true)
+			if(RunOnThreadAsCaller == true)
 			{
 				IOLoop();
 			}
@@ -505,14 +509,13 @@ namespace LibClassicBot
 				try { Extensions.Login(_username, _password, _hash, out this._serverIP, out this._serverPort, out this._ver); }
 				catch(InvalidOperationException ex)
 				{
-					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs("Wrong username or password, or the account has been migrated.",ex);
+					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(IncorrectUserPass,ex);
 					Events.RaiseBotError(socketEvent);
 					return;
 				}
 				catch(ArgumentOutOfRangeException ex)
 				{
-					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
-						"Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.",ex);
+					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ErrorInPage,ex);
 					Events.RaiseBotError(socketEvent);
 					return;
 				}
@@ -595,7 +598,7 @@ namespace LibClassicBot
 									Map map = new Map(_mapsizeX, _mapsizeY, _mapsizeZ);
 									using (GZipStream decompressed = new GZipStream(mapStream,CompressionMode.Decompress))
 									{
-										decompressed.Read(new byte[4],0,4); //Ignore size.
+										decompressed.Read(new byte[4],0,4); //Ignore size of stream.
 										for (int z = 0; z < _mapsizeZ; z++)
 										{
 											for (int y = 0; y < _mapsizeY; y++)
@@ -609,7 +612,7 @@ namespace LibClassicBot
 										}
 									}
 									mapStream.Dispose();
-									map.Save("map_" + DateTime.Now.ToString("ddHHmmssfffffff"));
+									map.Save("map_" + DateTime.Now.ToString("ddHHmmssfffffff")); //Formatting for DateTime.
 									map.Dispose();
 								}
 							}
@@ -704,18 +707,17 @@ namespace LibClassicBot
 						case ServerPackets.DespawnPlayer://0x0c
 							{
 								byte playerID = reader.ReadByte();
-								_players.Remove(playerID); //Remove user from collection. Is also sent when the player joins another map.
+								_players.Remove(playerID); //Remove user from the collection. Sent when the player joins another map.
 							}
 							break;
 
 						case ServerPackets.Message://0x0d
-							{
-								
+							{				
 								reader.ReadByte(); //Would be PlayerID, but most servers don't send the ID.
 								string Line = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								MessageEventArgs e = new MessageEventArgs(Line); //No way to know who the user and who the message is.
+								MessageEventArgs e = new MessageEventArgs(Line); //Raise the event, let the implementer take care of splitting.
 								Events.RaiseChatMessage(e);
-								if (Line.Contains(_delimiter.ToString())) { //By default, servers use : as the delimiter.
+								if (Line.Contains(_delimiter.ToString())) { //Most servers use : as the delimiter.
 									string[] lineSplit = Line.Split(new char[] { _delimiter }, 2);
 									string Message = Extensions.StripColors(lineSplit[1]).TrimStart(' ');
 									string User = Extensions.StripColors(lineSplit[0]);
@@ -823,7 +825,8 @@ namespace LibClassicBot
 	{
 		/// <summary>Represents the X position of the connected player.</summary>
 		public float X;
-		/// <summary>Represents the Y position of the connected player. Classic sends Z and Y in the wrong order, but the bot represents the Y and Z correctly.</summary>
+		/// <summary>Represents the Y position of the connected player. Classic sends Z and Y as OpenGL vectors, 
+		/// but the bot represents the Y and Z in normal form.</summary>
 		public float Y;
 		/// <summary>Represents the Z position of the connected player.</summary>
 		public float Z;

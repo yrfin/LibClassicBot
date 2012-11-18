@@ -21,26 +21,30 @@ namespace LibClassicBot
 		/// <remarks>Note that if the CancelDrawing token is currently in the cancelled state, it will be reset.</remarks>
 		public void Draw(IDrawer drawer, Vector3I point1, Vector3I point2, byte blockType)
 		{
-			CancelDrawing.Reset();
+			drawingAborted = false;
 			Thread drawThread = new Thread(delegate()
 			                               {
-			                               	drawer.Start(this,ref CancelDrawing,point1,point2,blockType,ref sleepTime);
+			                               	drawer.Start(this,ref drawingAborted,point1,point2,blockType,ref sleepTime);
 			                               });
 			drawThread.IsBackground = true;
 			drawThread.Start();
 		}
 		
 		/// <summary>
-		/// The CancelDrawingToken used for stopping all currently running draw operations.
+		/// Gets the current state of the boolean determining if the currently running draw operation should be aborted or not.
+		/// To abort the currently running draw operation, use CancelDrawer();
 		/// </summary>
-		public CancelDrawingToken CancelDrawing = new CancelDrawingToken();
+		public bool DrawingAborted {
+			get { return drawingAborted; }
+		}
+		
+		private bool drawingAborted = false;
 		
 		/// <summary>
 		/// Cancels the currently running drawing operation. This does *not* undo the blocks placed by the bot though.
 		/// </summary>
-		public void CancelDrawer()
-		{
-			CancelDrawing.Cancel();
+		public void CancelDrawer() {
+			drawingAborted = true;
 		}
 
 		public void HandleCuboid(string s)

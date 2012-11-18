@@ -15,7 +15,7 @@ namespace LibClassicBot
 		/// <param name="errorcode">The error code that the socket exception raised.</param>
 		/// <returns>A string containing a user friendly reason as to the exception. If the error code is not in this list, the method
 		/// will return Unhandled socket error: Error code : (errorcode)</returns>
-		public string HandleSocketError(int errorcode)
+		public static string HandleSocketError(int errorcode)
 		{
 			switch(errorcode)
 			{
@@ -37,7 +37,7 @@ namespace LibClassicBot
 					case 10060: return "The connection timed out. This may be a problem with the server or your connection.";
 					case 10061: return "Unable to connect to the server, as the connection was refused. Check if the server is up and if it is port forwarded.";
 					case 10064: return "Unable to connect to remote server. Check if the server is up and port forwarded.";
-					default : return String.Format("Unhandled socket error. Error code : {0}",errorcode);
+					default : return String.Format(null, "Unhandled socket error. Error code : {0}",errorcode);
 			}
 		}
 		
@@ -55,10 +55,7 @@ namespace LibClassicBot
 
 		public void SendLongChat(string message, params object[] args)
 		{
-			if (args.Length > 0)
-			{
-				message = String.Format(message, args);
-			}
+			if(args != null)	message = String.Format(null, message, args);
 			message = Extensions.StripColors(message);
 			StringBuilder part1 = new StringBuilder();
 			StringBuilder part2 = new StringBuilder();
@@ -109,7 +106,7 @@ namespace LibClassicBot
 		/// <param name="y">A float marking the point along the Y-Axis the bot will move to.</param>
 		/// <param name="z">A float marking the point along the Z-Axis the bot will move to.</param>
 		/// <param name="yaw">The yaw of the bot.</param>
-		/// <param name="pitch">The pitch of the bot.</param> 
+		/// <param name="pitch">The pitch of the bot.</param>
 		public void SendPositionPacket(float x, float y, float z, byte yaw, byte pitch)
 		{
 			if (_serverSocket == null || _serverSocket.Connected == false ) return;
@@ -130,8 +127,8 @@ namespace LibClassicBot
 			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
 			packet[6] = (byte)(zConverted);
 			packet[7] = (byte)(zConverted >> 8);
-			packet[8] = _players[255].Yaw;
-			packet[9] = _players[255].Pitch;
+			packet[8] = yaw;
+			packet[9] = pitch;
 			_serverSocket.Send(packet);
 			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
 			Events.RaisePlayerMoved(e);
@@ -166,7 +163,7 @@ namespace LibClassicBot
 			_serverSocket.Send(packet);
 			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
 			Events.RaisePlayerMoved(e);
-		}		
+		}
 
 		/// <summary>Sends a chat message in game. Has a maximum length of 64 characters.</summary>
 		/// <param name="message">String to send.</param>

@@ -32,9 +32,8 @@ namespace LibClassicBot.Drawing
 		/// The token is there if the user finds a need to stop the drawing. (This happens when CriticalAbort is set to true.)
 		/// </summary>
 		/// <param name="cToken">The CuboidToken to check if the drawing needs to be stopped.</param>
-		public void Start(ClassicBot main, ref CancelDrawingToken cToken, Vector3I point1, Vector3I point2, byte blocktype, ref int sleeptime)
+		public void Start(ClassicBot main, ref bool Aborted, Vector3I point1, Vector3I point2, byte blocktype, ref int sleeptime)
 		{
-			_drawingToken = cToken;
 			Vector3I Coords = Vector3I.Min(point1, point2);
 			Vector3I MinVertex = Vector3I.Min(point1, point2);
 			Vector3I MaxVertex = Vector3I.Max(point1, point2);
@@ -46,7 +45,7 @@ namespace LibClassicBot.Drawing
 				{
 					for (; Coords.Z <=  MaxVertex.Z; Coords.Z++)
 					{
-						if (cToken.IsCancellationRequested)
+						if (Aborted == true)
 						{
 							main.SendMessagePacket("Aborted cuboid.");
 							return;
@@ -67,17 +66,6 @@ namespace LibClassicBot.Drawing
 		public string Name 
 		{
 			get { return _name; }
-		}
-		
-		private CancelDrawingToken _drawingToken;
-		
-		/// <summary>
-		/// 
-		/// </summary>
-		public CancelDrawingToken DrawingToken 
-		{
-			get { return _drawingToken; }
-			set { _drawingToken = value; }
 		}
 	}
 }

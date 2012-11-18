@@ -17,7 +17,7 @@ namespace LibClassicBot
 		/// Bot1.Commands.Add("test",c);</code> When a chatline contains the words ".test", the command will be executed, writing Hello to Console.</example>
 		/// </summary>
 		/// <remarks>The dynamic command invoking is deisgned to be flexible. You can even dynamically create more bots, but you will have to still add commands in like normal.</remarks>
-		public Dictionary<string,CommandDelegate> RegisteredCommands = new Dictionary<string,CommandDelegate>();					
+		public Dictionary<string,CommandDelegate> RegisteredCommands = new Dictionary<string,CommandDelegate>();
 		
 		private class CommandsClass
 		{
@@ -61,31 +61,22 @@ namespace LibClassicBot
 			/// <param name="Line">The chatline which triggered the execution, used for arguements.</param>
 			public void EnqueueCommand(CommandDelegate Command, string Line)
 			{
-				if(!Started) return;
+				if(!this.Started) return;
 				CommandQueue.Enqueue(new InternalCommand(Command,Line));
 			}
 			
 			/// <summary>Starts the Command class thread, which can later be added to with CommandEnqueue() and executed with ProcessCommandQueue()</summary>
-			/// <param name="RunOnSeparateThread">Bool which determines if the commands are to be run on a separate thread.
-			/// In nearly every case you want this to be true, as it WILL block until ProcessCommandQueue() is called.</param>
 			public void Start(bool RunOnSeparateThread)
 			{
-				Started = true;
-				if(RunOnSeparateThread)
-				{
-					Thread CommandsThread = new Thread(CommandQueueThread);
-					CommandsThread.IsBackground = true;
-					CommandsThread.Name = "CommandThread";
-					CommandsThread.Start();
-				}
-				else
-				{
-					CommandQueueThread();
-				}
+				this.Started = true;
+				Thread CommandsThread = new Thread(CommandQueueThread);
+				CommandsThread.IsBackground = true;
+				CommandsThread.Name = "CommandThread";
+				CommandsThread.Start();
 			}
 			
 			/// <summary>
-			/// The internal thread used for processing commands. 
+			/// The internal thread used for processing commands.
 			/// The thread will sleep until ProcessCommandQueue() is called.
 			/// </summary>
 			private void CommandQueueThread()
@@ -93,7 +84,7 @@ namespace LibClassicBot
 				while (true)
 				{
 					CommandQueueReset.Reset();//Start at false.
-					CommandQueueReset.WaitOne(); //Wait until the bot calls ProccessCommandQueue();
+					CommandQueueReset.WaitOne(-1, false); //Wait until the bot calls ProccessCommandQueue();
 					while (CommandQueue.Count != 0)
 					{
 						InternalCommand IntCommand = CommandQueue.Dequeue();

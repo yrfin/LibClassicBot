@@ -28,16 +28,11 @@ namespace LibClassicBot.Drawing
 		/// <param name="blocktype">The block type to be used, as a byte.</param>
 		/// <param name="sleeptime">The time to wait between drawing blocks in milliseconds. The parameter is passed as a ref so the 
 		/// waiting time can be changed from the main bot.</param>
-		void Start(ClassicBot main, ref CancelDrawingToken cToken, Vector3I Point1, Vector3I Point2, byte blocktype, ref int sleeptime);
+		void Start(ClassicBot main, ref bool Aborted, Vector3I Point1, Vector3I Point2, byte blocktype, ref int sleeptime);
 		
 		/// <summary>
 		/// Gets the name of the current drawing command.
 		/// </summary>
 		string Name { get; }
-		
-		/// <summary>
-		/// The CancelDrawingToken used by the drawing command to check if the draw operation should be stopped.
-		/// </summary>
-		CancelDrawingToken DrawingToken {get; set; }
 	}
 }

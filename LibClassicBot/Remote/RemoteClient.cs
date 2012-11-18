@@ -25,7 +25,7 @@ namespace LibClassicBot.Remote
 					return true;
 				}
 				
-				catch(Exception)
+				catch(IOException)
 				{
 					if(rTcpClient != null) rTcpClient.Close();
 					return false;
