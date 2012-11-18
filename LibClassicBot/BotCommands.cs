@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace LibClassicBot
@@ -88,7 +89,15 @@ namespace LibClassicBot
 					while (CommandQueue.Count != 0)
 					{
 						InternalCommand IntCommand = CommandQueue.Dequeue();
-						IntCommand.command.Invoke(IntCommand.line);
+						try { IntCommand.command.Invoke(IntCommand.line); }
+						catch(Exception ex) 
+						{ 
+							System.IO.File.Create("pluginerror.txt");
+							System.IO.File.AppendAllText("pluginerror.txt", "Stack- " + ex.StackTrace + Environment.NewLine);
+							System.IO.File.AppendAllText("pluginerror.txt", "Message- " + ex.Message + Environment.NewLine);
+							System.IO.File.AppendAllText("pluginerror.txt", "Source- " + ex.Source + Environment.NewLine);
+							if(System.Diagnostics.Debugger.IsAttached) throw; //So as not to interfere with debugging.
+						}
 					}
 					Thread.Sleep(1);
 				}
