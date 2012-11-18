@@ -24,7 +24,7 @@ namespace LibClassicBot
 			drawingAborted = false;
 			Thread drawThread = new Thread(delegate()
 			                               {
-			                               	drawer.Start(this,ref drawingAborted,point1,point2,blockType,ref sleepTime);
+			                               	drawer.Start(this, ref drawingAborted, point1, point2, blockType, ref sleepTime);
 			                               });
 			drawThread.IsBackground = true;
 			drawThread.Start();

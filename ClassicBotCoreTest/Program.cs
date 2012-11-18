@@ -60,24 +60,24 @@ namespace LibClassicBotTest
 			
 			ClassicBot.CommandDelegate AddOpCommand = delegate(string Line)
 			{
-				string[] LineSplit = Extensions.StripColors(Line).Split(new char[] {' '}, 3);
-				Bot1.AddOperator(LineSplit[2], true);
-				Bot1.SendMessagePacket("Allowed user: "+LineSplit[2]);
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				Bot1.AddOperator(full[1], true);
+				Bot1.SendMessagePacket("Allowed user: " + full[1]);
 			};
 			Bot1.RegisteredCommands.Add("allow",AddOpCommand);
 			
 			ClassicBot.CommandDelegate RemoveOpCommand = delegate(string Line)
 			{
-				string[] LineSplit = Extensions.StripColors(Line).Split(new char[] {' '}, 3);
-				Bot1.RemoveOperator(LineSplit[2], true);
-				Bot1.SendMessagePacket("Disallowed user: "+LineSplit[2]);
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 1);
+				Bot1.RemoveOperator(full[1], true);
+				Bot1.SendMessagePacket("Disallowed user: "+ full[1]);
 			};
 			Bot1.RegisteredCommands.Add("disallow",RemoveOpCommand);
 
 			ClassicBot.CommandDelegate SayCommand = delegate(string Line)
 			{
-				string[] LineSplit = Extensions.StripColors(Line).Split(new char[] {' '}, 3);
-				Bot1.SendMessagePacket(LineSplit[2]);
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				Bot1.SendMessagePacket(full[1]);
 			};
 			Bot1.RegisteredCommands.Add("say",SayCommand);
 			
@@ -95,25 +95,17 @@ namespace LibClassicBotTest
 
 			ClassicBot.CommandDelegate MoveCommand = delegate(string Line)
 			{
-				try
-				{
-					string[] full = Extensions.StripColors(Line).Split(new char[] { ' ' }, 3);
-					string[] coords = full[2].Split(new char[] { ',' }, 3);
-					Bot1.SendPositionPacket(Convert.ToInt16(coords[0]), Convert.ToInt16(coords[1]), Convert.ToInt16(coords[2]));
-				}
-				catch (FormatException) { throw new IndexOutOfRangeException(); }
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				string[] coords = full[1].Split(new char[] { ',' }, 3);
+				Bot1.SendPositionPacket(Convert.ToInt16(coords[0]), Convert.ToInt16(coords[1]), Convert.ToInt16(coords[2]));
 			};
 			Bot1.RegisteredCommands.Add("move",MoveCommand);
 			
 			ClassicBot.CommandDelegate PlaceCommand = delegate(string Line)
 			{
-				try
-				{
-					string[] full = Extensions.StripColors(Line).Split(new char[] { ' ' }, 3);
-					string[] coords = full[2].Split(new char[] { ',' }, 3);
-					Bot1.SendBlockPacket(Convert.ToInt16(coords[0]), Convert.ToInt16(coords[1]), Convert.ToInt16(coords[2]), 1, 29);
-				}
-				catch (FormatException) { throw new IndexOutOfRangeException(); }
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				string[] coords = full[1].Split(new char[] { ',' }, 3);
+				Bot1.SendBlockPacket(Convert.ToInt16(coords[0]), Convert.ToInt16(coords[1]), Convert.ToInt16(coords[2]), 1, 29);
 			};
 			Bot1.RegisteredCommands.Add("place",PlaceCommand);
 			
@@ -146,9 +138,9 @@ namespace LibClassicBotTest
 			
 			ClassicBot.CommandDelegate FollowCommand = delegate(string Line)
 			{
-				string[] LineSplit = Extensions.StripColors(Line).Split(new char[] {' '}, 3);
-				personfollowed = LineSplit[2];
-				Bot1.SendMessagePacket("Following user "+LineSplit[2]);
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				personfollowed = full[1];
+				Bot1.SendMessagePacket("Following user "+full[1]);
 			};
 			Bot1.RegisteredCommands.Add("follow",FollowCommand);
 			
@@ -168,18 +160,14 @@ namespace LibClassicBotTest
 			
 			ClassicBot.CommandDelegate SpeedCommand = delegate(string Line)
 			{
-				try
-				{
-					string[] full = Extensions.StripColors(Line).Split(new char[] { ' ' }, 3);
-					Bot1.CuboidSleepTime = Int32.Parse(full[2]);
-				}
-				catch (FormatException) { throw new IndexOutOfRangeException(); }
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				Bot1.CuboidSleepTime = Int32.Parse(full[1]);
 			};
 			Bot1.RegisteredCommands.Add("speed",SpeedCommand);
 			#endregion
 			
 			StaticBot1 = Bot1;
-			Bot1.Start(false);	
+			Bot1.Start(false);
 			
 		loop:
 			{

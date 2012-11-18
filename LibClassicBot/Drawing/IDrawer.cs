@@ -21,8 +21,8 @@ namespace LibClassicBot.Drawing
 		/// The token is there if the user finds a need to stop the drawing. (This happens when CriticalAbort is set to true.)
 		/// </summary>
 		/// <param name="main"></param>
-		/// <param name="cToken">The CuboidToken to check if the drawing needs to be stopped. The paramter is passed as a ref so that
-		/// the ClassicBot can cancel the CancelDrawingToken without using messy static variables.</param>
+		/// <param name="Aborted">The boolean to check if the drawing needs to be stopped. The paramter is passed as a ref so that
+		/// the main bot can set the boolean to false without using messy static variables.</param>
 		/// <param name="Point1">The lower point of the draw operation.</param>
 		/// <param name="Point2">The upper point of the draw operation.</param>
 		/// <param name="blocktype">The block type to be used, as a byte.</param>

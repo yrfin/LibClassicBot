@@ -8,7 +8,16 @@ namespace LibClassicBot
 {
 	public partial class ClassicBot
 	{
-		
+		/// <summary>
+		/// Gets the actual message from a raw chatline, and also removes color codes.
+		/// </summary>
+		/// <param name="rawLine">The raw chat line to trim. Can include color codes.</param>
+		/// <returns>A new string after the delimeter, with starting and endspaces removed, 
+		/// as well as color codes.</returns>
+		public string GetMessage(string rawLine)
+		{
+			return Extensions.StripColors(rawLine).Split(this._delimiter)[1].Trim(' ');
+		}			
 		/// <summary>
 		/// Generates a somewhat user friendly reason as to why the bot crashed, easier to understand than an error code.
 		/// </summary>
@@ -176,7 +185,7 @@ namespace LibClassicBot
 			packet[1] = (byte)0xff; //Unused
 			Buffer.BlockCopy(Extensions.StringToBytes(message), 0, packet, 2, 64);
 			this._serverSocket.Send(packet);
-		}
+		}	
 		#endregion
 	}
 }
