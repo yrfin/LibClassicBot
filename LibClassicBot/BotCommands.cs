@@ -91,7 +91,8 @@ namespace LibClassicBot
 						InternalCommand IntCommand = CommandQueue.Dequeue();
 						try { IntCommand.command.Invoke(IntCommand.line); }
 						catch(Exception ex) 
-						{ 
+						{
+							SendMessagePacket("Error while trying to execute a command.");
 							System.IO.File.Create("pluginerror.txt");
 							System.IO.File.AppendAllText("pluginerror.txt", "Stack- " + ex.StackTrace + Environment.NewLine);
 							System.IO.File.AppendAllText("pluginerror.txt", "Message- " + ex.Message + Environment.NewLine);

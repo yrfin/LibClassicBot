@@ -688,7 +688,7 @@ namespace LibClassicBot
 								byte pID = reader.ReadByte();
 								_players[pID].X += (reader.ReadSByte() / 32f);
 								_players[pID].Z += (reader.ReadSByte() / 32f);//Z and Y are flipped.
-								_players[pID].Y += (reader.ReadSByte() / 32f); 
+								_players[pID].Y += (reader.ReadSByte() / 32f);
 								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
@@ -712,7 +712,7 @@ namespace LibClassicBot
 							break;
 
 						case ServerPackets.Message://0x0d
-							{				
+							{
 								reader.ReadByte(); //Would be PlayerID, but most servers don't send the ID.
 								string Line = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								MessageEventArgs e = new MessageEventArgs(Line); //Raise the event, let the implementer take care of splitting.
@@ -724,35 +724,28 @@ namespace LibClassicBot
 
 									if (!_ignored.Contains(User))
 									{
-										try
+										string strippedcommandheader = Message.Split(' ')[0].ToLower();
+										foreach(KeyValuePair<string,CommandDelegate> command in RegisteredCommands)
 										{
-											string strippedcommandheader = Message.Split(' ')[0].ToLower();
-											foreach(KeyValuePair<string,CommandDelegate> command in RegisteredCommands)
+											if(strippedcommandheader == "."+command.Key.ToLower())
 											{
-												if(strippedcommandheader == "."+command.Key.ToLower())
+												if(_requiresop == true)
 												{
-													if(_requiresop == true)
-													{
-														if(_users.Contains(User)) {
-															CommandClass.EnqueueCommand(command.Value,Line);
-															break;
-														}
-														else {
-															SendMessagePacket(User +", you are not allowed to use the bot.");
-														}
-													}
-													else {
+													if(_users.Contains(User)) {
 														CommandClass.EnqueueCommand(command.Value,Line);
 														break;
 													}
+													else {
+														SendMessagePacket(User +", you are not allowed to use the bot.");
+													}
+												}
+												else {
+													CommandClass.EnqueueCommand(command.Value,Line);
+													break;
 												}
 											}
-											if(QueuedDrawers.Count > 0) { wantingPositionOne = true; }
 										}
-										
-										catch (IndexOutOfRangeException) {
-											SendMessagePacket("Error: Wrong number of arguements supplied to command.");
-										}
+										if(QueuedDrawers.Count > 0) { wantingPositionOne = true; }
 									}
 								}
 								CommandClass.ProcessCommandQueue();
@@ -825,7 +818,7 @@ namespace LibClassicBot
 	{
 		/// <summary>Represents the X position of the connected player.</summary>
 		public float X;
-		/// <summary>Represents the Y position of the connected player. Classic sends Z and Y as OpenGL vectors, 
+		/// <summary>Represents the Y position of the connected player. Classic sends Z and Y as OpenGL vectors,
 		/// but the bot represents the Y and Z in normal form.</summary>
 		public float Y;
 		/// <summary>Represents the Z position of the connected player.</summary>
