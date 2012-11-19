@@ -1,11 +1,9 @@
-﻿//Static methods to perform conversions on ints, strings, shorts, and bytes
-using System;
-using System.Diagnostics;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
 namespace LibClassicBot
 {
 	/// <summary>
@@ -67,15 +65,12 @@ namespace LibClassicBot
 		private static string LoginAndReadPage(string username, string password, string gameurl)
 		{
 			//Step 1.
-			LoginCookie(username,password);			
+			LoginCookie(username,password);
 			//Step 2.
-			//Go to game url and GET using JSESSIONID cookie and _uid cookie.
+			//Go to game url and GET using JSESSIONID cookie.
 			//Parse the page to find server, port, mpass strings.
 			WebRequest step3Request = HttpWebRequest.Create(gameurl);
-			foreach (string cookie in loggedincookie)
-			{
-				step3Request.Headers.Add(cookie);
-			}
+			if(sessionCookie != null) step3Request.Headers.Add(sessionCookie);
 			using (Stream s4 = step3Request.GetResponse().GetResponseStream())
 			{
 				string html = new StreamReader(s4).ReadToEnd();
@@ -91,7 +86,7 @@ namespace LibClassicBot
 			return ss;
 		}
 		
-		static List<string> loggedincookie = new List<string>();
+		static string sessionCookie;
 		
 		static void LoginCookie(string username, string password)
 		{
@@ -111,7 +106,7 @@ namespace LibClassicBot
 				sw.WriteLine("");
 				sw.WriteLine(formData);
 				sw.Flush();
-				loggedincookie.Clear(); //Clear all existing cookies.
+				sessionCookie = null; //Clear existing cookie.
 				using(StreamReader sr = new StreamReader(stream))
 				{
 					for (; ; )
@@ -121,16 +116,40 @@ namespace LibClassicBot
 						if (rawLine.Contains("Set-Cookie"))
 						{
 							if(rawLine.Contains("secure.error")) throw new InvalidOperationException(); //Incorrect username or password.
-							rawLine = rawLine.Substring(4);
-							loggedincookie.Add(rawLine);
+							if(rawLine.Contains("SESSION")) {
+								rawLine = rawLine.Substring(4);
+								sessionCookie = rawLine;
+								break;
+							}
 						}
 					}
 				}
 				sw.Dispose(); //If we call dispose earlier, the stream is closed before we can read it.
 			}
-			
-			
 		}
+		
+		/*static void LoginCookie2(string username, string password)
+		{
+			//Alternative, but slow method.
+			string dataToPost = String.Format("username={0}&password={1}", username, password);
+			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(LoginSecure);
+			request.CookieContainer = new CookieContainer();
+			if(PlaySession != null) request.CookieContainer.Add(PlaySession);
+			if(dataToPost != null) {
+				request.Method = "POST";
+				request.ContentType = "application/x-www-form-urlencoded";
+				byte[] data = Encoding.UTF8.GetBytes( dataToPost );
+				request.ContentLength = data.Length;
+				using( Stream stream = request.GetRequestStream() ) {
+					stream.Write( data, 0, data.Length ); }
+			}
+			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+			foreach(Cookie c in response.Cookies) {
+				if(c.Name == "PLAY_SESSION") PlaySession = c;
+			}
+		}
+		const string LoginSecure = "https://minecraft.net/login";
+		static Cookie PlaySession = null;*/
 		#endregion
 	}
 }

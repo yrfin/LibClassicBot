@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Text;
 using LibClassicBot;
@@ -11,8 +12,42 @@ namespace LibClassicBotTest
 {
 	class Program
 	{
+		const string LoginSecureUri = "https://minecraft.net/login";
+		const string WrongUsernameOrPasswordMessage = "Oops, unknown username or password.";
+		static Cookie PlaySession = null;
+
+		static string UploadString( string uri, string dataToPost ) {
+			HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
+			request.CookieContainer = new CookieContainer();
+			if(PlaySession != null) request.CookieContainer.Add(PlaySession);
+			if(dataToPost != null) {
+				request.Method = "POST";
+				request.ContentType = "application/x-www-form-urlencoded";
+				byte[] data = Encoding.UTF8.GetBytes( dataToPost );
+				request.ContentLength = data.Length;
+				using( Stream stream = request.GetRequestStream() ) {
+					stream.Write( data, 0, data.Length ); }
+			}
+			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+			foreach(Cookie c in response.Cookies) {
+				if(c.Name == "PLAY_SESSION") PlaySession = c;
+			}
+			using( Stream stream = response.GetResponseStream() )
+				using( StreamReader reader = new StreamReader( stream ) ) {
+				return reader.ReadToEnd();
+			}
+		}
+		const string user = "_BotN64_", pass = "Lu1g1fan";
 		public static void Main(string[] args)
-		{		
+		{
+			string loginString = String.Format("username={0}&password={1}", user, pass);
+			string loginResponse = UploadString( LoginSecureUri, loginString );
+
+			if( loginResponse.Contains( WrongUsernameOrPasswordMessage ) ) { }
+			else if( loginResponse.Contains(user) ){ /*Success..*/ }
+			string tt = UploadString("http://minecraft.net/classic/play/340f28a81e01e33b89af1d9143584182", null);
+			if(tt.Contains("mppass")) Console.WriteLine(":D");
+			
 			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");

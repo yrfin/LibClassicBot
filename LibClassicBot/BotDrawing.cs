@@ -47,77 +47,80 @@ namespace LibClassicBot
 			drawingAborted = true;
 		}
 
-		public void HandleCuboid(string s) //TODO: Use better handling of chat.
+		/// <summary>
+		/// Gets the block type from the chatline, using pre-determined values.
+		/// </summary>
+		/// <param name="s">The chatline to parse.</param>
+		public void GetFromLine(string rawLine) //TODO: Use better handling of chat.
 		{
-			string[] message = s.Split(':');
-			wantingPositionOne = true;
-			string[] split = message[1].Split(' ');
+			string[] split = rawLine.Split(' ');
 			try
 			{
-				switch (split[2].ToLower())
+				if(Byte.TryParse(split[1], out cuboidType)) return; //User used the actual value of a block.
+				switch (split[1].ToLower())
 				{
-						case "air": cuboidType = 0; break;
-						case "stone": cuboidType = 1; break;
-						case "grass": cuboidType = 2; break;
-						case "dirt": cuboidType = 3; break;
-						case "cobble": cuboidType = 4; break;
-						case "cobblestone": cuboidType = 4; break;
-						case "woodenplank": cuboidType = 5; break;
-						case "plank": cuboidType = 5; break;
-						case "planks": cuboidType = 5; break;
-						case "plant": cuboidType = 6; break;
-						case "sapling": cuboidType = 6; break;
-						case "bedrock": cuboidType = 7; break;
-						case "water": cuboidType = 9; break;
-						case "lava": cuboidType = 11; break;
-						case "sand": cuboidType = 11; break;
-						case "gravel": cuboidType = 13; break;
-						case "goldore": cuboidType = 14; break;
-						case "ironore": cuboidType = 15; break;
-						case "coalore": cuboidType = 16; break;
-						case "coal": cuboidType = 16; break;
-						case "log": cuboidType = 17; break;
-						case "wood": cuboidType = 17; break;
-						case "leaves": cuboidType = 18; break;
-						case "sponge": cuboidType = 19; break;
-						case "glass": cuboidType = 20; break;
-						case "red": cuboidType = 21; break;
-						case "orange": cuboidType = 22; break;
-						case "yellow": cuboidType = 23; break;
-						case "lime": cuboidType = 24; break;
-						case "green": cuboidType = 25; break;
-						case "teal": cuboidType = 26; break;
-						case "aqua": cuboidType = 26; break;
-						case "cyan": cuboidType = 27; break;
-						case "blue": cuboidType = 28; break;
-						case "purple": cuboidType = 29; break;
-						case "indigo": cuboidType = 30; break;
-						case "violet": cuboidType = 31; break;
-						case "magenta": cuboidType = 32; break;
-						case "pink": cuboidType = 33; break;
-						case "black": cuboidType = 34; break;
-						case "grey": cuboidType = 35; break;
-						case "gray": cuboidType = 35; break;
-						case "white": cuboidType = 36; break;
-						case "dandelion": cuboidType = 37; break;
-						case "yellowflower": cuboidType = 37; break;
-						case "rose": cuboidType = 38; break;
-						case "redflower": cuboidType = 38; break;
-						case "brownmushroom": cuboidType = 39; break;
-						case "redmushroom": cuboidType = 40; break;
-						case "gold": cuboidType = 41; break;
-						case "iron": cuboidType = 42; break;
-						case "doublestair": cuboidType = 43; break;
-						case "doubleslab": cuboidType = 43; break;
-						case "stair": cuboidType = 44; break;
-						case "brick": cuboidType = 45; break;
-						case "tnt": cuboidType = 46; break;
-						case "books": cuboidType = 47; break;
-						case "bookshelf": cuboidType = 47; break;
-						case "mossy": cuboidType = 48; break;
-						case "mossycobblestone": cuboidType = 48; break;
-						case "mossystone": cuboidType = 48; break;
-						case "obsidian": cuboidType = 49; break;
+						case "air": cuboidType = 0; return;
+						case "stone": cuboidType = 1; return;
+						case "grass": cuboidType = 2; return;
+						case "dirt": cuboidType = 3; return;
+						case "cobble": cuboidType = 4; return;
+						case "cobblestone": cuboidType = 4; return;
+						case "woodenplank": cuboidType = 5; return;
+						case "plank": cuboidType = 5; return;
+						case "planks": cuboidType = 5; return;
+						case "plant": cuboidType = 6; return;
+						case "sapling": cuboidType = 6; return;
+						case "bedrock": cuboidType = 7; return;
+						case "water": cuboidType = 9; return;
+						case "lava": cuboidType = 11; return;
+						case "sand": cuboidType = 11; return;
+						case "gravel": cuboidType = 13; return;
+						case "goldore": cuboidType = 14; return;
+						case "ironore": cuboidType = 15; return;
+						case "coalore": cuboidType = 16; return;
+						case "coal": cuboidType = 16; return;
+						case "log": cuboidType = 17; return;
+						case "wood": cuboidType = 17; return;
+						case "leaves": cuboidType = 18; return;
+						case "sponge": cuboidType = 19; return;
+						case "glass": cuboidType = 20; return;
+						case "red": cuboidType = 21; return;
+						case "orange": cuboidType = 22; return;
+						case "yellow": cuboidType = 23; return;
+						case "lime": cuboidType = 24; return;
+						case "green": cuboidType = 25; return;
+						case "teal": cuboidType = 26; return;
+						case "aqua": cuboidType = 26; return;
+						case "cyan": cuboidType = 27; return;
+						case "blue": cuboidType = 28; return;
+						case "purple": cuboidType = 29; return;
+						case "indigo": cuboidType = 30; return;
+						case "violet": cuboidType = 31; return;
+						case "magenta": cuboidType = 32; return;
+						case "pink": cuboidType = 33; return;
+						case "black": cuboidType = 34; return;
+						case "grey": cuboidType = 35; return;
+						case "gray": cuboidType = 35; return;
+						case "white": cuboidType = 36; return;
+						case "dandelion": cuboidType = 37; return;
+						case "yellowflower": cuboidType = 37; return;
+						case "rose": cuboidType = 38; return;
+						case "redflower": cuboidType = 38; return;
+						case "brownmushroom": cuboidType = 39; return;
+						case "redmushroom": cuboidType = 40; return;
+						case "gold": cuboidType = 41; return;
+						case "iron": cuboidType = 42; return;
+						case "doublestair": cuboidType = 43; return;
+						case "doubleslab": cuboidType = 43; return;
+						case "stair": cuboidType = 44; return;
+						case "brick": cuboidType = 45; return;
+						case "tnt": cuboidType = 46; return;
+						case "books": cuboidType = 47; return;
+						case "bookshelf": cuboidType = 47; return;
+						case "mossy": cuboidType = 48; return;
+						case "mossycobblestone": cuboidType = 48; return;
+						case "mossystone": cuboidType = 48; return;
+						case "obsidian": cuboidType = 49; return;
 					default:
 						{
 							SendMessagePacket("Unknown block type " + split[2]);

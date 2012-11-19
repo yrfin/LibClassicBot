@@ -15,7 +15,7 @@ using LibClassicBot.Remote.Events;
 
 namespace LibClassicBot
 {
-	public partial class ClassicBot 
+	public partial class ClassicBot
 	{
 		#region Public Fields
 		/// <summary>Returns the X coordinate of the bot in the world.</summary>
@@ -745,7 +745,10 @@ namespace LibClassicBot
 												}
 											}
 										}
-										if(QueuedDrawers.Count > 0) { wantingPositionOne = true; }
+										if(QueuedDrawers.Count > 0) {
+											wantingPositionOne = true; 	
+											GetFromLine(GetMessage(Line));
+										}
 									}
 								}
 								CommandClass.ProcessCommandQueue();

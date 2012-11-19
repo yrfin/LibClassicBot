@@ -191,6 +191,7 @@ namespace LibClassicBot.Drawing
 			return val;
 		}		
 		#endregion
+	
 		
 		public override string ToString()
 		{
