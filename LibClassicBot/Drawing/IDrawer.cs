@@ -14,12 +14,11 @@ namespace LibClassicBot.Drawing
 		/// <param name="main"></param>
 		/// <param name="Aborted">The boolean to check if the drawing needs to be stopped. The paramter is passed as a ref so that
 		/// the main bot can set the boolean to false without using messy static variables.</param>
-		/// <param name="Point1">The lower point of the draw operation.</param>
-		/// <param name="Point2">The upper point of the draw operation.</param>
+		/// <param name="Points">The points of the draw operation.</param>
 		/// <param name="blocktype">The block type to be used, as a byte.</param>
 		/// <param name="sleeptime">The time to wait between drawing blocks in milliseconds. The parameter is passed as a ref so the 
 		/// waiting time can be changed from the main bot.</param>
-		void Start(ClassicBot main, ref bool Aborted, Vector3I Point1, Vector3I Point2, byte blocktype, ref int sleeptime);
+		void Start(ClassicBot main, ref bool Aborted, Vector3I[] Points, byte blocktype, ref int sleeptime);
 		
 		/// <summary>
 		/// Gets the name of the current drawing command.

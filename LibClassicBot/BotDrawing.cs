@@ -9,22 +9,50 @@ namespace LibClassicBot
 	public partial class ClassicBot
 	{
 		/// <summary>
-		/// The queue which contains the list of drawing commands to be executed. The drawing will be executed  after the bot has been given two accepted block inputs.
-		/// (By default, this will be brown mushrooms.) Note that on fCraft servers, the server will NOT send block updates if you are too far away from the bot.
+		/// The internally stored draw operation. After a draw operation has been set and executed, this
+		/// will be set back to null.
 		/// </summary>
-		public Queue<IDrawer> QueuedDrawers = new Queue<IDrawer>();
+		private IDrawer QueuedDrawer = null;
 		
+		/// <summary>
+		/// The array which contains the marks to draw with.
+		/// </summary>
+		private Vector3I[] marks;
+		
+		/// <summary>
+		/// The number of marks that still need to be given before the draw operation can be executed.
+		/// </summary>
+		private byte marksLeft = 0;
+		
+		/// <summary>
+		/// Sets the queued draw operation, which will be executed once the all the marks
+		/// required have been set. To set a mark, place a brown mushroom on the map the bot is on.
+		/// </summary>
+		/// <param name="line">The chat line which triggered this draw operation, used for 
+		/// determining the block type.</param>
+		/// <param name="drawer">The drawer to execute once all the marks have been set.</param>
+		/// <param name="marksRequired">The number of marks to set before executing the draw operation.</param>
+		public void SetDrawer(string chatLine, IDrawer drawer, byte marksRequired)
+		{
+			GetFromLine(GetMessage(chatLine));
+			if(cuboidType != 255) //If 255, do not try to set the drawer with an invalid block type.
+			{
+				QueuedDrawer = drawer;
+				marksLeft = marksRequired; 
+				marks = new Vector3I[marksRequired];
+			}
+		}
 		/// <summary>
 		/// Begins execution of the draw operation between two points.
 		/// </summary>
 		/// <param name="drawer">The class derived from IDrawer, from which the draw operation will begin.</param>
 		/// <remarks>Note that if the CancelDrawing token is currently in the cancelled state, it will be reset.</remarks>
-		public void Draw(IDrawer drawer, Vector3I point1, Vector3I point2, byte blockType)
+		public void Draw(IDrawer drawer, Vector3I[] points, byte blockType)
 		{
 			drawingAborted = false;
 			Thread drawThread = new Thread(delegate()
 			                               {
-			                               	drawer.Start(this, ref drawingAborted, point1, point2, blockType, ref sleepTime);
+			                               	drawer.Start(this, ref drawingAborted, points, blockType, ref sleepTime);
 			                               });
 			drawThread.IsBackground = true;
 			drawThread.Start();
@@ -123,8 +151,8 @@ namespace LibClassicBot
 						case "obsidian": cuboidType = 49; return;
 					default:
 						{
+							cuboidType = 255;
 							SendMessagePacket("Unknown block type " + split[2]);
-							wantingPositionOne = false;
 							return;
 						}
 				}
@@ -134,7 +162,6 @@ namespace LibClassicBot
 				SendMessagePacket("Error: Wrong number of arguements.");
 				return;
 			}
-			SendMessagePacket("Place two brown mushrooms to start cuboiding.");
 		}
 	}
 }

@@ -143,14 +143,14 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate CuboidCommand = delegate(string Line)
 			{
 				Cuboid cuboid = new Cuboid();
-				Bot1.QueuedDrawers.Enqueue(cuboid);
+				Bot1.SetDrawer(Line, cuboid, 2);
 			};
 			Bot1.RegisteredCommands.Add("cuboid",CuboidCommand);
 			
 			ClassicBot.CommandDelegate PyramidCommand = delegate(string Line)
 			{
 				Pyramid pyramid = new Pyramid();
-				Bot1.QueuedDrawers.Enqueue(pyramid);
+				Bot1.SetDrawer(Line, pyramid, 2);
 			};
 			Bot1.RegisteredCommands.Add("pyramid",PyramidCommand);
 			

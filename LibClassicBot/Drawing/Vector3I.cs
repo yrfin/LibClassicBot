@@ -124,12 +124,6 @@ namespace LibClassicBot.Drawing
 		{
 			this.X = x; this.Y = y; this.Z = z;
 		}
-		
-		/// <summary>Constructs a Vector3I from the three given float points. Note that the float will be truncated, not rounded.</summary>
-		public Vector3I(float x, float y, float z)
-		{
-			this.X = (int)x; this.Y = (int)y; this.Z = (int)z;
-		}
 
 		/// <summary>Constructs a Vector3I from the three given short points.</summary>
 		public Vector3I(short x, short y, short z)

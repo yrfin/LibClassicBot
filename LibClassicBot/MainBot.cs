@@ -290,19 +290,14 @@ namespace LibClassicBot
 		bool _requiresop = true;
 		Server server = new Server(); //TODO: Add support for not using remote server without breaking the events.
 		List<string> _ignored = new List<string>();
-		CommandsClass CommandClass = new CommandsClass();
 		static string name = Process.GetCurrentProcess().ProcessName;
 		PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", name);
 		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);
 		private MemoryStream mapStream;
-		//Drawing ---
+		//Drawing
 		int sleepTime = 10;
 		byte cuboidType;
-		Vector3I firstCPos, secondCPos;
-		//bool criticalAbort = false;
 		bool _isCuboiding = false;
-		bool wantingPositionOne = false, wantingPositionTwo = false;
-		//--
 		
 		const string IncorrectUserPass = "Wrong username or password, or the account has been migrated.";
 		
@@ -537,7 +532,7 @@ namespace LibClassicBot
 				Events.RaiseBotError(socketEvent);
 				return;
 			}
-			CommandClass.Start(true);
+			StartCommandsThread();
 			BinaryReader reader = new BinaryReader(new NetworkStream(_serverSocket));
 
 			while (true)
@@ -621,21 +616,16 @@ namespace LibClassicBot
 						case ServerPackets.SetBlock://0x06:
 							{
 								int blockX = IPAddress.HostToNetworkOrder(reader.ReadInt16());
-								int blockY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								int blockZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
+								int blockY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								byte blockType = reader.ReadByte();
-								if (wantingPositionOne && blockType == 39) {
-									firstCPos = new Vector3I(blockX, blockZ, blockY);
-									wantingPositionOne = false;
-									wantingPositionTwo = true;
-								}
-								else if (wantingPositionTwo && blockType == 39) {
-									secondCPos = new Vector3I(blockX, blockZ, blockY);
-									wantingPositionTwo = false;
-									if(QueuedDrawers.Count > 0)
-									{
-										IDrawer current = QueuedDrawers.Dequeue();
-										Draw(current, firstCPos,secondCPos, cuboidType);
+								if(marksLeft > 0 && blockType == 39)
+								{
+									Console.WriteLine(new Vector3I(blockX, blockY, blockZ));
+									marks[marks.Length - marksLeft] = new Vector3I(blockX, blockY, blockZ);
+									marksLeft--; //^ Go from smallest to largest.
+									if(marksLeft == 0 && QueuedDrawer != null) {
+										Draw(QueuedDrawer, marks, cuboidType);
 									}
 								}
 							}
@@ -732,7 +722,7 @@ namespace LibClassicBot
 												if(_requiresop == true)
 												{
 													if(_users.Contains(User)) {
-														CommandClass.EnqueueCommand(command.Value,Line);
+														EnqueueCommand(command.Value,Line);
 														break;
 													}
 													else {
@@ -740,18 +730,14 @@ namespace LibClassicBot
 													}
 												}
 												else {
-													CommandClass.EnqueueCommand(command.Value,Line);
+													EnqueueCommand(command.Value,Line);
 													break;
 												}
 											}
 										}
-										if(QueuedDrawers.Count > 0) {
-											wantingPositionOne = true; 	
-											GetFromLine(GetMessage(Line));
-										}
 									}
 								}
-								CommandClass.ProcessCommandQueue();
+								ProcessCommandQueue();
 
 								string logFileName = ("log-" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
 								string logLine = DateTime.Now.ToString("[yyyy-MM-dd : HH-mm-ss] ");

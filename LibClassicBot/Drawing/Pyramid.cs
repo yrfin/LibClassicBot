@@ -15,12 +15,12 @@ namespace LibClassicBot.Drawing
 		/// The token is there if the user finds a need to stop the drawing. (This happens when CriticalAbort is set to true.)
 		/// </summary>
 		/// <param name="cToken">The CuboidToken to check if the drawing needs to be stopped.</param>
-		public void Start(ClassicBot main, ref bool Aborted, Vector3I point1, Vector3I point2, byte blocktype, ref int sleeptime)
+		public void Start(ClassicBot main, ref bool Aborted, Vector3I[] points, byte blocktype, ref int sleeptime)
 		{
-			Vector3I Coords = Vector3I.Min(point1, point2);
-			Vector3I MinVertex = Vector3I.Min(point1, point2);
-			Vector3I MaxVertex = Vector3I.Max(point1, point2);
-			Vector3I Coords2 = Vector3I.Max(point1, point2);
+			Vector3I Coords = Vector3I.Min(points[0], points[1]);
+			Vector3I MinVertex = Vector3I.Min(points[0], points[1]);
+			Vector3I MaxVertex = Vector3I.Max(points[0], points[1]);
+			Vector3I Coords2 = Vector3I.Max(points[0], points[1]);
 			Coords2.Z = MinVertex.Z;
 			Vector3I Coords3 = Coords;
 			int xMax = (MinVertex.X + MaxVertex.X / 2);

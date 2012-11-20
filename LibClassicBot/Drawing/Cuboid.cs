@@ -14,11 +14,11 @@ namespace LibClassicBot.Drawing
 		/// Executes the drawer on a separate thread. The bool is there if the user finds a need to stop the drawing. 
 		/// (This happens when CancelDrawer() is called.)
 		/// </summary>
-		public void Start(ClassicBot main, ref bool Aborted, Vector3I point1, Vector3I point2, byte blocktype, ref int sleeptime)
+		public void Start(ClassicBot main, ref bool Aborted, Vector3I[] points, byte blocktype, ref int sleeptime)
 		{
-			Vector3I Coords = Vector3I.Min(point1, point2);
-			Vector3I MinVertex = Vector3I.Min(point1, point2);
-			Vector3I MaxVertex = Vector3I.Max(point1, point2);
+			Vector3I Coords = Vector3I.Min(points[0], points[1]);
+			Vector3I MinVertex = Vector3I.Min(points[0], points[1]);
+			Vector3I MaxVertex = Vector3I.Max(points[0], points[1]);
 			
 			main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
 			for (; Coords.X <= MaxVertex.X; Coords.X++)
