@@ -56,6 +56,7 @@ namespace LibClassicBot
 			                               });
 			drawThread.IsBackground = true;
 			drawThread.Start();
+			QueuedDrawer = null;
 		}
 		
 		/// <summary>
