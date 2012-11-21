@@ -19,8 +19,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.*/
 using System;
 using System.Collections.Generic;
-using LibClassicBot;
-using LibClassicBot.Drawing;
 using System.Threading;
 
 namespace LibClassicBot.Drawing
@@ -30,8 +28,7 @@ namespace LibClassicBot.Drawing
 		/// <summary>
 		/// Gets the name of the current drawing command.
 		/// </summary>
-		public string Name
-		{
+		public string Name {
 			get { return _name; }
 		}
 		string _name = "Line";
@@ -49,8 +46,7 @@ namespace LibClassicBot.Drawing
 			coordEnumerator = LineEnumerator(points[0], points[1]).GetEnumerator();
 			while (coordEnumerator.MoveNext())
 			{
-				if (Aborted == true)
-				{
+				if (Aborted == true) {
 					return;
 				}
 				Coords = coordEnumerator.Current;
@@ -58,7 +54,7 @@ namespace LibClassicBot.Drawing
 				main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
 				main.SendBlockPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z, 1, blocktype);
 			}
-			main.SetDrawerToNnull();
+			main.SetDrawerToNull();
 		}
 
 		IEnumerator<Vector3I> coordEnumerator;

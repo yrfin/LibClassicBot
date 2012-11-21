@@ -17,10 +17,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.*/
-using System;
 using System.Collections.Generic;
-using LibClassicBot;
-using LibClassicBot.Drawing;
 using System.Threading;
 
 namespace LibClassicBot.Drawing
@@ -30,15 +27,12 @@ namespace LibClassicBot.Drawing
 		/// <summary>
 		/// Gets the name of the current drawing command.
 		/// </summary>
-		public string Name
-		{
+		public string Name {
 			get { return _name; }
 		}
-		string _name = "CuboidWireframe";
-
 		
-		Vector3I Point1;
-		Vector3I Point2;
+		const string _name = "CuboidWireframe";
+
 		/// <summary>
 		/// Executes the drawer, and should be executed on a separate thread.
 		/// The token is there if the user finds a need to stop the drawing. (This happens when CriticalAbort is set to true.)
@@ -46,16 +40,15 @@ namespace LibClassicBot.Drawing
 		/// <param name="cToken">The CuboidToken to check if the drawing needs to be stopped.</param>
 		public void Start(ClassicBot main, ref bool Aborted, Vector3I[] points, byte blocktype, ref int sleeptime)
 		{
-			Point1 = Vector3I.Min(points[0], points[1]);
-			Point2 = Vector3I.Max(points[0], points[1]);
+			Vector3I MinVertex = Vector3I.Min(points[0], points[1]);
+			Vector3I MaxVertex = Vector3I.Max(points[0], points[1]);
 			Vector3I Coords = Vector3I.Min(points[0], points[1]);
 			
 			main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
-			coordEnumerator = BlockEnumerator().GetEnumerator();
+			IEnumerator<Vector3I> coordEnumerator = BlockEnumerator(MinVertex, MaxVertex).GetEnumerator();
 			while (coordEnumerator.MoveNext())
 			{
-				if (Aborted == true)
-				{
+				if (Aborted == true) {
 					return;
 				}
 				Coords = coordEnumerator.Current;
@@ -63,71 +56,69 @@ namespace LibClassicBot.Drawing
 				main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
 				main.SendBlockPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z, 1, blocktype);
 			}
-			main.SetDrawerToNnull();
+			main.SetDrawerToNull();
 		}
 
-		IEnumerator<Vector3I> coordEnumerator;
-
-		IEnumerable<Vector3I> BlockEnumerator()
+		IEnumerable<Vector3I> BlockEnumerator(Vector3I min, Vector3I max)
 		{
 			// Draw cuboid vertices
-			yield return new Vector3I(Point1.X, Point1.Y, Point1.Z);
+			yield return new Vector3I(min.X, min.Y, min.Z);
 
-			if (Point1.X != Point2.X) yield return new Vector3I(Point2.X, Point1.Y, Point1.Z);
-			if (Point1.Y != Point2.Y) yield return new Vector3I(Point1.X, Point2.Y, Point1.Z);
-			if (Point1.Z != Point2.Z) yield return new Vector3I(Point1.X, Point1.Y, Point2.Z);
+			if (min.X != max.X) yield return new Vector3I(max.X, min.Y, min.Z);
+			if (min.Y != max.Y) yield return new Vector3I(min.X, max.Y, min.Z);
+			if (min.Z != max.Z) yield return new Vector3I(min.X, min.Y, max.Z);
 
-			if (Point1.X != Point2.X && Point1.Y != Point2.Y)
-				yield return new Vector3I(Point2.X, Point2.Y, Point1.Z);
-			if (Point1.Y != Point2.Y && Point1.Z != Point2.Z)
-				yield return new Vector3I(Point1.X, Point2.Y, Point2.Z);
-			if (Point1.Z != Point2.Z && Point1.X != Point2.X)
-				yield return new Vector3I(Point2.X, Point1.Y, Point2.Z);
+			if (min.X != max.X && min.Y != max.Y)
+				yield return new Vector3I(max.X, max.Y, min.Z);
+			if (min.Y != max.Y && min.Z != max.Z)
+				yield return new Vector3I(min.X, max.Y, max.Z);
+			if (min.Z != max.Z && min.X != max.X)
+				yield return new Vector3I(max.X, min.Y, max.Z);
 
-			if (Point1.X != Point2.X && Point1.Y != Point2.Y && Point1.Z != Point2.Z)
-				yield return new Vector3I(Point2.X, Point2.Y, Point2.Z);
+			if (min.X != max.X && min.Y != max.Y && min.Z != max.Z)
+				yield return new Vector3I(max.X, max.Y, max.Z);
 
 			// Draw edges along the X axis
-			if ((Point2.X - Point1.X + 1) > 2)
+			if ((max.X - min.X + 1) > 2)
 			{
-				for (int x = Point1.X + 1; x < Point2.X; x++)
+				for (int x = min.X + 1; x < max.X; x++)
 				{
-					yield return new Vector3I(x, Point1.Y, Point1.Z);
-					if (Point1.Z != Point2.Z) yield return new Vector3I(x, Point1.Y, Point2.Z);
-					if (Point1.Y != Point2.Y)
+					yield return new Vector3I(x, min.Y, min.Z);
+					if (min.Z != max.Z) yield return new Vector3I(x, min.Y, max.Z);
+					if (min.Y != max.Y)
 					{
-						yield return new Vector3I(x, Point2.Y, Point1.Z);
-						if (Point1.Z != Point2.Z) yield return new Vector3I(x, Point2.Y, Point2.Z);
+						yield return new Vector3I(x, max.Y, min.Z);
+						if (min.Z != max.Z) yield return new Vector3I(x, max.Y, max.Z);
 					}
 				}
 			}
 
 			// Draw edges along the Y axis
-			if ((Point2.Y - Point1.Y + 1) > 2)
+			if ((max.Y - min.Y + 1) > 2)
 			{
-				for (int y = Point1.Y + 1; y < Point2.Y; y++)
+				for (int y = min.Y + 1; y < max.Y; y++)
 				{
-					yield return new Vector3I(Point1.X, y, Point1.Z);
-					if (Point1.Z != Point2.Z) yield return new Vector3I(Point1.X, y, Point2.Z);
-					if (Point1.X != Point2.X)
+					yield return new Vector3I(min.X, y, min.Z);
+					if (min.Z != max.Z) yield return new Vector3I(min.X, y, max.Z);
+					if (min.X != max.X)
 					{
-						yield return new Vector3I(Point2.X, y, Point1.Z);
-						if (Point1.Z != Point2.Z) yield return new Vector3I(Point2.X, y, Point2.Z);
+						yield return new Vector3I(max.X, y, min.Z);
+						if (min.Z != max.Z) yield return new Vector3I(max.X, y, max.Z);
 					}
 				}
 			}
 
 			// Draw edges along the Z axis
-			if ((Point2.Z - Point1.Z + 1) > 2)
+			if ((max.Z - min.Z + 1) > 2)
 			{
-				for (int z = Point1.Z + 1; z < Point2.Z; z++)
+				for (int z = min.Z + 1; z < max.Z; z++)
 				{
-					yield return new Vector3I(Point1.X, Point1.Y, z);
-					if (Point1.Y != Point2.Y) yield return new Vector3I(Point1.X, Point2.Y, z);
-					if (Point1.X != Point2.X)
+					yield return new Vector3I(min.X, min.Y, z);
+					if (min.Y != max.Y) yield return new Vector3I(min.X, max.Y, z);
+					if (min.X != max.X)
 					{
-						yield return new Vector3I(Point2.X, Point2.Y, z);
-						if (Point1.Y != Point2.Y) yield return new Vector3I(Point2.X, Point1.Y, z);
+						yield return new Vector3I(max.X, max.Y, z);
+						if (min.Y != max.Y) yield return new Vector3I(max.X, min.Y, z);
 					}
 				}
 			}

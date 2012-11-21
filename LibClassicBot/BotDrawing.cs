@@ -51,7 +51,7 @@ namespace LibClassicBot
 		/// Sets the queued draw operation to null. This should be called after the running draw operation has
 		/// been completed, although the bot can work around drawing operations that do not call this.
 		/// </summary>
-		public void SetDrawerToNnull()
+		public void SetDrawerToNull()
 		{
 			QueuedDrawer = null;
 		}		

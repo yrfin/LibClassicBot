@@ -1,13 +1,19 @@
-﻿using System;
-using System.Threading;
-using LibClassicBot;
+﻿using System.Threading;
+
 namespace LibClassicBot.Drawing
 {
 	/// <summary>
 	/// Fills a rectangular area with the specified block type.
 	/// </summary>
 	public sealed class Cuboid : IDrawer
-	{			
+	{	
+		/// <summary>
+		/// Gets the name of the current drawing command.
+		/// </summary>
+		public string Name {
+			get { return _name; }
+		}
+		
 		const string _name = "Cuboid";		
 		
 		/// <summary>
@@ -27,8 +33,7 @@ namespace LibClassicBot.Drawing
 				{
 					for (; Coords.Z <=  MaxVertex.Z; Coords.Z++)
 					{
-						if (Aborted == true)
-						{
+						if (Aborted == true) {
 							return;
 						}
 						Thread.Sleep(sleeptime);
@@ -39,15 +44,7 @@ namespace LibClassicBot.Drawing
 				}
 				Coords.Y = MinVertex.Y;
 			}
-			main.SetDrawerToNnull();
-		}
-		
-		/// <summary>
-		/// Gets the name of the current drawing command.
-		/// </summary>
-		public string Name 
-		{
-			get { return _name; }
+			main.SetDrawerToNull();
 		}
 	}
 }

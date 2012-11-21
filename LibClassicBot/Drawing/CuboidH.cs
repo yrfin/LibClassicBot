@@ -28,8 +28,7 @@ namespace LibClassicBot.Drawing
 		/// <summary>
 		/// Gets the name of the current drawing command.
 		/// </summary>
-		public string Name
-		{
+		public string Name {
 			get { return _name; }
 		}
 
@@ -48,8 +47,7 @@ namespace LibClassicBot.Drawing
 			IEnumerator<Vector3I> coordEnumerator = BlockEnumerator(MinVertex, MaxVertex).GetEnumerator();
 			while(coordEnumerator.MoveNext())
 			{
-				if (Aborted == true)
-				{
+				if (Aborted == true) {
 					return;
 				}
 				Thread.Sleep(sleeptime);
@@ -58,7 +56,7 @@ namespace LibClassicBot.Drawing
 				main.SendBlockPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z, 1, blocktype);
 				
 			}
-			main.SetDrawerToNnull();
+			main.SetDrawerToNull();
 		}
 
 		IEnumerable<Vector3I> BlockEnumerator(Vector3I min, Vector3I max) {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibClassicBot.Drawing
+﻿namespace LibClassicBot.Drawing
 {
 	/// <summary>
 	/// The interface from which all block drawers inherit.

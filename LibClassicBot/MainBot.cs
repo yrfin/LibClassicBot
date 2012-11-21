@@ -396,12 +396,11 @@ namespace LibClassicBot
 					string[] splitLineCRQ = Lines[3].Split(':');
 					bool.TryParse(splitLineCRQ[1].Replace(" ",""), out _requiresop);
 					
-					string[] splitLineRecOnKick = Lines[3].Split(':');
+					string[] splitLineRecOnKick = Lines[4].Split(':');
 					bool.TryParse(splitLineRecOnKick[1].Replace(" ",""), out _reconnectonkick);
 					
-					string[] splitLineSaveMap = Lines[4].Split(':');
+					string[] splitLineSaveMap = Lines[5].Split(':');
 					bool.TryParse(splitLineSaveMap[1].Replace(" ",""), out _savemap);
-					Console.WriteLine(_savemap);
 				}
 				else
 				{
@@ -622,9 +621,9 @@ namespace LibClassicBot
 								byte blockType = reader.ReadByte();
 								if(marksLeft > 0 && blockType == 39)
 								{
-									Console.WriteLine(new Vector3I(blockX, blockY, blockZ));
+									//Console.WriteLine(new Vector3I(blockX, blockY, blockZ));
 									marks[marks.Length - marksLeft] = new Vector3I(blockX, blockY, blockZ);
-									marksLeft--; //^ Go from smallest to largest.
+									marksLeft--; //Go from smallest to largest.
 									if(marksLeft == 0 && QueuedDrawer != null) {
 										Draw(QueuedDrawer, marks, cuboidType);
 									}

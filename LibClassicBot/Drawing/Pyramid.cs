@@ -1,6 +1,5 @@
-﻿using System;
-using System.Threading;
-using LibClassicBot;
+﻿using System.Threading;
+
 namespace LibClassicBot.Drawing
 {
 	/// <summary>
@@ -8,6 +7,13 @@ namespace LibClassicBot.Drawing
 	/// </summary>
 	public sealed class Pyramid : IDrawer
 	{
+		/// <summary>
+		/// Gets the name of the current drawing command.
+		/// </summary>
+		public string Name {
+			get { return _name; }
+		}		
+		
 		const string _name = "Pyramid";
 		
 		/// <summary>
@@ -36,8 +42,7 @@ namespace LibClassicBot.Drawing
 					{
 						for (; Coords.Z <= Coords2.Z; Coords.Z++)
 						{
-							if (Aborted == true)
-							{
+							if (Aborted == true) {
 								return;
 							}
 							Thread.Sleep(sleeptime);
@@ -55,15 +60,7 @@ namespace LibClassicBot.Drawing
 				Coords2.Y--;
 				Coords2.Z++; //All these are needed, maybe some day I'll improve this.
 			}
-			main.SetDrawerToNnull();
-		}
-		
-		/// <summary>
-		/// Gets the name of the current drawing command.
-		/// </summary>
-		public string Name
-		{
-			get { return _name; }
+			main.SetDrawerToNull();
 		}
 	}
 }
