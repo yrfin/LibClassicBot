@@ -38,7 +38,6 @@ namespace LibClassicBot.Drawing
 						{
 							if (Aborted == true)
 							{
-								main.SendMessagePacket("Aborted cuboid.");
 								return;
 							}
 							Thread.Sleep(sleeptime);
@@ -56,6 +55,7 @@ namespace LibClassicBot.Drawing
 				Coords2.Y--;
 				Coords2.Z++; //All these are needed, maybe some day I'll improve this.
 			}
+			main.SetDrawerToNnull();
 		}
 		
 		/// <summary>

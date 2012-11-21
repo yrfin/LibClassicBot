@@ -113,11 +113,37 @@ namespace LibClassicBot.Drawing
 
 		public static Vector3I operator+(Vector3I value)
 		{
-			return new Vector3I(+ value.X, + value.Y,+ value.Z);
+			return new Vector3I(+value.X, +value.Y,+value.Z);
 		}
+		
+		public static Vector3I operator-(Vector3I value)
+		{
+			return new Vector3I(-value.X, -value.Y, -value.Z);
+		}
+		
+        public static Vector3I operator *( Vector3I value, int scalar ) 
+        {
+            return new Vector3I( value.X * scalar, value.Y * scalar, value.Z * scalar );
+        }
 		#endregion
 		
 		
+        public int this[int i] {
+            get {
+                switch( i ) {
+                    case 0: return X;
+                    case 1: return Y;
+                    default: return Z;
+                }
+            }
+            set {
+                switch( i ) {
+                    case 0: X = value; return;
+                    case 1: Y = value; return;
+                    default: Z = value; return;
+                }
+            }
+        }		
 		#region Constructors
 		/// <summary>Constructs a Vector3I from the three given integer points.</summary>
 		public Vector3I(int x, int y, int z)

@@ -29,7 +29,6 @@ namespace LibClassicBot.Drawing
 					{
 						if (Aborted == true)
 						{
-							main.SendMessagePacket("Aborted cuboid.");
 							return;
 						}
 						Thread.Sleep(sleeptime);
@@ -40,6 +39,7 @@ namespace LibClassicBot.Drawing
 				}
 				Coords.Y = MinVertex.Y;
 			}
+			main.SetDrawerToNnull();
 		}
 		
 		/// <summary>

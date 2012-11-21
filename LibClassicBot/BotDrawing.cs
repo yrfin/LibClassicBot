@@ -34,6 +34,11 @@ namespace LibClassicBot
 		/// <param name="marksRequired">The number of marks to set before executing the draw operation.</param>
 		public void SetDrawer(string chatLine, IDrawer drawer, byte marksRequired)
 		{
+			if(QueuedDrawer != null) //Cancel the already running draw operation.
+			{
+				drawingAborted = true;
+				QueuedDrawer = null;
+			}
 			GetFromLine(GetMessage(chatLine));
 			if(cuboidType != 255) //If 255, do not try to set the drawer with an invalid block type.
 			{
@@ -42,6 +47,15 @@ namespace LibClassicBot
 				marks = new Vector3I[marksRequired];
 			}
 		}
+		/// <summary>
+		/// Sets the queued draw operation to null. This should be called after the running draw operation has
+		/// been completed, although the bot can work around drawing operations that do not call this.
+		/// </summary>
+		public void SetDrawerToNnull()
+		{
+			QueuedDrawer = null;
+		}		
+		
 		/// <summary>
 		/// Begins execution of the draw operation between two points.
 		/// </summary>
@@ -56,7 +70,6 @@ namespace LibClassicBot
 			                               });
 			drawThread.IsBackground = true;
 			drawThread.Start();
-			QueuedDrawer = null;
 		}
 		
 		/// <summary>

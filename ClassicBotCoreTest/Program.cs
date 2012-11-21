@@ -163,9 +163,37 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate SpeedCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
-				Bot1.CuboidSleepTime = Int32.Parse(full[1]);
+				Bot1.CuboidSleepTime = 1000 / Int32.Parse(full[1]);
 			};
 			Bot1.RegisteredCommands.Add("speed",SpeedCommand);
+
+			ClassicBot.CommandDelegate EllipsoidCommand = delegate(string Line)
+			{
+				Ellipsoid ellipsoid = new Ellipsoid();
+				Bot1.SetDrawer(Line, ellipsoid, 2);
+			};
+			Bot1.RegisteredCommands.Add("ellipsoid",EllipsoidCommand);
+
+			ClassicBot.CommandDelegate CuboidHCommand = delegate(string Line)
+			{
+				CuboidHollow cuboidh = new CuboidHollow();
+				Bot1.SetDrawer(Line, cuboidh, 2);
+			};
+			Bot1.RegisteredCommands.Add("cuboidh",CuboidHCommand);	
+
+			ClassicBot.CommandDelegate CuboidWCommand = delegate(string Line)
+			{
+				CuboidWireframe cuboidw = new CuboidWireframe();
+				Bot1.SetDrawer(Line, cuboidw, 2);
+			};
+			Bot1.RegisteredCommands.Add("cuboidw",CuboidWCommand);
+			
+			ClassicBot.CommandDelegate LineCommand = delegate(string Line)
+			{
+				Line line = new Line();
+				Bot1.SetDrawer(Line, line, 2);
+			};
+			Bot1.RegisteredCommands.Add("line",LineCommand);			
 			#endregion
 			
 			StaticBot1 = Bot1;

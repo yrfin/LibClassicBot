@@ -401,6 +401,7 @@ namespace LibClassicBot
 					
 					string[] splitLineSaveMap = Lines[4].Split(':');
 					bool.TryParse(splitLineSaveMap[1].Replace(" ",""), out _savemap);
+					Console.WriteLine(_savemap);
 				}
 				else
 				{

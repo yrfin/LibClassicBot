@@ -54,6 +54,10 @@
     <Compile Include="BotCommands.cs" />
     <Compile Include="BotDrawing.cs" />
     <Compile Include="BotNetworking.cs" />
+    <Compile Include="Drawing\CuboidH.cs" />
+    <Compile Include="Drawing\Ellipsoid.cs" />
+    <Compile Include="Drawing\Line.cs" />
+    <Compile Include="Drawing\CuboidW.cs" />
     <Compile Include="Drawing\Pyramid.cs" />
     <Compile Include="Drawing\Cuboid.cs" />
     <Compile Include="Drawing\IDrawer.cs" />
