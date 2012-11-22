@@ -157,6 +157,7 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate AbortCommand = delegate(string Line)
 			{
 				Bot1.CancelDrawer();
+				personfollowed = String.Empty;
 			};
 			Bot1.RegisteredCommands.Add("abort",AbortCommand);
 			
@@ -215,7 +216,6 @@ namespace LibClassicBotTest
 			if(name.StartsWith("&")) name = name.Substring(2);
 			if(personfollowed == name)
 			{
-				Console.WriteLine("Moving to "+e.player.X +","+ e.player.Y +","+e.player.Z);
 				StaticBot1.SendPositionPacket(e.player.X, e.player.Y, e.player.Z, e.player.Yaw, e.player.Pitch);
 			}
 		}

@@ -40,8 +40,6 @@ namespace LibClassicBot.Remote
 		internal ClassicBot MinecraftBot;
 		internal bool started;
 		
-
-		
 		/// <summary>
 		/// Starts a server for remote clients to connect to on the specified port, with the specified password.
 		/// </summary>
@@ -54,6 +52,7 @@ namespace LibClassicBot.Remote
 			_password = remotePassword;
 			_port = remotePort;
 			Thread listenThread = new Thread(ListenForClients);
+			listenThread.Name = "RemoteServerThread";
 			listenThread.IsBackground = true;
 			listenThread.Start();
 		}
@@ -93,5 +92,6 @@ namespace LibClassicBot.Remote
 				Clients.Add(client);
 			}
 		}
+		
 	}
 }

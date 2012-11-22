@@ -67,7 +67,7 @@ namespace LibClassicBot
 			//Step 1.
 			LoginCookie(username,password);
 			//Step 2.
-			//Go to game url and GET using JSESSIONID cookie.
+			//Go to game url and GET using _uid cookie.
 			//Parse the page to find server, port, mpass strings.
 			WebRequest step3Request = HttpWebRequest.Create(gameurl);
 			if(sessionCookie != null) step3Request.Headers.Add(sessionCookie);
@@ -94,8 +94,7 @@ namespace LibClassicBot
 		{
 			string formData = string.Format(null, "username={0}&password={1}", username, password);
 			//Step 1.
-			//Go to http://minecraft.net/login and POST "username={0}&password={1}" using JSESSIONID cookie.
-			//You will receive logged in cookie ("_uid").
+			//Go to http://minecraft.net/login and POST "username={0}&password={1}" You will receive logged in cookie ("_uid").
 			//Because of multipart http page, HttpWebRequest has some trouble receiving cookies in step 2,
 			//so it is easier to just use raw TcpClient for this.
 			using (TcpClient step2Client = new TcpClient("minecraft.net", 80))

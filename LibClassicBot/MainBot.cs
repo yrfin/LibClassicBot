@@ -150,7 +150,7 @@ namespace LibClassicBot
 			get { return Process.GetCurrentProcess(); }
 		}
 		
-		/// <summary>Returns the CPU usage of the bot.</summary>
+		/*/// <summary>Returns the CPU usage of the bot.</summary>
 		public double CpuUsage {
 			get { Thread.Sleep(500);
 				return cpuCounter.NextValue(); }
@@ -160,7 +160,7 @@ namespace LibClassicBot
 		public double RamUsage {
 			get { Thread.Sleep(500);
 				return ramCounter.NextValue() / 1024 / 1024; }
-		}
+		}*/
 		
 		/// <summary>
 		/// Whether to load settings from botsettings.txt. By default, this is set to true.
@@ -290,10 +290,10 @@ namespace LibClassicBot
 		bool _requiresop = true;
 		Server server = new Server(); //TODO: Add support for not using remote server without breaking the events.
 		List<string> _ignored = new List<string>();
-		PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", 
+		/*PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", 
 		                                                       Process.GetCurrentProcess().ProcessName, true);
 		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", 
-		                                                       Process.GetCurrentProcess().ProcessName, true);
+		                                                       Process.GetCurrentProcess().ProcessName, true);*/
 		private MemoryStream mapStream;
 		//Drawing
 		int sleepTime = 10;
@@ -344,6 +344,7 @@ namespace LibClassicBot
 				IOLoop();
 			}
 			Thread thread = new Thread(IOLoop);
+			thread.Name = "LibClassicBotIO";
 			thread.IsBackground = true;
 			thread.Start();
 		}
@@ -769,6 +770,7 @@ namespace LibClassicBot
 								{
 									CanReconnectAfterKick = false;
 									Thread thread = new Thread(IOLoop);
+									thread.Name = "LibClassicBotIO";
 									thread.IsBackground = true;
 									thread.Start();
 								}
@@ -800,6 +802,7 @@ namespace LibClassicBot
 					{
 						CanReconnectAfterKick = false;
 						Thread thread = new Thread(IOLoop);
+						thread.Name = "LibClassicBotIO";
 						thread.IsBackground = true;
 						thread.Start();
 					}
