@@ -37,7 +37,7 @@ namespace LibClassicBot
 		}
 		
 		/// <summary>True if the command thread has been started.</summary>
-		public bool Started;
+		public bool CommandsThreadStarted;
 		
 		/// <summary>The event used for blocking the command thread.</summary>
 		private AutoResetEvent CommandQueueReset = new AutoResetEvent(false);
@@ -49,7 +49,7 @@ namespace LibClassicBot
 		/// it will not proccess if the Commands class has not been started yet.</summary>
 		public void ProcessCommandQueue()
 		{
-			if(!Started) return;
+			if(!CommandsThreadStarted) return;
 			CommandQueueReset.Set();
 		}
 		
@@ -60,14 +60,14 @@ namespace LibClassicBot
 		/// <param name="Line">The chatline which triggered the execution, used for arguements.</param>
 		public void EnqueueCommand(CommandDelegate Command, string Line)
 		{
-			if(!this.Started) return;
+			if(!this.CommandsThreadStarted) return;
 			CommandQueue.Enqueue(new InternalCommand(Command,Line));
 		}
 		
 		/// <summary>Starts the Command class thread, which can later be added to with CommandEnqueue() and executed with ProcessCommandQueue()</summary>
 		private void StartCommandsThread()
 		{
-			this.Started = true;
+			this.CommandsThreadStarted = true;
 			Thread CommandsThread = new Thread(CommandQueueThread);
 			CommandsThread.IsBackground = true;
 			CommandsThread.Name = "CommandThread";

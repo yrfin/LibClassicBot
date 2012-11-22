@@ -178,7 +178,7 @@ namespace LibClassicBot
 		/// <param name="message">String to send.</param>
 		public void SendMessagePacket(string message)
 		{
-			if(message.Length > 64) message = message.Substring(0,64);
+			if(message.Length > 64) message = message.Substring(0, 64);
 			if (_serverSocket == null || _serverSocket.Connected == false ) return;
 			byte[] packet = new byte[66]; //PID + unused + message
 			packet[0] = (byte)0x0d; //Packet ID.

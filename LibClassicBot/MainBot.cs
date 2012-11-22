@@ -290,16 +290,15 @@ namespace LibClassicBot
 		bool _requiresop = true;
 		Server server = new Server(); //TODO: Add support for not using remote server without breaking the events.
 		List<string> _ignored = new List<string>();
-		static string name = Process.GetCurrentProcess().ProcessName;
-		PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", name);
-		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", name);
+		PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", 
+		                                                       Process.GetCurrentProcess().ProcessName, true);
+		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", 
+		                                                       Process.GetCurrentProcess().ProcessName, true);
 		private MemoryStream mapStream;
 		//Drawing
 		int sleepTime = 10;
 		byte cuboidType;
 		bool _isCuboiding = false;
-		
-		const string IncorrectUserPass = "Wrong username or password, or the account has been migrated.";
 		
 		const string ErrorInPage = "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
 		
@@ -380,27 +379,43 @@ namespace LibClassicBot
 			{
 				if(File.Exists("botsettings.txt"))
 				{
+					int numberofspaces = 0;
 					string[] Lines = File.ReadAllLines("botsettings.txt");
 					string[] splitLineURS = Lines[0].Split(':');
-					bool.TryParse(splitLineURS[1].Replace(" ",""), out UseRemoteServer);
+					string urs = splitLineURS[1].Trim(); //Remove starting white space
+					if((numberofspaces = urs.LastIndexOf(' ')) != -1) //-1 means no white space was found.
+						urs = urs.Substring(0, numberofspaces); //Trim potential garbage data.
+					bool.TryParse(urs, out UseRemoteServer);
+					
 					if (UseRemoteServer)
 					{
 						string[] splitLineRP = Lines[1].Split(':');
-						int RemoteServerPort;
-						Int32.TryParse(splitLineRP[1].Replace(" ",""), out RemoteServerPort);
+						int RemoteServerPort;				
+						Int32.TryParse(splitLineRP[1].Trim(), out RemoteServerPort); //Do not account for potential garbage data.
 						
 						string[] splitLineRPass = Lines[2].Split(':');
-						string RemotePassword = splitLineRPass[1].Replace(" ","");
+						string RemotePassword = splitLineRP[1].Trim(); //Remove starting white space
+						if((numberofspaces = RemotePassword.LastIndexOf(' ')) != -1) //-1 means no white space was found.
+							RemotePassword = RemotePassword.Substring(0, numberofspaces); //Trim potential garbage data.						
 						server.Start(this,RemoteServerPort,RemotePassword);
 					}
 					string[] splitLineCRQ = Lines[3].Split(':');
-					bool.TryParse(splitLineCRQ[1].Replace(" ",""), out _requiresop);
+					string crq = splitLineCRQ[1].Trim(); //Remove starting white space
+					if((numberofspaces = crq.LastIndexOf(' ')) != -1) //-1 means no white space was found.
+						crq = crq.Substring(0, numberofspaces); //Trim potential garbage data.					
+					bool.TryParse(crq, out _requiresop);
 					
 					string[] splitLineRecOnKick = Lines[4].Split(':');
-					bool.TryParse(splitLineRecOnKick[1].Replace(" ",""), out _reconnectonkick);
+					string rok = splitLineRecOnKick[1].Trim(); //Remove starting white space
+					if((numberofspaces = rok.LastIndexOf(' ')) != -1) //-1 means no white space was found.
+						rok = rok.Substring(0, numberofspaces); //Trim potential garbage data.						
+					bool.TryParse(rok, out _reconnectonkick);
 					
 					string[] splitLineSaveMap = Lines[5].Split(':');
-					bool.TryParse(splitLineSaveMap[1].Replace(" ",""), out _savemap);
+					string sm = splitLineSaveMap[1].Trim(); //Remove starting white space
+					if((numberofspaces = sm.LastIndexOf(' ')) != -1) //-1 means no white space was found.
+						sm = sm.Substring(0, numberofspaces); //Trim potential garbage data.							
+					bool.TryParse(sm, out _savemap);
 				}
 				else
 				{
@@ -504,7 +519,7 @@ namespace LibClassicBot
 				try { Extensions.Login(_username, _password, _hash, out this._serverIP, out this._serverPort, out this._ver); }
 				catch(InvalidOperationException ex)
 				{
-					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(IncorrectUserPass,ex);
+					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ex.Message,ex);
 					Events.RaiseBotError(socketEvent);
 					return;
 				}
@@ -540,7 +555,7 @@ namespace LibClassicBot
 				try
 				{
 					byte OpCode = reader.ReadByte();
-					PacketEventArgs opcodeEvent = new PacketEventArgs(OpCode);
+					PacketEventArgs opcodeEvent = new PacketEventArgs((ServerPackets)OpCode);
 					Events.RaisePacketReceived(opcodeEvent);
 					
 					switch ((ServerPackets)OpCode)

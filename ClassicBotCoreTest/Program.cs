@@ -96,7 +96,7 @@ namespace LibClassicBotTest
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				string[] coords = full[1].Split(new char[] { ',' }, 3);
-				Bot1.SendPositionPacket(Convert.ToInt16(coords[0]), Convert.ToInt16(coords[1]), Convert.ToInt16(coords[2]));
+				Bot1.SendPositionPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]));
 			};
 			Bot1.RegisteredCommands.Add("move",MoveCommand);
 			
@@ -104,7 +104,7 @@ namespace LibClassicBotTest
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				string[] coords = full[1].Split(new char[] { ',' }, 3);
-				Bot1.SendBlockPacket(Convert.ToInt16(coords[0]), Convert.ToInt16(coords[1]), Convert.ToInt16(coords[2]), 1, 29);
+				Bot1.SendBlockPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]), 1, 29);
 			};
 			Bot1.RegisteredCommands.Add("place",PlaceCommand);
 			

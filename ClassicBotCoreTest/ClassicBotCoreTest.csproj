@@ -55,5 +55,9 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="ProfilingSessions\Session20121122_061739.sdps" />
+    <Content Include="ProfilingSessions\Session20121122_063633.sdps" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>

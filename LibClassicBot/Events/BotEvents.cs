@@ -105,21 +105,19 @@ namespace LibClassicBot.Events
 	
 	public sealed class PacketEventArgs : EventArgs
 	{
-		/// <summary>The PacketID</summary>
-		public byte OpCode;
-		
-		/// <summary>The type of packet that was received, using the enumeration ClassicBot.ClassicPackets</summary>
-		public string PacketType;
+		/// <summary>The PacketID that was received.</summary>
+		public Networking.ServerPackets OpCode;
+	
+		//public string PacketType; 
+		//PacketType = Enum.GetName(typeof(LibClassicBot.Networking.ServerPackets), opcode);
 
 		/// <summary>
-		/// PacketEventArg containg the opcode / PacketID of a packet.
+		/// PacketEventArg containg the opcode / PacketID of a packet. To get the actual byte, use (byte)e.OpCode.
 		/// </summary>
-		/// <param name="opcode">The byte representation of the packet ID.</param>
-		internal PacketEventArgs(byte opcode)
+		/// <param name="opcode">The ServerPackets representation of the packet ID.</param>
+		internal PacketEventArgs(Networking.ServerPackets opcode)
 		{
 			OpCode = opcode;
-			PacketType = Enum.GetName(typeof(LibClassicBot.Networking.ServerPackets), opcode);
-			
 		}
 	}
 	

@@ -60,7 +60,7 @@ namespace LibClassicBot
 			string mppass = ReadValue(html.Substring(html.IndexOf("\"mppass\""), 80));
 			verificationkey = mppass;
 			_serverIP = IPAddress.Parse(serveraddress);
-			_serverPort = Convert.ToInt16(port);
+			_serverPort = Int16.Parse(port);
 		}
 		private static string LoginAndReadPage(string username, string password, string gameurl)
 		{
@@ -87,6 +87,8 @@ namespace LibClassicBot
 		}
 		
 		static string sessionCookie;
+		
+		const string IncorrectUserPass = "Wrong username or password, or the account has been migrated.";
 		
 		static void LoginCookie(string username, string password)
 		{
@@ -115,7 +117,7 @@ namespace LibClassicBot
 						if (rawLine == null) { break; }
 						if (rawLine.Contains("Set-Cookie"))
 						{
-							if(rawLine.Contains("secure.error")) throw new InvalidOperationException(); //Incorrect username or password.
+							if(rawLine.Contains("secure.error")) throw new InvalidOperationException(IncorrectUserPass); //Incorrect username or password.
 							if(rawLine.Contains("SESSION")) {
 								rawLine = rawLine.Substring(4);
 								sessionCookie = rawLine;
