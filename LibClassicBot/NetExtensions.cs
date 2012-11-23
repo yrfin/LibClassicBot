@@ -69,13 +69,15 @@ namespace LibClassicBot
 			//Step 2.
 			//Go to game url and GET using _uid cookie.
 			//Parse the page to find server, port, mpass strings.
-			WebRequest step3Request = HttpWebRequest.Create(gameurl);
+			WebRequest step3Request = WebRequest.Create(gameurl);
 			if(sessionCookie != null) step3Request.Headers.Add(sessionCookie);
 			using (Stream s4 = step3Request.GetResponse().GetResponseStream())
 			{
 				string html = new StreamReader(s4).ReadToEnd();
+				GC.Collect(0); //Get rid of stored WebProxy by the HttpWebRequest.
 				return html;
 			}
+			
 		}
 		private static string ReadValue(string s)
 		{
@@ -125,7 +127,7 @@ namespace LibClassicBot
 						}
 					}
 				}
-				sw.Dispose(); //If we call dispose earlier, the stream is closed before we can read it.
+				sw.Dispose(); //If we call dispose earlier, the underlying stream is closed before we can read it.
 			}
 		}
 		

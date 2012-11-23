@@ -12,12 +12,27 @@ namespace LibClassicBot
 		/// Gets the actual message from a raw chatline, and also removes color codes.
 		/// </summary>
 		/// <param name="rawLine">The raw chat line to trim. Can include color codes.</param>
-		/// <returns>A new string after the delimeter, with starting and endspaces removed, 
+		/// <returns>A new string after the delimeter, with starting and endspaces removed,
 		/// as well as color codes.</returns>
 		public string GetMessage(string rawLine)
 		{
 			return Extensions.StripColors(rawLine).Split(this._delimiter)[1].Trim(' ');
-		}			
+		}
+		
+		const string blockError = "Error while trying to update a block.";
+		const string posError = "Error while trying to update position.";
+		const string messError = "Error while trying to send a message.";
+
+		/// <summary>
+		/// Gets the user from a raw chatline, and also removes color codes. Albeit, this may be prefixed.
+		/// </summary>
+		/// <param name="rawLine">The raw chat line to trim. Can include color codes.</param>
+		/// <returns>A new string before the delimeter, with starting and endspaces removed,
+		/// as well as color codes.</returns>
+		public string GetUser(string rawLine)
+		{
+			return Extensions.StripColors(rawLine).Split(this._delimiter)[0].Trim(' ');
+		}
 		/// <summary>
 		/// Generates a somewhat user friendly reason as to why the bot crashed, easier to understand than an error code.
 		/// </summary>
@@ -107,7 +122,12 @@ namespace LibClassicBot
 			packet[6] = (byte)(zConverted >> 8);
 			packet[7] = mode;
 			packet[8] = type;
-			_serverSocket.Send(packet);
+			try { _serverSocket.Send(packet); }
+			catch(System.Net.Sockets.SocketException ex)
+			{
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(blockError, ex);
+				Events.RaiseBotError(socketEvent);
+			}
 		}
 
 		/// <summary>Sends a position update packet at the specified coordinates.</summary>
@@ -138,7 +158,12 @@ namespace LibClassicBot
 			packet[7] = (byte)(zConverted >> 8);
 			packet[8] = yaw;
 			packet[9] = pitch;
-			_serverSocket.Send(packet);
+			try { _serverSocket.Send(packet); }
+			catch(System.Net.Sockets.SocketException ex)
+			{
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(posError, ex);
+				Events.RaiseBotError(socketEvent);
+			}				
 			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
 			Events.RaisePlayerMoved(e);
 		}
@@ -169,7 +194,12 @@ namespace LibClassicBot
 			packet[7] = (byte)(zConverted >> 8);
 			packet[8] = _players[255].Yaw;
 			packet[9] = _players[255].Pitch;
-			_serverSocket.Send(packet);
+			try { _serverSocket.Send(packet); }
+			catch(System.Net.Sockets.SocketException ex)
+			{
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(posError, ex);
+				Events.RaiseBotError(socketEvent);
+			}						
 			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
 			Events.RaisePlayerMoved(e);
 		}
@@ -184,8 +214,13 @@ namespace LibClassicBot
 			packet[0] = (byte)0x0d; //Packet ID.
 			packet[1] = (byte)0xff; //Unused
 			Buffer.BlockCopy(Extensions.StringToBytes(message), 0, packet, 2, 64);
-			this._serverSocket.Send(packet);
-		}	
+			try { _serverSocket.Send(packet); }
+			catch(System.Net.Sockets.SocketException ex)
+			{
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(messError, ex);
+				Events.RaiseBotError(socketEvent);
+			}			
+		}
 		#endregion
 	}
 }

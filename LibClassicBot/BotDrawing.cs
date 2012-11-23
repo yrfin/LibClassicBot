@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 using LibClassicBot.Drawing;
@@ -24,11 +25,15 @@ namespace LibClassicBot
 		/// </summary>
 		private byte marksLeft = 0;
 		
+		//static Regex prefixRegex = new Regex(@"[\(\[<][\w\s]+[\)\]>]", RegexOptions.None);
+		//string ss = "[sdfsdfdfsdfs sdfdfsdfssdfsdfsdf] <5> _BjorN64_";
+		//string removedTitleM = Regex.Replace(ss,@"[\(\[<][\w\s]+[\)\]>]","").Trim();
+		
 		/// <summary>
 		/// Sets the queued draw operation, which will be executed once the all the marks
 		/// required have been set. To set a mark, place a brown mushroom on the map the bot is on.
 		/// </summary>
-		/// <param name="line">The chat line which triggered this draw operation, used for 
+		/// <param name="line">The chat line which triggered this draw operation, used for
 		/// determining the block type.</param>
 		/// <param name="drawer">The drawer to execute once all the marks have been set.</param>
 		/// <param name="marksRequired">The number of marks to set before executing the draw operation.</param>
@@ -43,7 +48,7 @@ namespace LibClassicBot
 			if(cuboidType != 255) //If 255, do not try to set the drawer with an invalid block type.
 			{
 				QueuedDrawer = drawer;
-				marksLeft = marksRequired; 
+				marksLeft = marksRequired;
 				marks = new Vector3I[marksRequired];
 			}
 		}
@@ -54,7 +59,7 @@ namespace LibClassicBot
 		public void SetDrawerToNull()
 		{
 			QueuedDrawer = null;
-		}		
+		}
 		
 		/// <summary>
 		/// Begins execution of the draw operation between two points.

@@ -161,12 +161,12 @@ namespace LibClassicBot
 			get { Thread.Sleep(500);
 				return ramCounter.NextValue() / 1024 / 1024; }
 		}*/
-		
-		/// <summary>
-		/// Whether to load settings from botsettings.txt. By default, this is set to true.
-		/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
-		/// </summary>
-		public bool LoadInternalSettings {
+			
+			/// <summary>
+			/// Whether to load settings from botsettings.txt. By default, this is set to true.
+			/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
+			/// </summary>
+			public bool LoadInternalSettings {
 			get { return _loadsettings; }
 			set {_loadsettings = value; }
 		}
@@ -278,7 +278,8 @@ namespace LibClassicBot
 		Socket _serverSocket;
 		List<string> _users = new List<string>();
 		int _serverPort;
-		string _username, _password, _hash, _ver;
+		string _username, _password, _hash;
+		string _ver = String.Empty;
 		string _servername, _servermotd;
 		bool _connected;
 		int _mapsizeX, _mapsizeY, _mapsizeZ;
@@ -290,9 +291,9 @@ namespace LibClassicBot
 		bool _requiresop = true;
 		Server server = new Server(); //TODO: Add support for not using remote server without breaking the events.
 		List<string> _ignored = new List<string>();
-		/*PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set", 
+		/*PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set",
 		                                                       Process.GetCurrentProcess().ProcessName, true);
-		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time", 
+		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time",
 		                                                       Process.GetCurrentProcess().ProcessName, true);*/
 		private MemoryStream mapStream;
 		//Drawing
@@ -391,31 +392,31 @@ namespace LibClassicBot
 					if (UseRemoteServer)
 					{
 						string[] splitLineRP = Lines[1].Split(':');
-						int RemoteServerPort;				
+						int RemoteServerPort;
 						Int32.TryParse(splitLineRP[1].Trim(), out RemoteServerPort); //Do not account for potential garbage data.
 						
 						string[] splitLineRPass = Lines[2].Split(':');
 						string RemotePassword = splitLineRP[1].Trim(); //Remove starting white space
 						if((numberofspaces = RemotePassword.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-							RemotePassword = RemotePassword.Substring(0, numberofspaces); //Trim potential garbage data.						
+							RemotePassword = RemotePassword.Substring(0, numberofspaces); //Trim potential garbage data.
 						server.Start(this,RemoteServerPort,RemotePassword);
 					}
 					string[] splitLineCRQ = Lines[3].Split(':');
 					string crq = splitLineCRQ[1].Trim(); //Remove starting white space
 					if((numberofspaces = crq.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						crq = crq.Substring(0, numberofspaces); //Trim potential garbage data.					
+						crq = crq.Substring(0, numberofspaces); //Trim potential garbage data.
 					bool.TryParse(crq, out _requiresop);
 					
 					string[] splitLineRecOnKick = Lines[4].Split(':');
 					string rok = splitLineRecOnKick[1].Trim(); //Remove starting white space
 					if((numberofspaces = rok.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						rok = rok.Substring(0, numberofspaces); //Trim potential garbage data.						
+						rok = rok.Substring(0, numberofspaces); //Trim potential garbage data.
 					bool.TryParse(rok, out _reconnectonkick);
 					
 					string[] splitLineSaveMap = Lines[5].Split(':');
 					string sm = splitLineSaveMap[1].Trim(); //Remove starting white space
 					if((numberofspaces = sm.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						sm = sm.Substring(0, numberofspaces); //Trim potential garbage data.							
+						sm = sm.Substring(0, numberofspaces); //Trim potential garbage data.
 					bool.TryParse(sm, out _savemap);
 				}
 				else
@@ -590,11 +591,13 @@ namespace LibClassicBot
 							{
 								int ChunkLength = IPAddress.HostToNetworkOrder(reader.ReadInt16()); //Get the length of non null bytes
 								byte[] ChunkData = reader.ReadBytes(1024); //Should always be 1024.
-								reader.ReadByte(); //Read the percentage, do nothing as of yet.
+								byte progress = reader.ReadByte(); //Read the percentage, do nothing as of yet.
 								if(_savemap) {
 									byte[] chunkDataWithoutPadding = new byte[ChunkLength];
 									Buffer.BlockCopy(ChunkData, 0, chunkDataWithoutPadding, 0, ChunkLength);
 									mapStream.Write(chunkDataWithoutPadding, 0, chunkDataWithoutPadding.Length); }
+								MapProgressEventArgs e = new MapProgressEventArgs(progress);
+								Events.RaiseMapProgress(e);
 							}
 							break;
 
@@ -626,6 +629,8 @@ namespace LibClassicBot
 									map.Save("map_" + DateTime.Now.ToString("ddHHmmssfffffff")); //Formatting for DateTime.
 									map.Dispose();
 								}
+								MapLoadedEventArgs e = new MapLoadedEventArgs();
+								Events.RaiseMapLoaded(e);
 							}
 							break;
 
@@ -780,6 +785,8 @@ namespace LibClassicBot
 									Events.RaiseBotError(socketEvent);
 								}
 								else {
+									_serverSocket.Close();
+									_serverSocket = null;
 									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
 										"It looks like the bot was banned from reconnecting. (Kick packet received before a handshake packet)",new IOException());
 									Events.RaiseBotError(socketEvent);

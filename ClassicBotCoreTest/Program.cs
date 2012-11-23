@@ -6,13 +6,20 @@ using LibClassicBot;
 using LibClassicBot.Drawing;
 using LibClassicBot.Events;
 using LibClassicBot.Remote.Events;
+using System.Runtime.InteropServices;
 
 namespace LibClassicBotTest
 {
 	class Program
 	{
+		[DllImport("psapi.dll")]
+		static extern int EmptyWorkingSet(IntPtr hwProc);
+		static void MinimizeFootprint()
+		{
+			EmptyWorkingSet(System.Diagnostics.Process.GetCurrentProcess().Handle);
+		}
 		public static void Main(string[] args)
-		{		
+		{
 			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");
@@ -180,7 +187,7 @@ namespace LibClassicBotTest
 				CuboidHollow cuboidh = new CuboidHollow();
 				Bot1.SetDrawer(Line, cuboidh, 2);
 			};
-			Bot1.RegisteredCommands.Add("cuboidh",CuboidHCommand);	
+			Bot1.RegisteredCommands.Add("cuboidh",CuboidHCommand);
 
 			ClassicBot.CommandDelegate CuboidWCommand = delegate(string Line)
 			{
@@ -194,11 +201,13 @@ namespace LibClassicBotTest
 				Line line = new Line();
 				Bot1.SetDrawer(Line, line, 2);
 			};
-			Bot1.RegisteredCommands.Add("line",LineCommand);			
+			Bot1.RegisteredCommands.Add("line",LineCommand);
 			#endregion
 			
 			StaticBot1 = Bot1;
 			Bot1.Start(false);
+			//Console.WriteLine("Called");
+			//MinimizeFootprint();
 			
 		loop:
 			{

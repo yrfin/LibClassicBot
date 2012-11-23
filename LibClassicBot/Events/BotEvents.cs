@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LibClassicBot.Events
 {
-	public class BotEvents
+	public sealed class BotEvents
 	{
 		/// <summary>Occurs when the bot receives a message.</summary>
 		public event EventHandler<MessageEventArgs> ChatMessage;
@@ -20,7 +20,12 @@ namespace LibClassicBot.Events
 		
 		/// <summary>Occurs when a socket exception is raised during connecting to a server.</summary>
 		public event EventHandler<BotExceptionEventArgs> BotException;
+		
+		/// <summary>Occurs when the bot has received a map chunk, and indicates the progress of loading the map.</summary>
+		public event EventHandler<MapProgressEventArgs> MapProgress;
 
+		/// <summary>Occurs when the bot has finished loading a map.</summary>
+		public event EventHandler<MapLoadedEventArgs> MapLoaded;		
 
 		/// <summary>Raises a new ChatMessage Event.</summary>
 		/// <param name="e">MessageEventArgs to send</param>
@@ -67,6 +72,23 @@ namespace LibClassicBot.Events
 			socketEvent(null,e);
 		}
 		
+		/// <summary>Raises a new MapProgress Event.</summary>
+		/// <param name="e">MapProgressEventArgs to send</param>
+		internal void RaiseMapProgress(MapProgressEventArgs e)
+		{
+			System.EventHandler<MapProgressEventArgs> progressEvent = MapProgress;
+			if(progressEvent == null) return;
+			progressEvent(null,e);
+		}		
+
+		/// <summary>Raises a new MapProgress Event.</summary>
+		/// <param name="e">MapProgressEventArgs to send</param>
+		internal void RaiseMapLoaded(MapLoadedEventArgs e)
+		{
+			System.EventHandler<MapLoadedEventArgs> loadEvent = MapLoaded;
+			if(loadEvent == null) return;
+			loadEvent(null,e);
+		}			
 	}
 
 	public sealed class MessageEventArgs : EventArgs
@@ -85,6 +107,29 @@ namespace LibClassicBot.Events
 		}
 	}
 
+	public sealed class MapProgressEventArgs : EventArgs
+	{
+		/// <summary>The progress of loading the map so far.</summary>
+		public byte PercentDone;
+
+		/// <summary>
+		/// A MapProgressEventArg containing the percent of the map loaded.
+		/// </summary>
+		/// <param name="percent">The percent in how far the map has loaded.</param>
+		internal MapProgressEventArgs(byte percent)
+		{
+			PercentDone = percent;
+		}
+	}	
+	
+	public sealed class MapLoadedEventArgs : EventArgs
+	{
+		/// <summary>
+		/// A MapLoadedEventArg, which in itself contains no properties.
+		/// </summary>
+		internal MapLoadedEventArgs() {}
+	}
+	
 	public sealed class PositionEventArgs : EventArgs
 	{
 		/// <summary>ID of the player who moved.</summary>
