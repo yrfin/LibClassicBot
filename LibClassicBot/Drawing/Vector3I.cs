@@ -64,7 +64,17 @@ namespace LibClassicBot.Drawing
 			return 0;
 		}
 		#endregion
+
+		public static double Distance(Vector3I v1, Vector3I v2) {
+			return Math.Sqrt(
+				(v1.X - v2.X) * (v1.X - v2.X) +
+				(v1.Y - v2.Y) * (v1.Y - v2.Y) +
+				(v1.Z - v2.Z) * (v1.Z - v2.Z));
+		}
 		
+		public double Distance(Vector3I other) {
+			return Distance(this, other);
+		}
 		
 		#region Operators
 		public static bool operator ==(Vector3I left, Vector3I right)
@@ -99,7 +109,7 @@ namespace LibClassicBot.Drawing
 		{
 			if(left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z) return true;
 			else return false;
-		}		
+		}
 
 		public static Vector3I operator+(Vector3I left, Vector3I right)
 		{
@@ -121,29 +131,29 @@ namespace LibClassicBot.Drawing
 			return new Vector3I(-value.X, -value.Y, -value.Z);
 		}
 		
-        public static Vector3I operator *( Vector3I value, int scalar ) 
-        {
-            return new Vector3I( value.X * scalar, value.Y * scalar, value.Z * scalar );
-        }
+		public static Vector3I operator *( Vector3I value, int scalar )
+		{
+			return new Vector3I( value.X * scalar, value.Y * scalar, value.Z * scalar );
+		}
 		#endregion
 		
 		
-        public int this[int i] {
-            get {
-                switch( i ) {
-                    case 0: return X;
-                    case 1: return Y;
-                    default: return Z;
-                }
-            }
-            set {
-                switch( i ) {
-                    case 0: X = value; return;
-                    case 1: Y = value; return;
-                    default: Z = value; return;
-                }
-            }
-        }		
+		public int this[int i] {
+			get {
+				switch( i ) {
+						case 0: return X;
+						case 1: return Y;
+						default: return Z;
+				}
+			}
+			set {
+				switch( i ) {
+						case 0: X = value; return;
+						case 1: Y = value; return;
+						default: Z = value; return;
+				}
+			}
+		}
 		#region Constructors
 		/// <summary>Constructs a Vector3I from the three given integer points.</summary>
 		public Vector3I(int x, int y, int z)
@@ -209,9 +219,9 @@ namespace LibClassicBot.Drawing
 			val.Y = Math.Abs(val1.Y);
 			val.Z = Math.Abs(val1.Z);
 			return val;
-		}		
+		}
 		#endregion
-	
+		
 		
 		public override string ToString()
 		{

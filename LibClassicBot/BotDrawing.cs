@@ -25,9 +25,15 @@ namespace LibClassicBot
 		/// </summary>
 		private byte marksLeft = 0;
 		
-		//static Regex prefixRegex = new Regex(@"[\(\[<][\w\s]+[\)\]>]", RegexOptions.None);
-		//string ss = "[sdfsdfdfsdfs sdfdfsdfssdfsdfsdf] <5> _BjorN64_";
-		//string removedTitleM = Regex.Replace(ss,@"[\(\[<][\w\s]+[\)\]>]","").Trim();
+		/// <summary>
+		/// Regex used for the trimming of prefixes from the names of users.
+		/// </summary>
+		/// <example><code>
+		/// string trimmed = Regex.Replace("[2] Test",@"[\(\[][\w\s]+[\)\]]","").Trim();
+		/// </code></example>
+		static Regex prefixRegex = new Regex(@"[\(\[<][\w\s]+[\)\]>]", RegexOptions.None);
+		
+		int CubID = -1;
 		
 		/// <summary>
 		/// Sets the queued draw operation, which will be executed once the all the marks
@@ -47,6 +53,19 @@ namespace LibClassicBot
 			GetFromLine(GetMessage(chatLine));
 			if(cuboidType != 255) //If 255, do not try to set the drawer with an invalid block type.
 			{
+				CubID = -1;
+				string user = prefixRegex.Replace(GetUser(chatLine).ToLower(), String.Empty).Trim();
+				foreach(int id in _players.Keys) {
+					if(_players[id].Name.ToLower().Substring(2) == user) {
+						CubID = id;
+						break;
+					}
+				}
+				if(CubID == -1) {
+					SendMessagePacket("Unable to locate a player from the username of the chatline.");
+					SendMessagePacket("Are you using the same name as your Minecraft account?");
+					return;
+				}
 				QueuedDrawer = drawer;
 				marksLeft = marksRequired;
 				marks = new Vector3I[marksRequired];
@@ -74,6 +93,7 @@ namespace LibClassicBot
 			                               	drawer.Start(this, ref drawingAborted, points, blockType, ref sleepTime);
 			                               });
 			drawThread.IsBackground = true;
+			drawThread.Name = "Drawing thread.";
 			drawThread.Start();
 		}
 		

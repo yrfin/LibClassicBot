@@ -20,6 +20,9 @@ namespace LibClassicBotTest
 		}
 		public static void Main(string[] args)
 		{
+			Vector3I v = new Vector3I(0,0,0);
+			Vector3I v2 = new Vector3I(5,5,5);
+			Console.WriteLine(v.Distance(v2));
 			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");
@@ -110,8 +113,8 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate PlaceCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
-				string[] coords = full[1].Split(new char[] { ',' }, 3);
-				Bot1.SendBlockPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]), 1, 29);
+				string[] coords = full[1].Split(new char[] { ',' }, 4);
+				Bot1.SendBlockPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]), 1, Byte.Parse(coords[3]));
 			};
 			Bot1.RegisteredCommands.Add("place",PlaceCommand);
 			
