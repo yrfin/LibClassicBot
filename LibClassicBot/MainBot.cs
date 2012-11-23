@@ -642,22 +642,15 @@ namespace LibClassicBot
 								byte blockType = reader.ReadByte();
 								if(marksLeft > 0 && blockType == 39 && CubID != -1)
 								{
-									if(_players[CubID].X < 0 || _players[CubID].Y < 0 || _players[CubID].Z < 0)
-									{
+									if(_players[CubID].X < 0 || _players[CubID].Y < 0 || _players[CubID].Z < 0) {
 										SendMessagePacket("Error: You are too far away from the bot.");
 										break;
 									}
-									Console.WriteLine(new Vector3I(blockX, blockY, blockZ).Distance(new Vector3I(
-										(int)_players[CubID].X, (int)_players[CubID].Y, (int)_players[CubID].Z)));
 									
 									if(new Vector3I(blockX, blockY, blockZ).Distance(new Vector3I(
-										(int)_players[CubID].X, (int)_players[CubID].Y, (int)_players[CubID].Z)) > 11)
-									{
-										Console.WriteLine("Tried to place too far away.");
-										break;
+										(int)_players[CubID].X, (int)_players[CubID].Y, (int)_players[CubID].Z)) > 11) {
+										break; //Another player probably tried placing a block somewhere else.
 									}
-									
-									//Console.WriteLine(new Vector3I(blockX, blockY, blockZ));
 									marks[marks.Length - marksLeft] = new Vector3I(blockX, blockY, blockZ);
 									marksLeft--; //Go from smallest to largest.
 									if(marksLeft == 0 && QueuedDrawer != null) {
