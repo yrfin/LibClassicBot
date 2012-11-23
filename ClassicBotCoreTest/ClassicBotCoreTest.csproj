@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Exe</OutputType>
     <RootNamespace>ClassicBotCoreTest</RootNamespace>
-    <AssemblyName>LibClassicBot GUI</AssemblyName>
+    <AssemblyName>LibClassicBot CLI</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
