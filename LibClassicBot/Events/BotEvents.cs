@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Net;
+using System.Net.Sockets;
 
 namespace LibClassicBot.Events
 {
@@ -25,10 +27,18 @@ namespace LibClassicBot.Events
 		public event EventHandler<MapProgressEventArgs> MapProgress;
 
 		/// <summary>Occurs when the bot has finished loading a map.</summary>
-		public event EventHandler<MapLoadedEventArgs> MapLoaded;		
+		public event EventHandler<MapLoadedEventArgs> MapLoaded;
+		
+		/// <summary>Occurs when a remote session is started.</summary>
+		public event EventHandler<SessionStartedEventArgs> RemoteSessionStarted;
+
+		/// <summary>Occurs when a remote user logs in and is verified. </summary>
+		public event EventHandler<RemoteLoginEventArgs> RemoteUserLoggedIn;
+		
+		/// <summary>Occurs when a remote session is ended.;</summary>
+		public event EventHandler<SessionEndedEventArgs> RemoteSessionEnded;		
 
 		/// <summary>Raises a new ChatMessage Event.</summary>
-		/// <param name="e">MessageEventArgs to send</param>
 		internal void RaiseChatMessage(MessageEventArgs e)
 		{
 			System.EventHandler<MessageEventArgs> chatEvent = ChatMessage;
@@ -37,7 +47,6 @@ namespace LibClassicBot.Events
 		}
 
 		/// <summary>Raises a new PlayerMoved Event.</summary>
-		/// <param name="e">PositionEventArgs to send</param>
 		internal void RaisePlayerMoved(PositionEventArgs e)
 		{
 			System.EventHandler<PositionEventArgs> movedEvent = PlayerMoved;
@@ -46,7 +55,6 @@ namespace LibClassicBot.Events
 		}
 		
 		/// <summary>Raises a new PacketReceived Event.</summary>
-		/// <param name="e">PacketEventArgs to send</param>
 		internal void RaisePacketReceived(PacketEventArgs e)
 		{
 			System.EventHandler<PacketEventArgs> packetEvent = PacketReceived;
@@ -55,7 +63,6 @@ namespace LibClassicBot.Events
 		}
 
 		/// <summary>Raises a new GotKicked Event.</summary>
-		/// <param name="e">KickedEventArgs to send</param>
 		internal void RaiseGotKicked(KickedEventArgs e)
 		{
 			System.EventHandler<KickedEventArgs> kickedEvent = GotKicked;
@@ -64,7 +71,6 @@ namespace LibClassicBot.Events
 		}
 		
 		/// <summary>Raises a new BotSocketError Event.</summary>
-		/// <param name="e">SocketExceptionEventArgs to send</param>
 		internal void RaiseBotError(BotExceptionEventArgs e)
 		{
 			System.EventHandler<BotExceptionEventArgs> socketEvent = BotException;
@@ -73,7 +79,6 @@ namespace LibClassicBot.Events
 		}
 		
 		/// <summary>Raises a new MapProgress Event.</summary>
-		/// <param name="e">MapProgressEventArgs to send</param>
 		internal void RaiseMapProgress(MapProgressEventArgs e)
 		{
 			System.EventHandler<MapProgressEventArgs> progressEvent = MapProgress;
@@ -82,13 +87,36 @@ namespace LibClassicBot.Events
 		}		
 
 		/// <summary>Raises a new MapProgress Event.</summary>
-		/// <param name="e">MapProgressEventArgs to send</param>
 		internal void RaiseMapLoaded(MapLoadedEventArgs e)
 		{
 			System.EventHandler<MapLoadedEventArgs> loadEvent = MapLoaded;
 			if(loadEvent == null) return;
 			loadEvent(null,e);
-		}			
+		}	
+
+		/// <summary>Raises a new RemoteSessionStarted Event.</summary>
+		internal void RaiseSessionStarted(SessionStartedEventArgs e)
+		{
+			System.EventHandler<SessionStartedEventArgs> sesStartEvent = RemoteSessionStarted;
+			if (sesStartEvent == null) return;
+			sesStartEvent(null, e);
+		}
+
+		/// <summary>Raises a new RemoteUserLoggedin Event.</summary>
+		internal void RaiseUserLoggedIn(RemoteLoginEventArgs e)
+		{
+			System.EventHandler<RemoteLoginEventArgs> loggedinEvent = RemoteUserLoggedIn;
+			if (loggedinEvent == null) return;
+			loggedinEvent(null, e);
+		}
+		
+		/// <summary>Raises a new RemoteSessionEnded Event.</summary>
+		internal void RaiseSessionEnded(SessionEndedEventArgs e)
+		{
+			System.EventHandler<SessionEndedEventArgs> sesEndEvent = RemoteSessionEnded;
+			if (sesEndEvent == null) return;
+			sesEndEvent(null, e);
+		}		
 	}
 
 	public sealed class MessageEventArgs : EventArgs
@@ -206,5 +234,61 @@ namespace LibClassicBot.Events
 		}
 	}
 
+	public sealed class SessionStartedEventArgs : EventArgs
+	{
+		/// <summary>The IPEndPoint of the remote user attempting to login. At this point, we do not know the username.</summary>
+		public IPEndPoint RemoteEndPoint;
+		
+		/// <summary>The remote TCP client of the remote endpoint.</summary>
+		public TcpClient RemoteTCPClient;
 
+		/// <summary>A SessionStartedEventArg. It contains an IPEndPoint which identified the remote endpoint the user is connecting from,
+		/// and a TcpClient that can be used for communication with the remote endpoint.</summary>
+		/// <param name="endIP">The IPEndPoint of the remote endpoint.</param>
+		/// <param name="endTCP">The TcpClient of the remote endpoint.</param>
+		internal SessionStartedEventArgs(IPEndPoint endIP, TcpClient endTCP)
+		{
+			RemoteEndPoint = endIP;
+			RemoteTCPClient = endTCP;
+		}
+	}
+
+
+	public sealed class RemoteLoginEventArgs : EventArgs
+	{
+		/// <summary>The username of the remote user.</summary>
+		public string Username;
+		
+		/// <summary>The IPEndPoint of the user attempting to login.</summary>
+		public IPEndPoint RemoteEndPoint;
+		
+		/// <summary>The remote TCP client of the user.</summary>
+		public TcpClient RemoteTCPClient;
+
+		/// <summary>A SessionStartedEventArg. It contains an IPEndPoint which identified the remote endpoint the user is connecting from,
+		/// and a TcpClient that can be used for communication with the remote endpoint.</summary>
+		/// <param name="endIP">The IPEndPoint of the remote endpoint.</param>
+		/// <param name="endTCP">The TcpClient of the remote endpoint.</param>
+		/// <param name="user">The name of the user that logged in. Is not verified yet.</param>
+		internal RemoteLoginEventArgs(string user, IPEndPoint endIP, TcpClient endTCP)
+		{
+			RemoteEndPoint = endIP;
+			RemoteTCPClient = endTCP;
+			Username = user;
+		}
+	}
+	
+	public sealed class SessionEndedEventArgs : EventArgs
+	{
+		/// <summary>The username of the remote user that disconnected. May be null if the remote client disconnected before sending the username/</summary>
+		public string Username;
+
+		/// <summary>A SessionEndedEventArg which identified which user was removed from the server.
+		/// May be null if the connection was lost before a username was given to the server.</summary>
+		/// <param name="user">The name of the user that disconnected.</param>
+		internal SessionEndedEventArgs(string user)
+		{
+			Username = user;
+		}
+	}
 }

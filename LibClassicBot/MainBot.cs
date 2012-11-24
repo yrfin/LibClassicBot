@@ -11,7 +11,6 @@ using LibClassicBot.Drawing;
 using LibClassicBot.Events;
 using LibClassicBot.Networking;
 using LibClassicBot.Remote;
-using LibClassicBot.Remote.Events;
 
 namespace LibClassicBot
 {
@@ -137,13 +136,6 @@ namespace LibClassicBot
 			get { return _ignored; }
 			set { _ignored = value; }
 		}
-		
-		/// <summary>
-		/// Events that are raised by the server listening for remote clients.
-		/// </summary>
-		public RemoteEvents RemoteServerEvents {
-			get { return server.RemoteBotEvents; }
-		}
 
 		/// <summary>Gets the current process associated with the bot.</summary>
 		public Process BotProcess {
@@ -201,9 +193,6 @@ namespace LibClassicBot
 		/// <summary>
 		/// Determines if the given three coordinates are inside the map. If any of them are false, the boolean returns false.
 		/// </summary>
-		/// <param name="x">The x coordinate to check.</param>
-		/// <param name="y">The y coordinate to check.</param>
-		/// <param name="z">The z coordinate to check.</param>
 		/// <returns>True if all three points were in the map, false if not.</returns>
 		public bool IsValidPosition(short x, short y, short z)
 		{
@@ -289,7 +278,7 @@ namespace LibClassicBot
 		Dictionary<int, Player> _players = new Dictionary<int, Player>();
 		byte _userType;
 		bool _requiresop = true;
-		Server server = new Server(); //TODO: Add support for not using remote server without breaking the events.
+		Server server = null;
 		List<string> _ignored = new List<string>();
 		/*PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set",
 		                                                       Process.GetCurrentProcess().ProcessName, true);
@@ -388,7 +377,6 @@ namespace LibClassicBot
 					if((numberofspaces = urs.LastIndexOf(' ')) != -1) //-1 means no white space was found.
 						urs = urs.Substring(0, numberofspaces); //Trim potential garbage data.
 					bool.TryParse(urs, out UseRemoteServer);
-					
 					if (UseRemoteServer)
 					{
 						string[] splitLineRP = Lines[1].Split(':');
@@ -396,9 +384,10 @@ namespace LibClassicBot
 						Int32.TryParse(splitLineRP[1].Trim(), out RemoteServerPort); //Do not account for potential garbage data.
 						
 						string[] splitLineRPass = Lines[2].Split(':');
-						string RemotePassword = splitLineRP[1].Trim(); //Remove starting white space
+						string RemotePassword = splitLineRPass[1].Trim(); //Remove starting white space
 						if((numberofspaces = RemotePassword.LastIndexOf(' ')) != -1) //-1 means no white space was found.
 							RemotePassword = RemotePassword.Substring(0, numberofspaces); //Trim potential garbage data.
+						server = new Server();
 						server.Start(this,RemoteServerPort,RemotePassword);
 					}
 					string[] splitLineCRQ = Lines[3].Split(':');
@@ -574,7 +563,6 @@ namespace LibClassicBot
 									serverLoaded = true;
 								}
 								_userType = reader.ReadByte();//Get the type. 0x64 = Op, 0x00 = Normal user.
-								CanReconnectAfterKick = true;
 							}
 							break;
 
@@ -584,6 +572,7 @@ namespace LibClassicBot
 						case ServerPackets.LevelInitialize://0x02
 							_players.Clear();//Start loading map, wipe players.
 							if(_savemap) mapStream = new MemoryStream();
+							CanReconnectAfterKick = true;
 							break;
 
 
@@ -796,7 +785,7 @@ namespace LibClassicBot
 									_serverSocket.Close();
 									_serverSocket = null;
 									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
-										"It looks like the bot was banned from reconnecting. (Kick packet received before a handshake packet)",new IOException());
+										"It looks like the bot was prevented from reconnecting. (Kick packet received before a LevelBegin packet)",new IOException());
 									Events.RaiseBotError(socketEvent);
 								}
 								return;

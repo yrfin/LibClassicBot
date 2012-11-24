@@ -33,6 +33,10 @@ namespace LibClassicBot
 		/// </code></example>
 		static Regex prefixRegex = new Regex(@"[\(\[<][\w\s]+[\)\]>]", RegexOptions.None);
 		
+		/// <summary>
+		/// The ID of the player who cuboided, used for the checking if blocks placed 
+		/// are close enough to the player. -1 means that no player was found.
+		/// </summary>
 		int CubID = -1;
 		
 		/// <summary>
@@ -53,15 +57,16 @@ namespace LibClassicBot
 			GetFromLine(GetMessage(chatLine));
 			if(cuboidType != 255) //If 255, do not try to set the drawer with an invalid block type.
 			{
-				CubID = -1;
+				CubID = -1; //Wipe existing player, if there was one.
 				string user = prefixRegex.Replace(GetUser(chatLine).ToLower(), String.Empty).Trim();
+				//Complicated string, but it basically trims all prefixes and spaces.
 				foreach(int id in _players.Keys) {
-					if(_players[id].Name.ToLower().Substring(2) == user) {
-						CubID = id;
+					if(_players[id].Name.ToLower().Substring(2) == user) {//Lowercase, ignore colour codes.
+						CubID = id; //Match found.
 						break;
 					}
 				}
-				if(CubID == -1) {
+				if(CubID == -1) { //Probably had their display name changed.
 					SendMessagePacket("Unable to locate a player from the username of the chatline.");
 					SendMessagePacket("Are you using the same name as your Minecraft account?");
 					return;
@@ -75,7 +80,7 @@ namespace LibClassicBot
 		/// Sets the queued draw operation to null. This should be called after the running draw operation has
 		/// been completed, although the bot can work around drawing operations that do not call this.
 		/// </summary>
-		public void SetDrawerToNull()
+		public void SetDrawerToNull() 
 		{
 			QueuedDrawer = null;
 		}
@@ -120,6 +125,9 @@ namespace LibClassicBot
 		/// <param name="s">The chatline to parse.</param>
 		public void GetFromLine(string rawLine) //TODO: Use better handling of chat.
 		{
+			/*Although this could be done with a static Dictionary, unfortunately .NET 2.0
+			  * doesn't support initializing static dictionaries, so the better solution would be 
+			  * to either A)Update to 3.5, or B) Initialize later.*/
 			string[] split = rawLine.Split(' ');
 			try
 			{

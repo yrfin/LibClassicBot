@@ -19,6 +19,7 @@ namespace LibClassicBot
 			return Extensions.StripColors(rawLine).Split(this._delimiter)[1].Trim(' ');
 		}
 		
+		//Error messages.
 		const string blockError = "Error while trying to update a block.";
 		const string posError = "Error while trying to update position.";
 		const string messError = "Error while trying to send a message.";

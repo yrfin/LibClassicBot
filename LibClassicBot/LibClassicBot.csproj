@@ -72,7 +72,6 @@
     <Compile Include="NetExtensions.cs" />
     <Compile Include="Networking\ClientPacketsEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Remote\Events\RemoteEvents.cs" />
     <Compile Include="Remote\RemoteClient.cs" />
     <Compile Include="Remote\Protocol.cs" />
     <Compile Include="Remote\Server.cs" />
@@ -84,7 +83,6 @@
     <Folder Include="Drawing" />
     <Folder Include="Networking" />
     <Folder Include="Events" />
-    <Folder Include="Remote\Events" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

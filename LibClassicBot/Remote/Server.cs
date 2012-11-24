@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
-using LibClassicBot.Remote.Events;
+using LibClassicBot.Events;
 
 namespace LibClassicBot.Remote
 {
@@ -29,9 +28,6 @@ namespace LibClassicBot.Remote
 		}		
 		/// <summary>A list of all remotely connected clients to the bot.</summary>
 		public List<RemoteClient> Clients = new List<RemoteClient>();
-		
-		/// <summary>Events that are raised by the server listening for remote clients.</summary>
-		public RemoteEvents RemoteBotEvents = new RemoteEvents();
 		#endregion
 		
 		private int _port;
@@ -84,7 +80,7 @@ namespace LibClassicBot.Remote
 				TcpClient RemoteTcpClient = tcpListener.AcceptTcpClient();
 				//new TcpClient() { Client = tcpListener.Server.Accept(); };
 				SessionStartedEventArgs e = new SessionStartedEventArgs((IPEndPoint)RemoteTcpClient.Client.RemoteEndPoint,RemoteTcpClient);
-				RemoteBotEvents.RaiseSessionStarted(e);
+				MinecraftBot.Events.RaiseSessionStarted(e);
 				//Create a thread to handle communication with the connected remote client.
 				RemoteClient client = new RemoteClient();
 				Thread clientThread = new Thread(delegate() { client.Start(RemoteTcpClient,this); } );

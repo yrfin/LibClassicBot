@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-
-using LibClassicBot.Remote.Events;
+using LibClassicBot.Events;
 
 namespace LibClassicBot.Remote
 {
@@ -103,7 +102,7 @@ namespace LibClassicBot.Remote
 										writer.Write((byte)RemoteProtocol.ClientAuthorised);
 										writer.Write("You have now been authenticated");
 										RemoteLoginEventArgs e = new RemoteLoginEventArgs(Username,(IPEndPoint)rTcpClient.Client.RemoteEndPoint,rTcpClient);
-										server.RemoteBotEvents.RaiseUserLoggedIn(e);
+										server.MinecraftBot.Events.RaiseUserLoggedIn(e);
 									}
 									break;
 									
@@ -218,7 +217,7 @@ namespace LibClassicBot.Remote
 					}
 				}
 				SessionEndedEventArgs endede = new SessionEndedEventArgs(Username);
-				server.RemoteBotEvents.RaiseSessionEnded(endede);
+				server.MinecraftBot.Events.RaiseSessionEnded(endede);
 				if(rTcpClient != null)
 				{
 					rTcpClient.Client.Disconnect(true);
