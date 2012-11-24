@@ -14,15 +14,13 @@ namespace LibClassicBotTest
 	{
 		[DllImport("psapi.dll")]
 		static extern int EmptyWorkingSet(IntPtr hwProc);
-		static void MinimizeFootprint()
-		{
+		
+		static void MinimizeFootprint() {
 			EmptyWorkingSet(System.Diagnostics.Process.GetCurrentProcess().Handle);
 		}
+		
 		public static void Main(string[] args)
 		{
-			Vector3I v = new Vector3I(0,0,0);
-			Vector3I v2 = new Vector3I(5,5,5);
-			Console.WriteLine(v.Distance(v2));
 			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");
@@ -35,6 +33,15 @@ namespace LibClassicBotTest
 			Console.WriteLine(".move <x,y,z> - Moves the bot to the specified coordinates.");
 			Console.WriteLine(".place <x,y,z> - Attempts to place a block at the specified coordinates.");
 			Console.WriteLine(".haspaid <username> - Announces if a user has paid or not.");
+			Console.WriteLine(".cuboid <blocktype> - Cuboids between two points.");
+			Console.WriteLine(".cuboid <blocktype> - Draws a hollow cuboid between two points.");
+			Console.WriteLine(".cuboid <blocktype> - Draws a wireframe between two points.");
+			Console.WriteLine(".ellipsoid <blocktype> - Draws an ellipsoid between two points.");
+			Console.WriteLine(".pyramid <blocktype> - Draws an upwards pyramid between two points.");
+			Console.WriteLine(".follow <username> - Follows player. (Case sensitive)");
+			Console.WriteLine(".speed <number> - The number of blocks to place per second.");
+			Console.WriteLine(".abort - Stops the currently running draw operation.");
+			Console.WriteLine(".drawimg 0 <filename> - Attempts to draw the specified image.");
 			Console.ResetColor();
 			
 			Console.WriteLine("Enter the username to be used by the bot: (Minecraft account)");
@@ -42,7 +49,6 @@ namespace LibClassicBotTest
 			Console.WriteLine("Enter the password to be used by the bot: (Minecraft account)");
 			string password = Console.ReadLine();
 			Console.WriteLine("Enter the address of the server to connect to: ");
-			string hash = Console.ReadLine();
 			if(!hash.StartsWith("http"))
 			{
 				if(hash.StartsWith("minecraft")) hash = "http://"+hash;
@@ -58,8 +64,18 @@ namespace LibClassicBotTest
 			Bot1.RemoteServerEvents.RemoteSessionStarted += RemoteSessionStarted;
 			Bot1.RemoteServerEvents.RemoteUserLoggedIn += RemoteUserLoggedIn;
 			Bot1.RemoteServerEvents.RemoteSessionEnded += RemoteSessionEnded;
+			Bot1.Events.MapLoaded += Bot1_MapLoaded;
 			
 			#region Plugins
+			
+			ClassicBot.CommandDelegate DrawCommand = delegate(string Line)
+			{
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 1);
+				DrawImage d = new DrawImage();
+				d.originalchatline = Line;
+				Bot1.SetDrawer(Line, d, 2);
+			};
+			Bot1.RegisteredCommands.Add("drawimg",DrawCommand);
 			
 			ClassicBot.CommandDelegate PositionCommand = delegate(string Line)
 			{
@@ -209,8 +225,6 @@ namespace LibClassicBotTest
 			
 			StaticBot1 = Bot1;
 			Bot1.Start(false);
-			//Console.WriteLine("Called");
-			//MinimizeFootprint();
 			
 		loop:
 			{
@@ -219,9 +233,14 @@ namespace LibClassicBotTest
 				goto loop;
 			}
 		}
-
-		static string personfollowed = String.Empty;
 		
+		static string personfollowed = String.Empty;
+
+		static void Bot1_MapLoaded(object sender, MapLoadedEventArgs e)
+		{
+			MinimizeFootprint();
+		}
+
 		static void Bot1_PlayerMoved(object sender, PositionEventArgs e)
 		{
 			string name = e.player.Name;
