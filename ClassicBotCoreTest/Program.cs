@@ -49,6 +49,7 @@ namespace LibClassicBotTest
 			Console.WriteLine("Enter the password to be used by the bot: (Minecraft account)");
 			string password = Console.ReadLine();
 			Console.WriteLine("Enter the address of the server to connect to: ");
+			string hash = Console.ReadLine();
 			if(!hash.StartsWith("http"))
 			{
 				if(hash.StartsWith("minecraft")) hash = "http://"+hash;
