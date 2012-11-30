@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-# SharpDevelop 4.2.0.8528-beta
+# SharpDevelop 4.3
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibClassicBot", "LibClassicBot\LibClassicBot.csproj", "{670FDBD0-FC98-482A-890F-F244E6AD5DAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassicBotCoreTest", "ClassicBotCoreTest\ClassicBotCoreTest.csproj", "{A5E2622A-6AB8-48CB-870B-BCD3F8B07FA5}"

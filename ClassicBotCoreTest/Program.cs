@@ -5,7 +5,6 @@ using System.Text;
 using LibClassicBot;
 using LibClassicBot.Drawing;
 using LibClassicBot.Events;
-using LibClassicBot.Remote.Events;
 using System.Runtime.InteropServices;
 
 namespace LibClassicBotTest
@@ -59,12 +58,11 @@ namespace LibClassicBotTest
 			ClassicBot Bot1 = new ClassicBot(username,password,hash,"operators.txt");
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
 			Bot1.Events.GotKicked += Bot1_GotKicked;
-			Bot1.Events.PacketReceived += Bot1_PacketReceived;
 			Bot1.Events.BotException += Bot1_SocketError;
 			Bot1.Events.PlayerMoved += Bot1_PlayerMoved;
-			Bot1.RemoteServerEvents.RemoteSessionStarted += RemoteSessionStarted;
-			Bot1.RemoteServerEvents.RemoteUserLoggedIn += RemoteUserLoggedIn;
-			Bot1.RemoteServerEvents.RemoteSessionEnded += RemoteSessionEnded;
+			Bot1.Events.RemoteSessionStarted += RemoteSessionStarted;
+			Bot1.Events.RemoteUserLoggedIn += RemoteUserLoggedIn;
+			Bot1.Events.RemoteSessionEnded += RemoteSessionEnded;
 			Bot1.Events.MapLoaded += Bot1_MapLoaded;
 			
 			#region Plugins
@@ -315,10 +313,6 @@ namespace LibClassicBotTest
 			Console.ResetColor();
 		}
 		
-		static void Bot1_PacketReceived(object sender, PacketEventArgs e)
-		{
-			//Console.WriteLine(e.PacketType);
-		}
 
 		static void Bot1_ChatMessage(object sender, MessageEventArgs e)
 		{

@@ -48,7 +48,7 @@ namespace LibClassicBot
 		public void Dispose()
 		{
 			Blocks = null;
-			GC.Collect();
+			GC.Collect(); //Costly, but needed.
 		}
 
 		/// <summary> Saves this map to a file in the format FCMv3. </summary>	

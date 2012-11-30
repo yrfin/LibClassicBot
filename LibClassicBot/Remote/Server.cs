@@ -14,7 +14,6 @@ namespace LibClassicBot.Remote
 		/// <summary>The password used to verify remotely connecting users.</summary>
 		public string RemoteVerificationPassword {
 			get { return _password; }
-			set { _password = value; }
 		}
 		
 		/// <summary>The port the server is listening on for remote clients.</summary>

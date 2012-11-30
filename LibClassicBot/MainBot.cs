@@ -539,6 +539,7 @@ namespace LibClassicBot
 				return;
 			}
 			StartCommandsThread();
+			Plugins.PluginManager.LoadPlugins(ref RegisteredCommands, this);
 			BinaryReader reader = new BinaryReader(new NetworkStream(_serverSocket));
 
 			while (true)

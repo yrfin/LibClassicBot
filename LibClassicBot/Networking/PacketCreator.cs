@@ -69,8 +69,7 @@ namespace LibClassicBot.Networking
 				PosWriter.Write((byte)ClientPackets.PositionUpdate); //PacketID
 				PosWriter.Write((byte)255); //Unused
 				PosWriter.Write(IPAddress.HostToNetworkOrder((short)(x * 32)));
-				PosWriter.Write(IPAddress.HostToNetworkOrder((short)((z + 1.21f) * 32))); //1.21 = character height 
-				//TODO: Is this really needed?
+				PosWriter.Write(IPAddress.HostToNetworkOrder((short)((z + 1.21f) * 32))); //1.21 = character height
 				PosWriter.Write(IPAddress.HostToNetworkOrder((short)(y * 32))); //Yes, I know they're the wrong way around.
 				PosWriter.Write(yaw);
 				PosWriter.Write(pitch);

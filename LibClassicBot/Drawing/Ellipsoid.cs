@@ -25,12 +25,7 @@ namespace LibClassicBot.Drawing
 	/// <summary> Draw operation that creates a wireframe cuboid, optionally filling sides and center. </summary>
 	public sealed class Ellipsoid : IDrawer
 	{
-		struct Vector3F {
-			public float X; public float Y; public float Z;
-			public float X2 { get { return X * 2; } } public float Y2 { get { return Y * 2; } }
-			public float Z2 { get { return Z * 2; } }
-		}
-
+		struct Vector3F { public float X; public float Y; public float Z;}
 		/// <summary>
 		/// Gets the name of the current drawing command.
 		/// </summary>

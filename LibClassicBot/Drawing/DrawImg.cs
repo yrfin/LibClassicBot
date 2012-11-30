@@ -46,7 +46,7 @@ namespace LibClassicBot.Drawing
 			} else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y)) {
 				if (marks[0].Y < marks[1].Y) { return 2; }
 				else { return 3; }
-			} else if (Math.Abs(marks[1].X - marks[0].X) == Math.Abs(marks[1].Y - marks[0].Y)) {
+			} else if (Math.Abs(marks[1].X - marks[0].X) == Math.Abs(marks[1].Y - marks[0].Y)) { //Not very accurate.
 				if(Math.Sign(marks[1].X) == 1 || Math.Sign(marks[0].X) ==1) { return 0; }
 				else { return 1; }
 			} else { return 4; }

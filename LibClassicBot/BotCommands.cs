@@ -75,6 +75,11 @@ namespace LibClassicBot
 		}
 		
 		/// <summary>
+		/// Used for checking whether to catch command exceptions, or to throw them.
+		/// </summary>
+		private bool DoDebug = System.Diagnostics.Debugger.IsAttached;
+		
+		/// <summary>
 		/// The internal thread used for processing commands.
 		/// The thread will sleep until ProcessCommandQueue() is called.
 		/// </summary>
@@ -87,14 +92,17 @@ namespace LibClassicBot
 				while (CommandQueue.Count != 0)
 				{
 					InternalCommand IntCommand = CommandQueue.Dequeue();
-					try { IntCommand.command.Invoke(IntCommand.line); }
-					catch(Exception ex)
+					if(DoDebug) IntCommand.command.Invoke(IntCommand.line);
+					else
 					{
-						System.IO.File.Create("pluginerror.txt");
-						System.IO.File.AppendAllText("pluginerror.txt", "Stack- " + ex.StackTrace + Environment.NewLine);
-						System.IO.File.AppendAllText("pluginerror.txt", "Message- " + ex.Message + Environment.NewLine);
-						System.IO.File.AppendAllText("pluginerror.txt", "Source- " + ex.Source + Environment.NewLine);
-						if(System.Diagnostics.Debugger.IsAttached) throw; //So as not to interfere with debugging.
+						try { IntCommand.command.Invoke(IntCommand.line); }
+						catch(Exception ex)
+						{
+							if(!System.IO.File.Exists("pluginerror.txt")) System.IO.File.Create("pluginerror.txt");
+							System.IO.File.AppendAllText("pluginerror.txt", "Stack- " + ex.StackTrace + Environment.NewLine);
+							System.IO.File.AppendAllText("pluginerror.txt", "Message- " + ex.Message + Environment.NewLine);
+							System.IO.File.AppendAllText("pluginerror.txt", "Source- " + ex.Source + Environment.NewLine);
+						}
 					}
 				}
 				Thread.Sleep(1);
