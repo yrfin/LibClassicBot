@@ -47,11 +47,11 @@ namespace LibClassicBot.Plugins
 			}
 			foreach(Plugin plugin in Plugins)
 			{
-				Console.WriteLine(plugin.PluginName);
-				plugin.Initalize(main);
-				if(!commandstoadd.ContainsKey(plugin.PluginName)) //Avoid duplicates, let the custom implementation load commands first.
+				Console.WriteLine(plugin.CommandName);
+				plugin.Initialize(main);
+				if(!commandstoadd.ContainsKey(plugin.CommandName)) //Avoid duplicates, let the custom implementation load commands first.
 				{
-					commandstoadd.Add(plugin.PluginName, plugin.Command);
+					commandstoadd.Add(plugin.CommandName, plugin.Command);
 				}
 			}
 		}

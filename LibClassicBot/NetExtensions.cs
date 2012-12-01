@@ -52,7 +52,19 @@ namespace LibClassicBot
 		}
 
 		#region Logging In
-		public static void Login(string username, string password, string gameurl, out IPAddress _serverIP, out int _serverPort, out string verificationkey)
+		
+		/// <summary>
+		/// This method performs a login to minecraft.net. It returns three non null values, and one value that may be null. (The migrated username)
+		/// </summary>
+		/// <param name="username">The username to use. Can be both a Migrated account, and a normal username.</param>
+		/// <param name="password">The password to use to login.</param>
+		/// <param name="gameurl">The url of the server to login to, for parsing of mppass / verification key.</param>
+		/// <param name="_serverIP">The IP Address of the server to connect to.</param>
+		/// <param name="_serverPort">The port to connect on.</param>
+		/// <param name="verificationkey">The verification key / mppass to use.</param>
+		/// <param name="migratedUsername">This will be null if the username is not migrated, otherwise, it returns a case correct version of their username.</param>
+		/// <returns>True if it was able to login and return all the required values, false if not.</returns>
+		public static bool Login(string username, string password, string gameurl, out IPAddress _serverIP, out int _serverPort, out string verificationkey, out string migratedUsername)
 		{
 			string html = LoginAndReadPage(username, password, gameurl);
 			string serveraddress = ReadValue(html.Substring(html.IndexOf("\"server\""), 40));
@@ -61,6 +73,14 @@ namespace LibClassicBot
 			verificationkey = mppass;
 			_serverIP = IPAddress.Parse(serveraddress);
 			_serverPort = Int16.Parse(port);
+			if(username.Contains("@")) 
+			{
+				migratedUsername = GetMigratedUsername(username, password);
+				if(migratedUsername == null) return false; //Wasn't able to login to minecraft.net.
+				else return true; //We got the correct username for the migrated account.
+			}
+			else { migratedUsername = null; }
+			return true;
 		}
 		private static string LoginAndReadPage(string username, string password, string gameurl)
 		{
@@ -79,6 +99,29 @@ namespace LibClassicBot
 			}
 			
 		}
+		
+		private const string LoginUri = "https://login.minecraft.net";
+		
+		/// <summary>
+		/// Gets the original username of a migrated account.
+		/// </summary>
+		/// <param name="migratedaccount">The migrated account username. This is defined by the @ in the username.</param>
+		/// <param name="password">The password to use, which is required.</param>
+		/// <returns>The case correct username of the account. If there was an error while trying to download the page
+		/// or parse the result, this returns null.</returns>
+		private static string GetMigratedUsername(string migratedaccount, string password)
+		{
+			try {
+				string postData = String.Format("?user={0}&password={1}&version=13", migratedaccount, password);				
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(LoginUri+postData);
+				request.Method = "GET"; //Although it's meant to be POST, GET works too.
+				request.ContentType = "application/x-www-form-urlencoded"; //Needed to work.
+				string responseString = new StreamReader(request.GetResponse().GetResponseStream()).ReadToEnd();
+				string[] responseSplit = responseString.Split(':');
+				return responseSplit[2]; //Case correct username, even for Migrated accounts.
+			}
+			catch { return null; }
+		}
 		private static string ReadValue(string s)
 		{
 			string start = "value=\"";
@@ -90,7 +133,7 @@ namespace LibClassicBot
 		
 		static string sessionCookie;
 		
-		const string IncorrectUserPass = "Wrong username or password, or the account has been migrated.";
+		const string IncorrectUserPass = "Wrong username or password.";
 		
 		static void LoginCookie(string username, string password)
 		{

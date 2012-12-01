@@ -116,6 +116,7 @@ namespace LibClassicBot
 		/// Cancels the currently running drawing operation. This does *not* undo the blocks placed by the bot though.
 		/// </summary>
 		public void CancelDrawer() {
+			if(marksLeft != 0) marksLeft = 0;
 			drawingAborted = true;
 		}
 

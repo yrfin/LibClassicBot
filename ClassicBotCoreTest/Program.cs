@@ -135,12 +135,12 @@ namespace LibClassicBotTest
 			
 			ClassicBot.CommandDelegate HasPaidCommand = delegate(string Line)
 			{
-				string[] LineSplit = Extensions.StripColors(Line).Split(' ');
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				try
 				{
 					bool b;
 					WebClient c = new WebClient();
-					string response = c.DownloadString("https://minecraft.net/haspaid.jsp?user="+LineSplit[2]);
+					string response = c.DownloadString("https://minecraft.net/haspaid.jsp?user="+full[1]);
 					if(Boolean.TryParse(response, out b)) Bot1.SendMessagePacket(response);
 				}
 				catch(WebException ex)

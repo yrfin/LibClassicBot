@@ -280,6 +280,7 @@ namespace LibClassicBot
 		bool _requiresop = true;
 		Server server = null;
 		List<string> _ignored = new List<string>();
+		string migratedUsername;
 		/*PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set",
 		                                                       Process.GetCurrentProcess().ProcessName, true);
 		PerformanceCounter cpuCounter = new PerformanceCounter("Process", "% Processor Time",
@@ -507,7 +508,7 @@ namespace LibClassicBot
 			}
 			else if(isStandard == true)
 			{
-				try { Extensions.Login(_username, _password, _hash, out this._serverIP, out this._serverPort, out this._ver); }
+				try { Extensions.Login(_username, _password, _hash, out _serverIP, out _serverPort, out _ver, out migratedUsername); }
 				catch(InvalidOperationException ex)
 				{
 					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ex.Message,ex);
@@ -522,8 +523,8 @@ namespace LibClassicBot
 				}
 			}
 			//Get details we need to create a verified login.
-			_ignored.Add(_username); //Ignore self.
-			byte[] ToSendLogin = CreateLoginPacket(_username, _ver); //Make login
+			_ignored.Add(migratedUsername ?? _username); //Ignore self.
+			byte[] ToSendLogin = CreateLoginPacket(migratedUsername ?? _username, _ver); //Make login
 			_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); //Here we start a new client.
 			try
 			{
@@ -796,15 +797,15 @@ namespace LibClassicBot
 							_userType = reader.ReadByte();//Issued in Vanilla when someone calls /op, used in fCraft for bedrock permission checking.
 							break;
 
-
 						default:
-							throw new IOException("Unrecognised packet.");
+							throw new IOException("Unrecognised packet. Opcode: " + OpCode.ToString());
 					}
 				}
 				catch (IOException ex)
 				{
 					if(_reconnectonkick == true && CanReconnectAfterKick == true)
 					{
+						CancelDrawer();
 						CanReconnectAfterKick = false;
 						Thread thread = new Thread(IOLoop);
 						thread.Name = "LibClassicBotIO";

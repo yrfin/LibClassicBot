@@ -13,9 +13,9 @@ namespace LibClassicBot.Plugins
 	public abstract class Plugin
 	{
 		/// <summary>
-		/// The name of the plugin, which will be used for registering of 
+		/// The name of the command.
 		/// </summary>
-		public abstract string PluginName {get; }
+		public abstract string CommandName {get; }
 		
 		/// <summary>
 		/// The command to be executed upon the receiving of the chat line.
@@ -32,7 +32,7 @@ namespace LibClassicBot.Plugins
 		/// {<br/>
 		/// 	main.SendMessagePacket("Test");<br/>
 		/// };</code></example>
-		public abstract void Initalize(ClassicBot main);
+		public abstract void Initialize(ClassicBot main);
 		
 	}
 	/*Below is an example of such a plugin.
@@ -40,7 +40,7 @@ namespace LibClassicBot.Plugins
 	{	
 		public override string PluginName { get { return "Test"; } } 
 
-		public override void Initalize(ClassicBot main) 
+		public override void Initialize(ClassicBot main) 
 		{
 			Command = delegate(string Line) 
 			{
