@@ -88,7 +88,7 @@ namespace LibClassicBot
 			while (true)
 			{
 				CommandQueueReset.Reset();//Start at false.
-				CommandQueueReset.WaitOne(-1, false); //Wait until the bot calls ProccessCommandQueue();
+				CommandQueueReset.WaitOne(-1, false); //Wait until the bot calls ProccessCommandQueue(), no timeout in sleep.
 				while (CommandQueue.Count != 0)
 				{
 					InternalCommand IntCommand = CommandQueue.Dequeue();
@@ -96,7 +96,7 @@ namespace LibClassicBot
 					else
 					{
 						try { IntCommand.command.Invoke(IntCommand.line); }
-						catch(Exception ex)
+						catch(Exception ex) //Do not crash because of a faulty command.
 						{
 							if(!System.IO.File.Exists("pluginerror.txt")) System.IO.File.Create("pluginerror.txt");
 							System.IO.File.AppendAllText("pluginerror.txt", "Stack- " + ex.StackTrace + Environment.NewLine);

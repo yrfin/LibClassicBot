@@ -20,10 +20,7 @@ namespace LibClassicBot
 		}
 		
 		//Error messages.
-		const string blockError = "Error while trying to update a block.";
-		const string posError = "Error while trying to update position.";
-		const string messError = "Error while trying to send a message.";
-
+		const string packetError = "Error while trying to send a packet.";
 		/// <summary>
 		/// Gets the user from a raw chatline, and also removes color codes. Albeit, this may be prefixed.
 		/// </summary>
@@ -126,12 +123,13 @@ namespace LibClassicBot
 			try { _serverSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(blockError, ex);
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
 				Events.RaiseBotError(socketEvent);
 			}
 		}
 
-		/// <summary>Sends a position update packet at the specified coordinates.</summary>
+		/// <summary>Sends a position update packet at the specified coordinates. 
+		/// This overload already assumes you have accounted for character height.</summary>
 		/// <param name="x">A float marking the point along the X-Axis the bot will move to.</param>
 		/// <param name="y">A float marking the point along the Y-Axis the bot will move to.</param>
 		/// <param name="z">A float marking the point along the Z-Axis the bot will move to.</param>
@@ -162,14 +160,14 @@ namespace LibClassicBot
 			try { _serverSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(posError, ex);
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
 				Events.RaiseBotError(socketEvent);
 			}				
 			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
 			Events.RaisePlayerMoved(e);
 		}
 		
-		/// <summary>Sends a teleportation packet at the specified coordinates.</summary>
+		/// <summary>Sends a teleportation packet at the specified coordinates. Less accurate than the float based one.</summary>
 		/// <param name="x">A short marking the point along the X-Axis the block is to be placed at.</param>
 		/// <param name="y">A short marking the point along the Y-Axis the block is to be placed at.</param>
 		/// <param name="z">A short marking the point along the Z-Axis the block is to be placed at.</param>
@@ -187,7 +185,7 @@ namespace LibClassicBot
 			short xConverted = IPAddress.HostToNetworkOrder((short)(x * 32));
 			packet[2] = (byte)(xConverted);
 			packet[3] = (byte)(xConverted >> 8);
-			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//Do not account for character height in this one.
+			short yConverted = IPAddress.HostToNetworkOrder((short)((z * 1.21f) * 32));//Do account for character height in this one.
 			packet[4] = (byte)(yConverted);
 			packet[5] = (byte)(yConverted >> 8);
 			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
@@ -198,7 +196,7 @@ namespace LibClassicBot
 			try { _serverSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(posError, ex);
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
 				Events.RaiseBotError(socketEvent);
 			}						
 			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
@@ -218,7 +216,7 @@ namespace LibClassicBot
 			try { _serverSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(messError, ex);
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
 				Events.RaiseBotError(socketEvent);
 			}			
 		}

@@ -154,11 +154,11 @@ namespace LibClassicBot
 				return ramCounter.NextValue() / 1024 / 1024; }
 		}*/
 			
-			/// <summary>
-			/// Whether to load settings from botsettings.txt. By default, this is set to true.
-			/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
-			/// </summary>
-			public bool LoadInternalSettings {
+		/// <summary>
+		/// Whether to load settings from botsettings.txt. By default, this is set to true.
+		/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
+		/// </summary>
+		public bool LoadInternalSettings {
 			get { return _loadsettings; }
 			set {_loadsettings = value; }
 		}

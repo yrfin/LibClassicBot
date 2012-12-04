@@ -220,6 +220,24 @@ namespace LibClassicBotTest
 				Bot1.SetDrawer(Line, line, 2);
 			};
 			Bot1.RegisteredCommands.Add("line",LineCommand);
+			
+			/*ClassicBot.CommandDelegate TestPosCommand = delegate(string Line)
+			{ //Ain't no way to stop it. Uncomment with severe caution.
+				new System.Threading.Thread(
+					delegate() {
+						Random rnd = new Random();
+						while(true){
+							
+							int rndval1 = rnd.Next(0, 360);
+							byte newpitch = Extensions.DegreesToYaw(rndval1);
+							int rndval2 = rnd.Next(0, 360);
+							byte newyaw = Extensions.DegreesToYaw(rndval2);
+							Bot1.SendPositionPacket(Bot1.X, Bot1.Y, Bot1.Z, newyaw, newpitch);
+							System.Threading.Thread.Sleep(10);
+						}
+					}).Start();
+			};
+			Bot1.RegisteredCommands.Add("testpos", TestPosCommand);*/
 			#endregion
 			
 			StaticBot1 = Bot1;

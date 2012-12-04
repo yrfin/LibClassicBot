@@ -51,6 +51,41 @@ namespace LibClassicBot
 			return FullArray;
 		}
 
+		
+		#region Math
+		/// <summary>
+		/// Converts a degrees int value into a byte yaw / pitch value.
+		/// Note that this is only supported for 0 - 360 degrees.
+		/// </summary>
+		/// <param name="degree">The degree to convert into yaw / putch. 
+		/// If this is greater than 360 or less than 0, an exception will be thrown.</param>
+		/// <exception cref="System.ArguementOutOfRangeException">Thrown if the value is greater than 360
+		/// or less than 0.</exception>
+		/// <returns>The degrees converted into a yaw / pitch value.</returns>
+		public static byte DegreesToYaw(int degree)
+		{
+			if(degree < 0 || degree > 360)
+				throw new ArgumentOutOfRangeException("degree", "Value less than 0 or greater than 360.");
+			int result = (degree * 256 / 360);
+			if(result == 256) return (byte)0; //360 is really just 0.
+			else return (byte)result;
+		}
+		
+		/// <summary>
+		/// Converts a Yaw / Pitch byte value into a standard degrees value.
+		/// </summary>
+		/// <param name="yaw">The yaw or pitch value to convert.</param>
+		/// <returns>The yaw or pitch converted into degrees. For example, a yaw of 64 would return 90 degrees.
+		/// A pitch of 0 returns 0 degrees. (Could also be considered 360)</returns>
+		public static int YawToDegrees(byte yaw)
+		{
+			float result = (yaw / 256f * 360f);
+			return (int)result;
+		}
+		
+		#endregion
+
+		
 		#region Logging In
 		
 		/// <summary>
@@ -120,7 +155,7 @@ namespace LibClassicBot
 				string[] responseSplit = responseString.Split(':');
 				return responseSplit[2]; //Case correct username, even for Migrated accounts.
 			}
-			catch { return null; }
+			catch { return null; } //Could give both a WebException and an IndexOutOfRange.
 		}
 		private static string ReadValue(string s)
 		{

@@ -38,7 +38,7 @@ namespace LibClassicBot.Plugins
 	/*Below is an example of such a plugin.
  	public class TestPlugin : Plugin
 	{	
-		public override string PluginName { get { return "Test"; } } 
+		public override string CommandName { get { return "Test"; } } 
 
 		public override void Initialize(ClassicBot main) 
 		{
