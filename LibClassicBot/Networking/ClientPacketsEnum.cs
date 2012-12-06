@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibClassicBot.Networking
+﻿namespace LibClassicBot.Networking
 {
 	/// <summary>Enumeration containing a list of packets sent by a Minecraft Classic client.</summary>
 	/// <remarks>A typical session goes as the following:<br/>

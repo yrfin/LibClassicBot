@@ -1,5 +1,5 @@
 ﻿using System;
-using LibClassicBot;
+
 namespace LibClassicBot.Plugins
 {
 	/// <summary>

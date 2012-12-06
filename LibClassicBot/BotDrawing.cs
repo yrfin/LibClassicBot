@@ -61,7 +61,7 @@ namespace LibClassicBot
 				string user = prefixRegex.Replace(GetUser(chatLine).ToLower(), String.Empty).Trim();
 				//Complicated string, but it basically trims all prefixes and spaces.
 				foreach(int id in _players.Keys) {
-					if(_players[id].Name.ToLower().Substring(2) == user) {//Lowercase, ignore colour codes.
+					if(Extensions.StripColors(_players[id].Name).ToLower() == user) {//Lowercase, ignore colour codes.
 						CubID = id; //Match found.
 						break;
 					}

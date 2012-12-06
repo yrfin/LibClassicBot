@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
-using System;
 
 namespace LibClassicBot.Networking
 {
@@ -47,7 +47,7 @@ namespace LibClassicBot.Networking
 		/// <remarks>0x00 = Delete, 0x01 = Create for mode.</remarks> 
 		public static byte[] CreateSetBlockPacket(short x, short y, short z, byte mode, byte type)
 		{
-			using (MemoryStream blockMemStream = new MemoryStream())
+			using (MemoryStream blockMemStream = new MemoryStream(9))
 				using (BinaryWriter BlockWriter = new BinaryWriter(blockMemStream))
 			{
 				BlockWriter.Write((byte)ClientPackets.SetBlock); //PacketID
@@ -63,7 +63,7 @@ namespace LibClassicBot.Networking
 		/// <summary>Creates a position update packet from the specified X,Y and Z coordinates. Also takes yaw and pitch as bytes.</summary>
 		public static byte[] CreatePositionPacket(short x, short y, short z, byte yaw, byte pitch)
 		{
-			using (MemoryStream PosMemStream = new MemoryStream())
+			using (MemoryStream PosMemStream = new MemoryStream(10))
 				using (BinaryWriter PosWriter = new BinaryWriter(PosMemStream))
 			{
 				PosWriter.Write((byte)ClientPackets.PositionUpdate); //PacketID

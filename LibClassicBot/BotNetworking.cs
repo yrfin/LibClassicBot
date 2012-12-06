@@ -185,7 +185,7 @@ namespace LibClassicBot
 			short xConverted = IPAddress.HostToNetworkOrder((short)(x * 32));
 			packet[2] = (byte)(xConverted);
 			packet[3] = (byte)(xConverted >> 8);
-			short yConverted = IPAddress.HostToNetworkOrder((short)((z * 1.21f) * 32));//Do account for character height in this one.
+			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//Do account for character height in this one.
 			packet[4] = (byte)(yConverted);
 			packet[5] = (byte)(yConverted >> 8);
 			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.

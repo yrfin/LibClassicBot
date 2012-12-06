@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using LibClassicBot;
 
 namespace LibClassicBot.Plugins
 {
@@ -19,11 +18,7 @@ namespace LibClassicBot.Plugins
 		/// <param name="main">The ClassicBot instance to attach to. (IE, for message sending.)</param>
 		public static void LoadPlugins(ref Dictionary<string,ClassicBot.CommandDelegate> commandstoadd, ClassicBot main)
 		{
-			if (!Directory.Exists("plugins"))
-			{
-				Directory.CreateDirectory("plugins");
-				return; //No point in loading zero plugins, now is there?
-			}
+			if (!Directory.Exists("plugins")) { return; }//No point in loading zero plugins, now is there?			
 			String[] pluginFiles = Directory.GetFiles("plugins", "*.dll", SearchOption.TopDirectoryOnly); //Limit to DLL files.
 			if(pluginFiles.Length == 0) return; //No plugins were found.
 			List<Plugin> Plugins = new List<Plugin>();
@@ -47,7 +42,6 @@ namespace LibClassicBot.Plugins
 			}
 			foreach(Plugin plugin in Plugins)
 			{
-				Console.WriteLine(plugin.CommandName);
 				plugin.Initialize(main);
 				if(!commandstoadd.ContainsKey(plugin.CommandName)) //Avoid duplicates, let the custom implementation load commands first.
 				{
