@@ -109,7 +109,7 @@ namespace LibClassicBot
 		}
 
 		/// <summary>Returns a collection of players in the world. Returns null if no one (Including the bot) is in the collection.</summary>
-		public Dictionary<int, Player> Players {
+		public Dictionary<short, Player> Players {
 			get { if (_players != null) return _players; else return null; }
 		}
 		
@@ -275,7 +275,7 @@ namespace LibClassicBot
 		char _delimiter = ':';
 		string _Opspath = "operators.txt";
 		bool _reconnectonkick = false;
-		Dictionary<int, Player> _players = new Dictionary<int, Player>();
+		Dictionary<short, Player> _players = new Dictionary<short, Player>();
 		byte _userType;
 		bool _requiresop = true;
 		Server server = null;
@@ -289,8 +289,7 @@ namespace LibClassicBot
 		//Drawing
 		int sleepTime = 10;
 		byte cuboidType;
-		bool _isCuboiding = false;
-		
+		bool _isCuboiding = false;		
 		const string ErrorInPage = "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
 		
 		/// <summary>This is used to prevent the bot from continuing to try to login to a server. (Eg, after a ban.)</summary>
@@ -395,7 +394,7 @@ namespace LibClassicBot
 					string crq = splitLineCRQ[1].Trim(); //Remove starting white space
 					if((numberofspaces = crq.LastIndexOf(' ')) != -1) //-1 means no white space was found.
 						crq = crq.Substring(0, numberofspaces); //Trim potential garbage data.
-					bool.TryParse(crq, out _requiresop);
+					bool.TryParse(crq, out _requiresop); //TODO: Try using parse instead, as this should not be false by default.
 					
 					string[] splitLineRecOnKick = Lines[4].Split(':');
 					string rok = splitLineRecOnKick[1].Trim(); //Remove starting white space
@@ -717,7 +716,7 @@ namespace LibClassicBot
 						case ServerPackets.DespawnPlayer://0x0c
 							{
 								byte playerID = reader.ReadByte();
-								_players.Remove(playerID); //Remove user from the collection. Sent when the player joins another map.
+								_players.Remove(playerID); //Remove user from the collection. Also sent when the player joins another map.
 							}
 							break;
 

@@ -37,7 +37,7 @@ namespace LibClassicBot
 		/// The ID of the player who cuboided, used for the checking if blocks placed 
 		/// are close enough to the player. -1 means that no player was found.
 		/// </summary>
-		int CubID = -1;
+		short CubID = -1;
 		
 		/// <summary>
 		/// Sets the queued draw operation, which will be executed once the all the marks
@@ -60,7 +60,7 @@ namespace LibClassicBot
 				CubID = -1; //Wipe existing player, if there was one.
 				string user = prefixRegex.Replace(GetUser(chatLine).ToLower(), String.Empty).Trim();
 				//Complicated string, but it basically trims all prefixes and spaces.
-				foreach(int id in _players.Keys) {
+				foreach(byte id in _players.Keys) {
 					if(Extensions.StripColors(_players[id].Name).ToLower() == user) {//Lowercase, ignore colour codes.
 						CubID = id; //Match found.
 						break;
@@ -88,8 +88,10 @@ namespace LibClassicBot
 		/// <summary>
 		/// Begins execution of the draw operation between two points.
 		/// </summary>
-		/// <param name="drawer">The class derived from IDrawer, from which the draw operation will begin.</param>
-		/// <remarks>Note that if the CancelDrawing token is currently in the cancelled state, it will be reset.</remarks>
+		/// <param name="drawer">The class derived from IDrawer, from which the draw operation will begin.</param>		
+		/// <exception cref="OutOfMemoryException">There was not enough mmemory left to start
+		/// a new thread for drawing on. (This should almost never happen.)</exception>
+		/// <remarks>Note that if the drawingAborted is true, it will be set to false.</remarks>
 		public void Draw(IDrawer drawer, Vector3I[] points, byte blockType)
 		{
 			drawingAborted = false;
@@ -123,8 +125,8 @@ namespace LibClassicBot
 		/// <summary>
 		/// Gets the block type from the chatline, using pre-determined values.
 		/// </summary>
-		/// <param name="s">The chatline to parse.</param>
-		public void GetFromLine(string rawLine) //TODO: Use better handling of chat.
+		/// <param name="rawLine">The chatline to parse.</param>
+		public void GetFromLine(string rawLine)
 		{
 			/*Although this could be done with a static Dictionary, unfortunately .NET 2.0
 			  * doesn't support initializing static dictionaries, so the better solution would be 

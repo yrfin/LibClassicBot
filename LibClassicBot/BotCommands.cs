@@ -75,7 +75,8 @@ namespace LibClassicBot
 		}
 		
 		/// <summary>
-		/// Used for checking whether to catch command exceptions, or to throw them.
+		/// Used for checking whether to catch exceptions thrown by commands,
+		/// or to throw them like normal errors.
 		/// </summary>
 		private bool DoDebug = System.Diagnostics.Debugger.IsAttached;
 		

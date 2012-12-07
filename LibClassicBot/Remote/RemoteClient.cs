@@ -135,7 +135,7 @@ namespace LibClassicBot.Remote
 											case "players":
 												{
 													writer.Write((byte)0);
-													Dictionary<int,Player> players = server.MinecraftBot.Players;
+													Dictionary<short, Player> players = server.MinecraftBot.Players;
 													List<string> Output = new List<string>();
 													foreach(Player player in players.Values)
 													{

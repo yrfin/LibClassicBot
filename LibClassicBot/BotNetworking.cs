@@ -139,7 +139,7 @@ namespace LibClassicBot
 		{
 			if (_serverSocket == null || _serverSocket.Connected == false ) return;
 			if(!_players.ContainsKey(255)) return;
-			//if (IsValidPosition(x,y,z) == false) return;
+			//if (IsValidPosition(x,y,z) == false) return; Players can move outside the map.
 			_players[255].X = x; //Set the X of the bot.
 			_players[255].Y = y; //Set the Z of the bot.
 			_players[255].Z = z; //Set the Y of the bot.
@@ -175,7 +175,6 @@ namespace LibClassicBot
 		{
 			if (_serverSocket == null || _serverSocket.Connected == false ) return;
 			if(!_players.ContainsKey(255)) return;
-			//if (IsValidPosition(x,y,z) == false) return;
 			_players[255].X = x; //Set the X of the bot.
 			_players[255].Y = y; //Set the Z of the bot.
 			_players[255].Z = z; //Set the Y of the bot.
