@@ -516,7 +516,7 @@ namespace LibClassicBot
 				}
 				catch(ArgumentOutOfRangeException ex)
 				{
-					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ErrorInPage,ex);
+					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ErrorInPage, ex);
 					Events.RaiseBotError(socketEvent);
 					return;
 				}
@@ -534,7 +534,7 @@ namespace LibClassicBot
 			}
 			catch(SocketException ex)
 			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(HandleSocketError(ex.ErrorCode),ex);
+				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(HandleSocketError(ex.ErrorCode), ex);
 				Events.RaiseBotError(socketEvent);
 				return;
 			}

@@ -224,7 +224,7 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate IgnoreCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
-				Bot1.IgnoredUserList.Add(full[1], true);
+				Bot1.IgnoredUserList.Add(full[1]);
 				Bot1.SendMessagePacket("Ignored user: " + full[1]);
 			};
 			Bot1.RegisteredCommands.Add("ignore", IgnoreCommand);
@@ -232,10 +232,11 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate UnIgnoreCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
-				Bot1.IgnoredUserList.Remove(full[1], true);
+				Bot1.IgnoredUserList.Remove(full[1]);
 				Bot1.SendMessagePacket("Unignored user: " + full[1]);
 			};
-			Bot1.RegisteredCommands.Add("unignore", UnIgnoreCommand);		
+			Bot1.RegisteredCommands.Add("unignore", UnIgnoreCommand);	
+			
 			/*ClassicBot.CommandDelegate TestPosCommand = delegate(string Line)
 			{ //Ain't no way to stop it. Uncomment with severe caution.
 				new System.Threading.Thread(

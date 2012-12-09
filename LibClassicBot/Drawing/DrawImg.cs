@@ -30,6 +30,7 @@ namespace LibClassicBot.Drawing
 		
 		const string _name = "DrawImg";
 		
+		//Line used for finding the image.
 		public string originalchatline = String.Empty;
 		struct Block { public int X, Y, Z; public byte blockType; public Color col; }
 		/// <summary>

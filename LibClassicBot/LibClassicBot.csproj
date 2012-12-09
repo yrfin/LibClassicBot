@@ -65,6 +65,7 @@
     <Compile Include="Drawing\IDrawer.cs" />
     <Compile Include="Drawing\Vector3I.cs" />
     <Compile Include="Events\BotEvents.cs" />
+    <Compile Include="Events\EventClasses.cs" />
     <Compile Include="MapFCM3.cs" />
     <Compile Include="Networking\PacketCreator.cs" />
     <Compile Include="Networking\ServerPacketsEnum.cs" />

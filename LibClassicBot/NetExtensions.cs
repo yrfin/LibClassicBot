@@ -57,7 +57,7 @@ namespace LibClassicBot
 		/// Converts a degrees int value into a byte yaw / pitch value.
 		/// Note that this is only supported for 0 - 360 degrees.
 		/// </summary>
-		/// <param name="degree">The degree to convert into yaw / putch. 
+		/// <param name="degree">The degree to convert into yaw / putch.
 		/// If this is greater than 360 or less than 0, an exception will be thrown.</param>
 		/// <exception cref="System.ArguementOutOfRangeException">Thrown if the value is greater than 360
 		/// or less than 0.</exception>
@@ -98,6 +98,9 @@ namespace LibClassicBot
 		/// <param name="_serverPort">The port to connect on.</param>
 		/// <param name="verificationkey">The verification key / mppass to use.</param>
 		/// <param name="migratedUsername">This will be null if the username is not migrated, otherwise, it returns a case correct version of their username.</param>
+		/// <exception cref="InvalidOperationException">The username or password given was invalid or incorrect, 
+		/// which results in an attempt to login to minecraft.net failing.</exception>
+		/// <exception cref="ArguementOutOfRangeException">The given address to connect to was invalid.</exception>
 		/// <returns>True if it was able to login and return all the required values, false if not.</returns>
 		public static bool Login(string username, string password, string gameurl, out IPAddress _serverIP, out int _serverPort, out string verificationkey, out string migratedUsername)
 		{
@@ -108,7 +111,7 @@ namespace LibClassicBot
 			verificationkey = mppass;
 			_serverIP = IPAddress.Parse(serveraddress);
 			_serverPort = Int16.Parse(port);
-			if(username.Contains("@")) 
+			if(username.Contains("@"))
 			{
 				migratedUsername = GetMigratedUsername(username, password);
 				if(migratedUsername == null) return false; //Wasn't able to login to minecraft.net.
@@ -126,16 +129,11 @@ namespace LibClassicBot
 			//Parse the page to find server, port, mpass strings.
 			WebRequest step3Request = WebRequest.Create(gameurl);
 			if(sessionCookie != null) step3Request.Headers.Add(sessionCookie);
-			using (Stream s4 = step3Request.GetResponse().GetResponseStream())
-			{
-				string html = new StreamReader(s4).ReadToEnd();
-				GC.Collect(0); //Get rid of stored WebProxy by the HttpWebRequest.
-				return html;
-			}
-			
+			Stream serverResponse = step3Request.GetResponse().GetResponseStream();			
+			return new StreamReader(serverResponse).ReadToEnd(); //Get the full page.		
 		}
 		
-		private const string LoginUri = "https://login.minecraft.net";
+		private const string MigratedLoginUri = "https://login.minecraft.net";
 		
 		/// <summary>
 		/// Gets the original username of a migrated account.
@@ -147,8 +145,8 @@ namespace LibClassicBot
 		private static string GetMigratedUsername(string migratedaccount, string password)
 		{
 			try {
-				string postData = String.Format("?user={0}&password={1}&version=13", migratedaccount, password);				
-				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(LoginUri+postData);
+				string postData = String.Format("?user={0}&password={1}&version=13", migratedaccount, password);
+				HttpWebRequest request = (HttpWebRequest)WebRequest.Create(MigratedLoginUri + postData);
 				request.Method = "GET"; //Although it's meant to be POST, GET works too.
 				request.ContentType = "application/x-www-form-urlencoded"; //Needed to work.
 				string responseString = new StreamReader(request.GetResponse().GetResponseStream()).ReadToEnd();
