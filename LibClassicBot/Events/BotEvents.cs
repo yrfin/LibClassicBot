@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
 
 namespace LibClassicBot.Events
 {
@@ -18,7 +16,7 @@ namespace LibClassicBot.Events
 		/// <summary>Occurs when the bot is kicked. To automatically make it reconnect, use ReconnectAfterKick = true;</summary>
 		public event EventHandler<KickedEventArgs> GotKicked;
 		
-		/// <summary>Occurs when a socket exception is raised during connecting to a server.</summary>
+		/// <summary>Occurs when an exception is raised that is caught.</summary>
 		public event EventHandler<BotExceptionEventArgs> BotException;
 		
 		/// <summary>Occurs when the bot has received a map chunk, and indicates the progress of loading the map.</summary>
@@ -33,8 +31,11 @@ namespace LibClassicBot.Events
 		/// <summary>Occurs when a remote user logs in and is verified. </summary>
 		public event EventHandler<RemoteLoginEventArgs> RemoteUserLoggedIn;
 		
-		/// <summary>Occurs when a remote session is ended.;</summary>
-		public event EventHandler<SessionEndedEventArgs> RemoteSessionEnded;		
+		/// <summary>Occurs when a remote session is ended.</summary>
+		public event EventHandler<SessionEndedEventArgs> RemoteSessionEnded;
+		
+		/// <summary>Occurs when a block is placed.</summary>
+		public event EventHandler<BlockPlacedEventArgs> BlockPlaced;
 
 		/// <summary>Raises a new ChatMessage Event.</summary>
 		internal void RaiseChatMessage(MessageEventArgs e)
@@ -82,7 +83,7 @@ namespace LibClassicBot.Events
 			System.EventHandler<MapProgressEventArgs> progressEvent = MapProgress;
 			if(progressEvent == null) return;
 			progressEvent(null,e);
-		}		
+		}
 
 		/// <summary>Raises a new MapProgress Event.</summary>
 		internal void RaiseMapLoaded(MapLoadedEventArgs e)
@@ -90,7 +91,7 @@ namespace LibClassicBot.Events
 			System.EventHandler<MapLoadedEventArgs> loadEvent = MapLoaded;
 			if(loadEvent == null) return;
 			loadEvent(null,e);
-		}	
+		}
 
 		/// <summary>Raises a new RemoteSessionStarted Event.</summary>
 		internal void RaiseSessionStarted(SessionStartedEventArgs e)
@@ -114,7 +115,14 @@ namespace LibClassicBot.Events
 			System.EventHandler<SessionEndedEventArgs> sesEndEvent = RemoteSessionEnded;
 			if (sesEndEvent == null) return;
 			sesEndEvent(null, e);
-		}		
+		}
+
+		/// <summary>Raises a new BlockPlaced Event.</summary>
+		internal void RaiseBlockPlaced(BlockPlacedEventArgs e)
+		{
+			System.EventHandler<BlockPlacedEventArgs> blockEvent = BlockPlaced;
+			if (blockEvent == null) return;
+			blockEvent(null, e);
+		}
 	}
 }
-

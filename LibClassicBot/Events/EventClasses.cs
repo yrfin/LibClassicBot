@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using LibClassicBot.Drawing;
 
 namespace LibClassicBot.Events
 {
@@ -17,6 +18,28 @@ namespace LibClassicBot.Events
 		internal MessageEventArgs(string line)
 		{
 			Line = line;
+		}
+	}
+	
+	public sealed class BlockPlacedEventArgs : EventArgs
+	{
+		/// <summary>The position of the block, in normal coordinates. (Z is height.)</summary>
+		public Vector3I Position;
+		
+		/// <summary>The type of block placed, as a byte.</summary>
+		public byte BlockType;
+		
+		/// <summary>
+		/// A BlockPlacedEventArg containg the position of the block and the type.
+		/// </summary>
+		/// <param name="x">The X coordinate of the block.</param>
+		/// <param name="y">The Y coordinate of the block. (Not height)</param>
+		/// <param name="z">The Z coordinate of the block.</param>
+		/// <param name="type">The type of the block placed, as a byte.</param>
+		internal BlockPlacedEventArgs(int x, int y, int z, byte type)
+		{
+			Position = new Vector3I(x, y, z);
+			BlockType = type;
 		}
 	}
 

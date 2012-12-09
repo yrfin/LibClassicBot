@@ -630,6 +630,8 @@ namespace LibClassicBot
 								int blockZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								int blockY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								byte blockType = reader.ReadByte();
+								BlockPlacedEventArgs e = new BlockPlacedEventArgs(blockX, blockY, blockZ, blockType);
+								Events.RaiseBlockPlaced(e);
 								if(marksLeft > 0 && blockType == 39 && CubID != -1)
 								{
 									if(_players[CubID].X < 0 || _players[CubID].Y < 0 || _players[CubID].Z < 0) {
