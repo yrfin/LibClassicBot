@@ -38,91 +38,58 @@ namespace LibClassicBot.Events
 		public event EventHandler<BlockPlacedEventArgs> BlockPlaced;
 
 		/// <summary>Raises a new ChatMessage Event.</summary>
-		internal void RaiseChatMessage(MessageEventArgs e)
-		{
-			System.EventHandler<MessageEventArgs> chatEvent = ChatMessage;
-			if (chatEvent == null) return;
-			chatEvent(null, e);
+		internal void RaiseChatMessage(MessageEventArgs e) {
+			if (ChatMessage != null) ChatMessage(null, e);
 		}
 
 		/// <summary>Raises a new PlayerMoved Event.</summary>
-		internal void RaisePlayerMoved(PositionEventArgs e)
-		{
-			System.EventHandler<PositionEventArgs> movedEvent = PlayerMoved;
-			if (movedEvent == null) return;
-			movedEvent(null, e);
+		internal void RaisePlayerMoved(PositionEventArgs e) {
+			if (PlayerMoved != null)PlayerMoved(null, e);
 		}
 		
 		/// <summary>Raises a new PacketReceived Event.</summary>
-		internal void RaisePacketReceived(PacketEventArgs e)
-		{
-			System.EventHandler<PacketEventArgs> packetEvent = PacketReceived;
-			if (packetEvent == null) return;
-			packetEvent(null, e);
+		internal void RaisePacketReceived(PacketEventArgs e) {
+			if (PacketReceived != null) PacketReceived(null, e);
 		}
 
 		/// <summary>Raises a new GotKicked Event.</summary>
-		internal void RaiseGotKicked(KickedEventArgs e)
-		{
-			System.EventHandler<KickedEventArgs> kickedEvent = GotKicked;
-			if(kickedEvent == null) return;
-			kickedEvent(null,e);
+		internal void RaiseGotKicked(KickedEventArgs e) {
+			if(GotKicked != null) GotKicked(null, e);
 		}
 		
-		/// <summary>Raises a new BotSocketError Event.</summary>
-		internal void RaiseBotError(BotExceptionEventArgs e)
-		{
-			System.EventHandler<BotExceptionEventArgs> socketEvent = BotException;
-			if(socketEvent == null) return;
-			socketEvent(null,e);
+		/// <summary>Raises a new BotException Event.</summary>
+		internal void RaiseBotError(BotExceptionEventArgs e) {
+			if(BotException != null) BotException(null, e);
 		}
 		
 		/// <summary>Raises a new MapProgress Event.</summary>
-		internal void RaiseMapProgress(MapProgressEventArgs e)
-		{
-			System.EventHandler<MapProgressEventArgs> progressEvent = MapProgress;
-			if(progressEvent == null) return;
-			progressEvent(null,e);
+		internal void RaiseMapProgress(MapProgressEventArgs e) {
+			if(MapProgress != null) MapProgress(null, e);
 		}
 
 		/// <summary>Raises a new MapProgress Event.</summary>
-		internal void RaiseMapLoaded(MapLoadedEventArgs e)
-		{
-			System.EventHandler<MapLoadedEventArgs> loadEvent = MapLoaded;
-			if(loadEvent == null) return;
-			loadEvent(null,e);
+		internal void RaiseMapLoaded(MapLoadedEventArgs e) {
+			if(MapLoaded != null) MapLoaded(null, e);
 		}
 
 		/// <summary>Raises a new RemoteSessionStarted Event.</summary>
-		internal void RaiseSessionStarted(SessionStartedEventArgs e)
-		{
-			System.EventHandler<SessionStartedEventArgs> sesStartEvent = RemoteSessionStarted;
-			if (sesStartEvent == null) return;
-			sesStartEvent(null, e);
+		internal void RaiseSessionStarted(SessionStartedEventArgs e) {
+			if(RemoteSessionStarted != null) RemoteSessionStarted(null, e);
 		}
 
 		/// <summary>Raises a new RemoteUserLoggedin Event.</summary>
-		internal void RaiseUserLoggedIn(RemoteLoginEventArgs e)
-		{
-			System.EventHandler<RemoteLoginEventArgs> loggedinEvent = RemoteUserLoggedIn;
-			if (loggedinEvent == null) return;
-			loggedinEvent(null, e);
+		internal void RaiseUserLoggedIn(RemoteLoginEventArgs e) {
+			if(RemoteUserLoggedIn != null) RemoteUserLoggedIn(null, e);
 		}
 		
 		/// <summary>Raises a new RemoteSessionEnded Event.</summary>
-		internal void RaiseSessionEnded(SessionEndedEventArgs e)
-		{
-			System.EventHandler<SessionEndedEventArgs> sesEndEvent = RemoteSessionEnded;
-			if (sesEndEvent == null) return;
-			sesEndEvent(null, e);
+		internal void RaiseSessionEnded(SessionEndedEventArgs e) {
+			if(RemoteSessionEnded != null) RemoteSessionEnded(null, e);
 		}
 
 		/// <summary>Raises a new BlockPlaced Event.</summary>
-		internal void RaiseBlockPlaced(BlockPlacedEventArgs e)
-		{
-			System.EventHandler<BlockPlacedEventArgs> blockEvent = BlockPlaced;
-			if (blockEvent == null) return;
-			blockEvent(null, e);
+		internal void RaiseBlockPlaced(BlockPlacedEventArgs e) {
+			if(BlockPlaced != null) BlockPlaced(null, e);
 		}
 	}
 }
