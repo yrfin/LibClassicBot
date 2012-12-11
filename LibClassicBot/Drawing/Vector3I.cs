@@ -77,63 +77,60 @@ namespace LibClassicBot.Drawing
 		}
 		
 		#region Operators
-		public static bool operator ==(Vector3I left, Vector3I right)
-		{
+		public static bool operator == (Vector3I left, Vector3I right) {
 			return left.Equals(right);
 		}
 		
-		public static bool operator !=(Vector3I left, Vector3I right)
-		{
+		public static bool operator != (Vector3I left, Vector3I right) {
 			return !left.Equals(right);
 		}
 		
-		public static bool operator >(Vector3I left, Vector3I right)
-		{
+		public static bool operator > (Vector3I left, Vector3I right) {
 			if(left.X > right.X && left.Y > right.Y && left.Z > right.Z) return true;
 			else return false;
 		}
 		
-		public static bool operator <(Vector3I left, Vector3I right)
-		{
+		public static bool operator < (Vector3I left, Vector3I right) {
 			if(left.X < right.X && left.Y < right.Y && left.Z < right.Z) return true;
 			else return false;
 		}
 		
-		public static bool operator >=(Vector3I left, Vector3I right)
-		{
+		public static bool operator >= (Vector3I left, Vector3I right) {
 			if(left.X >= right.X && left.Y >= right.Y && left.Z >= right.Z) return true;
 			else return false;
 		}
 		
-		public static bool operator <=(Vector3I left, Vector3I right)
-		{
+		public static bool operator <= (Vector3I left, Vector3I right) {
 			if(left.X <= right.X && left.Y <= right.Y && left.Z <= right.Z) return true;
 			else return false;
 		}
 
-		public static Vector3I operator+(Vector3I left, Vector3I right)
-		{
+		public static Vector3I operator + (Vector3I left, Vector3I right) {
 			return new Vector3I(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
 		}
 		
-		public static Vector3I operator-(Vector3I left, Vector3I right)
-		{
+		public static Vector3I operator - (Vector3I left, Vector3I right) {
 			return new Vector3I(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
 		}
 
-		public static Vector3I operator+(Vector3I value)
-		{
+		public static Vector3I operator + (Vector3I value) {
 			return new Vector3I(+value.X, +value.Y,+value.Z);
 		}
 		
-		public static Vector3I operator-(Vector3I value)
-		{
+		public static Vector3I operator - (Vector3I value) {
 			return new Vector3I(-value.X, -value.Y, -value.Z);
 		}
 		
-		public static Vector3I operator *( Vector3I value, int scalar )
-		{
+		public static Vector3I operator * ( Vector3I value, int scalar ) {
 			return new Vector3I( value.X * scalar, value.Y * scalar, value.Z * scalar );
+		}
+		
+		public static Vector3I operator + (Vector3I left, int right) {
+				return new Vector3I(left.X + right, left.Y + right, left.Z + right); 
+		}
+		
+		public static Vector3I operator - (Vector3I left, int right) {
+				return new Vector3I(left.X - right, left.Y - right, left.Z - right); 
 		}
 		#endregion
 		

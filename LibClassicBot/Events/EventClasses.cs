@@ -131,7 +131,7 @@ namespace LibClassicBot.Events
 		public Exception ActualException;
 
 		/// <summary>
-		/// SocketExceptionEventArg containg a formatted output, and a socket exception of the actual error.
+		/// BotExceptionEventArg containg a formatted output, and a socket exception of the actual error.
 		/// </summary>
 		/// <param name="output">A formatted output of the erorr, designed for the user to be able to understand.</param>
 		/// <param name="exception"></param>

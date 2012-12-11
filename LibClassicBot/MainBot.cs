@@ -363,7 +363,7 @@ namespace LibClassicBot
 		/// RemotePassword (No spaces allowed):<br/>
 		/// CommandsRequireOperator: false<br/>
 		/// ReconnectAfterKick: true<br/>
-		/// SaveMap: false<br/>
+		/// SaveMap: false</remarks>
 		private void LoadSettings()
 		{
 			try

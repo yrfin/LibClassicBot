@@ -57,7 +57,7 @@ namespace LibClassicBot
 		/// Converts a degrees int value into a byte yaw / pitch value.
 		/// Note that this is only supported for 0 - 360 degrees.
 		/// </summary>
-		/// <param name="degree">The degree to convert into yaw / putch.
+		/// <param name="degree">The degree to convert into yaw / pitch.
 		/// If this is greater than 360 or less than 0, an exception will be thrown.</param>
 		/// <exception cref="System.ArguementOutOfRangeException">Thrown if the value is greater than 360
 		/// or less than 0.</exception>
