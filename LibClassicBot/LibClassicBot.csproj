@@ -60,6 +60,7 @@
     <Compile Include="Drawing\DrawImg.cs" />
     <Compile Include="Drawing\Line.cs" />
     <Compile Include="Drawing\CuboidW.cs" />
+    <Compile Include="Drawing\Maze.cs" />
     <Compile Include="Drawing\Pyramid.cs" />
     <Compile Include="Drawing\Cuboid.cs" />
     <Compile Include="Drawing\IDrawer.cs" />

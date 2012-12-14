@@ -66,6 +66,12 @@ namespace LibClassicBotTest
 			Bot1.Events.MapLoaded += Bot1_MapLoaded;
 			
 			#region Plugins
+			ClassicBot.CommandDelegate MazeCommand = delegate(string Line)
+			{
+				Maze maze = new Maze();
+				Bot1.SetDrawer(Line, maze, 2);
+			};
+			Bot1.RegisteredCommands.Add("maze",MazeCommand);
 			
 			ClassicBot.CommandDelegate DrawCommand = delegate(string Line)
 			{
