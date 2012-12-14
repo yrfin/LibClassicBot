@@ -20,6 +20,9 @@ namespace LibClassicBot.Drawing
 		
 		const string _name = "Maze";
 		
+		//Line used for getting arguements. TODO: Use arguements instead of fixed size.
+		public string originalchatline = String.Empty;
+		
 		/// <summary>
 		/// Executes the drawer on a separate thread. The bool is there if the user finds a need to stop the drawing.
 		/// (This happens when CancelDrawer() is called.)
@@ -32,7 +35,7 @@ namespace LibClassicBot.Drawing
 			vicMazeGen.cMaze maze = new vicMazeGen.cMaze();
 			maze.GenerateMaze(64, 64, 0, 5);
 			main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
-			IEnumerator<Vector3I> coordEnumerator = maze.Get(128, 128, 2);
+			IEnumerator<Vector3I> coordEnumerator = maze.BlockEnumerator(MinVertex, 128, 128);
 			while(coordEnumerator.MoveNext())
 			{
 				if (Aborted == true) { return; }
@@ -89,21 +92,16 @@ namespace vicMazeGen
 		/// Just do some initialization and call the main routine,
 		/// that is analyze_cell()
 		/// </summary>
-		/// <param name="sizeX"></param>
-		/// <param name="sizeY"></param>
-		/// <param name="seed"></param>
 		public void GenerateMaze( int sizeX, int sizeY, int seed, int smoothness )
 		{
 			iSmooth = smoothness;
 			MazeSizeX  = sizeX;
 			MazeSizeY  = sizeY;
 			maze_base = new int[MazeSizeX * MazeSizeY];
-			maze_data = new Byte[MazeSizeX, MazeSizeY];
-
+			maze_data = new byte[MazeSizeX, MazeSizeY];
 			stateStack = new FastStack<cMazeState>();
-			r = new Random ( seed );
-
-			MazeInit( r );
+			r = new Random(seed);
+			MazeInit();
 			
 			cMazeState s = new cMazeState(r.Next() % MazeSizeX, r.Next() % MazeSizeY, 0);
 			analyze_cell( s, r );
@@ -138,8 +136,6 @@ namespace vicMazeGen
 		/// much complicated ( or maybe I didn't understand it well ).
 		/// Nevertheless, my code works really fast! Try to beat it.
 		/// </summary>
-		/// <param name="s"></param>
-		/// <param name="r"></param>
 		void analyze_cell( cMazeState state, Random r )
 		{
 			bool bEnd = false, found;
@@ -239,57 +235,47 @@ namespace vicMazeGen
 				} // else
 			} // while
 		} // function
-
 		#endregion
-		#region Bitmap
-		public IEnumerator<Vector3I> Get(int xSize, int ySize, int z)
+		
+		#region Block Enumerator
+		public IEnumerator<Vector3I> BlockEnumerator(Vector3I min, int xSize, int ySize)
 		{
-			yield return new Vector3I(0, 0, z + 1);
-			yield return new Vector3I(xSize, ySize, z + 1);
+			Vector3I Min = min;
 			int xScaledSize = xSize / MazeSizeX;
 			int yScaledSize = ySize / MazeSizeY;
-
-			for ( int i = 0; i < MazeSizeX; i++ )
-				for ( int j = 0; j < MazeSizeY; j++ )
+			for(int z = Min.Z; z < Min.Z + 2; z++)
 			{
-				// inspect the maze
-				if ( (maze_data[i, j] & (byte)Direction.N) == 0 )
+				for ( int i = 0; i < MazeSizeX; i++ )
+					for ( int j = 0; j < MazeSizeY; j++ )
 				{
-					for(int x = xScaledSize * i; x < xScaledSize * (i + 1); x++)
+					// inspect the maze
+					if ( (maze_data[i, j] & (byte)Direction.N) == 0 )
 					{
-						yield return new Vector3I(x, yScaledSize * j, z);
+						for(int x = xScaledSize * i; x < xScaledSize * (i + 1); x++)
+						{
+							yield return new Vector3I(Min.X + x, Min.Y + yScaledSize * j, z);
+						}
+					}
+					if ( (maze_data[i, j] & (byte)Direction.W) == 0 )
+					{
+						for(int y = yScaledSize * j; y < yScaledSize * (j + 1); y++)
+						{
+							yield return new Vector3I(Min.X + xScaledSize * i, Min.Y + y, z);
+						}
 					}
 				}
-				if ( (maze_data[i, j] & (byte)Direction.W) == 0 )
-				{
-					for(int y = yScaledSize * j; y < yScaledSize * (j + 1); y++)
-					{
-						yield return new Vector3I(xScaledSize * i, y, z);
-					}
-				}
+				for(int xStart = 0; xStart < xSize; xStart++) { yield return new Vector3I(Min.X + xStart, Min.Y, z); }
+				for(int yStart = 0; yStart < ySize; yStart++) { yield return new Vector3I(min.X, Min.Y + yStart, z); }
+				for(int xEnd = 0; xEnd < xSize; xEnd++) { yield return new Vector3I(Min.X + xEnd, Min.Y + ySize, z); }
+				for(int yEnd = 0; yEnd < ySize; yEnd++) { yield return new Vector3I(Min.X + xSize, Min.Y + yEnd, z); }
 			}
-			for(int xStart = 0; xStart < xSize; xStart++) { yield return new Vector3I(xStart, 0, z); }
-			for(int yStart = 0; yStart < ySize; yStart++) { yield return new Vector3I(0, yStart, z); }
-			for(int xEnd = 0; xEnd < xSize; xEnd++) { yield return new Vector3I(xEnd, ySize, z); }
-			for(int yEnd = 0; yEnd < ySize; yEnd++) { yield return new Vector3I(xSize, yEnd, z); }
-			/*for(int xStart = 0; xStart < xScaledSize; xStart++)
-			{
-				yield return new Vector3I(xStart, 0, z + 1);
-			}
-			for(int yStart = 0; yStart < yScaledSize; yStart++)
-			{
-				yield return new Vector3I(0, yStart, z + 1);
-			}
-			for(int xEnd = xSize - xScaledSize; xEnd < xSize; xEnd++)
-			{
-				yield return new Vector3I(xEnd, ySize, z + 1);
-			}
-			for(int yEnd = ySize - yScaledSize; yEnd < ySize; yEnd++)
-			{
-				yield return new Vector3I(xSize, yEnd, z + 1);
-			}*/
+			/*for(int xStart = 0; xStart < xScaledSize; xStart++) { yield return new Vector3I(xStart, 0, z + 1); }
+			for(int yStart = 0; yStart < yScaledSize; yStart++) { yield return new Vector3I(0, yStart, z + 1); }
+			for(int xEnd = xSize - xScaledSize; xEnd < xSize; xEnd++) { yield return new Vector3I(xEnd, ySize, z + 1); }
+			for(int yEnd = ySize - yScaledSize; yEnd < ySize; yEnd++) { yield return new Vector3I(xSize, yEnd, z + 1); }*/
 		}
 		#endregion
+		
 		#region Cell functions
 		int cell_index( int x, int y )
 		{
@@ -312,14 +298,13 @@ namespace vicMazeGen
 			maze_base[ base2 ] = base1;
 		}
 		#endregion
+		
 		#region MazeInit
-		void MazeInit( Random r )
+		void MazeInit()
 		{
-			int i, j;
-			
 			// maze data
-			for (i=0; i<MazeSizeX; i++)
-				for (j=0; j<MazeSizeY; j++)
+			for (int i = 0; i < MazeSizeX; i++)
+				for (int j = 0; j < MazeSizeY; j++)
 			{
 				maze_base [cell_index(i, j)] = -1;
 				maze_data [i, j] = 0;

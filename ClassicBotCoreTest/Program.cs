@@ -69,16 +69,16 @@ namespace LibClassicBotTest
 			ClassicBot.CommandDelegate MazeCommand = delegate(string Line)
 			{
 				Maze maze = new Maze();
+				maze.originalchatline = Line;
 				Bot1.SetDrawer(Line, maze, 2);
 			};
 			Bot1.RegisteredCommands.Add("maze",MazeCommand);
 			
 			ClassicBot.CommandDelegate DrawCommand = delegate(string Line)
 			{
-				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 1);
-				DrawImage d = new DrawImage();
-				d.originalchatline = Line;
-				Bot1.SetDrawer(Line, d, 2);
+				DrawImage img = new DrawImage();
+				img.originalchatline = Line;
+				Bot1.SetDrawer(Line, img, 2);
 			};
 			Bot1.RegisteredCommands.Add("drawimg",DrawCommand);
 			
