@@ -33,7 +33,7 @@ namespace LibClassicBot.Drawing
 			Vector3I MinVertex = Vector3I.Min(points[0], points[1]);
 			Vector3I MaxVertex = Vector3I.Max(points[0], points[1]);
 			vicMazeGen.cMaze maze = new vicMazeGen.cMaze();
-			maze.GenerateMaze(64, 64, 0, 5);
+			maze.GenerateMaze(64, 64, 5, 0);
 			main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
 			IEnumerator<Vector3I> coordEnumerator = maze.BlockEnumerator(MinVertex, 128, 128);
 			while(coordEnumerator.MoveNext())
@@ -41,7 +41,6 @@ namespace LibClassicBot.Drawing
 				if (Aborted == true) { return; }
 				Thread.Sleep(sleeptime);
 				Coords = coordEnumerator.Current;
-				Console.WriteLine(Coords);
 				main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
 				main.SendBlockPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z, 1, blocktype);
 			}
@@ -72,11 +71,7 @@ namespace vicMazeGen
 			}
 			internal FastStack() { tStack = new List<T>(); }
 		}
-		private enum Direction
-		{
-			N = 1,
-			W = 2
-		}
+		private enum Direction : byte { N = 1, W = 2 }
 		public int MazeSizeX;
 		public int MazeSizeY;
 		
@@ -92,7 +87,7 @@ namespace vicMazeGen
 		/// Just do some initialization and call the main routine,
 		/// that is analyze_cell()
 		/// </summary>
-		public void GenerateMaze( int sizeX, int sizeY, int seed, int smoothness )
+		public void GenerateMaze(int sizeX, int sizeY, int smoothness, int seed )
 		{
 			iSmooth = smoothness;
 			MazeSizeX  = sizeX;
@@ -101,10 +96,9 @@ namespace vicMazeGen
 			maze_data = new byte[MazeSizeX, MazeSizeY];
 			stateStack = new FastStack<cMazeState>();
 			r = new Random(seed);
-			MazeInit();
-			
-			cMazeState s = new cMazeState(r.Next() % MazeSizeX, r.Next() % MazeSizeY, 0);
-			analyze_cell( s, r );
+			MazeInit();		
+			cMazeState state = new cMazeState(r.Next() % MazeSizeX, r.Next() % MazeSizeY, 0);
+			analyze_cell( state, r );
 		}
 
 		/// <summary>
@@ -147,7 +141,7 @@ namespace vicMazeGen
 				{
 					while ( state.dir == 15 )
 					{
-						state = (cMazeState)stateStack.Pop();
+						state = stateStack.Pop();
 						if ( state == null )
 						{
 							bEnd = true;
@@ -243,6 +237,7 @@ namespace vicMazeGen
 			Vector3I Min = min;
 			int xScaledSize = xSize / MazeSizeX;
 			int yScaledSize = ySize / MazeSizeY;
+			//Draw the two layers.
 			for(int z = Min.Z; z < Min.Z + 2; z++)
 			{
 				for ( int i = 0; i < MazeSizeX; i++ )
@@ -269,6 +264,7 @@ namespace vicMazeGen
 				for(int xEnd = 0; xEnd < xSize; xEnd++) { yield return new Vector3I(Min.X + xEnd, Min.Y + ySize, z); }
 				for(int yEnd = 0; yEnd < ySize; yEnd++) { yield return new Vector3I(Min.X + xSize, Min.Y + yEnd, z); }
 			}
+			//Maybe add roof here?
 			/*for(int xStart = 0; xStart < xScaledSize; xStart++) { yield return new Vector3I(xStart, 0, z + 1); }
 			for(int yStart = 0; yStart < yScaledSize; yStart++) { yield return new Vector3I(0, yStart, z + 1); }
 			for(int xEnd = xSize - xScaledSize; xEnd < xSize; xEnd++) { yield return new Vector3I(xEnd, ySize, z + 1); }
@@ -300,18 +296,13 @@ namespace vicMazeGen
 		#endregion
 		
 		#region MazeInit
-		void MazeInit()
-		{
-			// maze data
-			for (int i = 0; i < MazeSizeX; i++)
-				for (int j = 0; j < MazeSizeY; j++)
-			{
-				maze_base [cell_index(i, j)] = -1;
-				maze_data [i, j] = 0;
-			}
+		private void MazeInit() {
+			for(int i = 0; i < maze_base.Length; ++i) { maze_base[i] = -1; }
 		}
-
-
+			// maze data
+			/*for (int i = 0; i < MazeSizeX; i++)
+				for (int j = 0; j < MazeSizeY; j++)
+			{ maze_base [cell_index(i, j)] = -1; }*/
 		#endregion
 	}
 
@@ -321,7 +312,7 @@ namespace vicMazeGen
 	public class cMazeState
 	{
 		public int x, y, dir;
-		public cMazeState( int tx, int ty, int td ) { x=tx; y=ty; dir = td; }
-		public cMazeState( cMazeState s ) { x=s.x; y=s.y; dir=s.dir; }
+		public cMazeState( int tx, int ty, int td ) { x = tx; y = ty; dir = td; }
+		public cMazeState( cMazeState s ) { x = s.x; y = s.y; dir = s.dir; }
 	}
 }
