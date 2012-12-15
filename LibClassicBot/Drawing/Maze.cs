@@ -29,13 +29,32 @@ namespace LibClassicBot.Drawing
 		/// </summary>
 		public void Start(ClassicBot main, ref bool Aborted, Vector3I[] points, byte blocktype, ref int sleeptime)
 		{
-			Vector3I Coords = Vector3I.Min(points[0], points[1]);
-			Vector3I MinVertex = Vector3I.Min(points[0], points[1]);
-			Vector3I MaxVertex = Vector3I.Max(points[0], points[1]);
+			Vector3I Coords = points[0];
 			vicMazeGen.cMaze maze = new vicMazeGen.cMaze();
-			maze.GenerateMaze(64, 64, 5, 0);
+			string[] rawLines = main.GetMessage(originalchatline).Split(' ');
+			if(rawLines.Length < 4) //Not enough arguements given
+			{
+				main.SendMessagePacket("Not enough arguements. (" + (rawLines.Length - 2) + " given, 2 expected.)");
+				main.SetDrawerToNull();
+				return;
+			}
+			int mazeX; int mazeY; byte smoothness;  int seed;
+			//Required paramters - Fail if these are not found.
+			if(!Int32.TryParse(rawLines[2], out mazeX) || !Int32.TryParse(rawLines[3], out mazeY))
+			{
+				main.SendMessagePacket("Given maze size was in the incorrect format.");
+				main.SetDrawerToNull();
+				return;
+			} //todo catch divide by zero exceptions.
+			//Optional paramters - Otherwise use random numbers.
+			if(rawLines.Length > 4 && Byte.TryParse(rawLines[4], out smoothness)) { }
+			else { smoothness = (byte)(new Random().Next(0, 30)); }
+			if(rawLines.Length > 5 && Int32.TryParse(rawLines[5], out seed)) { }
+			else { seed = (new Random().Next(0, Int32.MaxValue)); } //I think it can go larger. Random can't though.
+			//Actually generate.
+			maze.GenerateMaze(mazeX / 2, mazeY / 2, smoothness, seed);
 			main.SendPositionPacket((short)Coords.X, (short)Coords.Y, (short)Coords.Z);
-			IEnumerator<Vector3I> coordEnumerator = maze.BlockEnumerator(MinVertex, 128, 128);
+			IEnumerator<Vector3I> coordEnumerator = maze.BlockEnumerator(points[0], mazeX , mazeY);
 			while(coordEnumerator.MoveNext())
 			{
 				if (Aborted == true) { return; }
@@ -56,6 +75,7 @@ namespace vicMazeGen
 {
 	public class cMaze
 	{
+		#region FastStack
 		private class FastStack<T>
 		{
 			private List<T> tStack;
@@ -71,6 +91,8 @@ namespace vicMazeGen
 			}
 			internal FastStack() { tStack = new List<T>(); }
 		}
+		#endregion
+		
 		private enum Direction : byte { N = 1, W = 2 }
 		public int MazeSizeX;
 		public int MazeSizeY;
@@ -96,7 +118,7 @@ namespace vicMazeGen
 			maze_data = new byte[MazeSizeX, MazeSizeY];
 			stateStack = new FastStack<cMazeState>();
 			r = new Random(seed);
-			MazeInit();		
+			MazeInit();
 			cMazeState state = new cMazeState(r.Next() % MazeSizeX, r.Next() % MazeSizeY, 0);
 			analyze_cell( state, r );
 		}
@@ -246,14 +268,14 @@ namespace vicMazeGen
 					// inspect the maze
 					if ( (maze_data[i, j] & (byte)Direction.N) == 0 )
 					{
-						for(int x = xScaledSize * i; x < xScaledSize * (i + 1); x++)
+						for(int x = xScaledSize * i; x <= xScaledSize * (i + 1); x++)
 						{
 							yield return new Vector3I(Min.X + x, Min.Y + yScaledSize * j, z);
 						}
 					}
 					if ( (maze_data[i, j] & (byte)Direction.W) == 0 )
 					{
-						for(int y = yScaledSize * j; y < yScaledSize * (j + 1); y++)
+						for(int y = yScaledSize * j; y <= yScaledSize * (j + 1); y++)
 						{
 							yield return new Vector3I(Min.X + xScaledSize * i, Min.Y + y, z);
 						}
@@ -299,20 +321,16 @@ namespace vicMazeGen
 		private void MazeInit() {
 			for(int i = 0; i < maze_base.Length; ++i) { maze_base[i] = -1; }
 		}
-			// maze data
-			/*for (int i = 0; i < MazeSizeX; i++)
-				for (int j = 0; j < MazeSizeY; j++)
-			{ maze_base [cell_index(i, j)] = -1; }*/
 		#endregion
-	}
-
-	/// <summary>
-	/// A single state of maze iteration.
-	/// </summary>
-	public class cMazeState
-	{
-		public int x, y, dir;
-		public cMazeState( int tx, int ty, int td ) { x = tx; y = ty; dir = td; }
-		public cMazeState( cMazeState s ) { x = s.x; y = s.y; dir = s.dir; }
+		
+		/// <summary>
+		/// A single state of maze iteration.
+		/// </summary>
+		private class cMazeState
+		{
+			public int x, y, dir;
+			public cMazeState( int tx, int ty, int td ) { x = tx; y = ty; dir = td; }
+			public cMazeState( cMazeState s ) { x = s.x; y = s.y; dir = s.dir; }
+		}
 	}
 }
