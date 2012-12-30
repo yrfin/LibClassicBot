@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace LibClassicBot.Drawing
 {
@@ -126,11 +127,11 @@ namespace LibClassicBot.Drawing
 		}
 		
 		public static Vector3I operator + (Vector3I left, int right) {
-				return new Vector3I(left.X + right, left.Y + right, left.Z + right); 
+			return new Vector3I(left.X + right, left.Y + right, left.Z + right);
 		}
 		
 		public static Vector3I operator - (Vector3I left, int right) {
-				return new Vector3I(left.X - right, left.Y - right, left.Z - right); 
+			return new Vector3I(left.X - right, left.Y - right, left.Z - right);
 		}
 		#endregion
 		
@@ -169,7 +170,7 @@ namespace LibClassicBot.Drawing
 		
 		#region General Utilities
 		/// <summary>
-		/// Returns a Vector3I containing the minimum X coordinate,Y coordinate and Z coordinate from the two points.
+		/// Returns a Vector3I containing the minimum X coordinate,Y coordinate and Z coordinate from the two Vector3Is.
 		/// </summary>
 		/// <param name="val1">The first Vector3I which values will be compared with.</param>
 		/// <param name="val2">The second Vector3I which values will be compared against.</param>
@@ -186,7 +187,7 @@ namespace LibClassicBot.Drawing
 		}
 		
 		/// <summary>
-		/// Returns a Vector3I containing the maximum X coordinate,Y coordinate and Z coordinate from the two points.
+		/// Returns a Vector3I containing the maximum X coordinate,Y coordinate and Z coordinate from the two Vector3Is.
 		/// </summary>
 		/// <param name="val1">The first Vector3I which values will be compared with.</param>
 		/// <param name="val2">The second Vector3I which values will be compared against.</param>
@@ -216,6 +217,68 @@ namespace LibClassicBot.Drawing
 			val.Y = Math.Abs(val1.Y);
 			val.Z = Math.Abs(val1.Z);
 			return val;
+		}
+		#endregion
+		
+		
+		#region Stream Utilities
+		/// <summary>
+		/// Returns a Vector3I from the given BinaryReader.
+		/// </summary>
+		/// <exception cref="System.IO.EndOfStreamException">The end of the stream was reached
+		/// while trying to read a Vector3I.</exception>
+		/// <exception cref="System.IOException">An I/O error occured while trying to read.</exception>
+		/// <param name="reader">The BinaryReader to read from. The method reads in signed integers,
+		/// so the offset will be increased by twelve bytes.</param>
+		/// <param name="BigEndian">True if the input base stream is in big endian,
+		/// false if the base stream is in little endian. (Default of Streams in .NET)</param>
+		/// <returns>The Vector3I read from the BinaryReader.</returns>
+		public static Vector3I FromBinaryReader(BinaryReader reader, bool BigEndian)
+		{
+			Vector3I result;
+			if(BigEndian) {
+				result.X = System.Net.IPAddress.HostToNetworkOrder(reader.ReadInt32());
+				result.Y = System.Net.IPAddress.HostToNetworkOrder(reader.ReadInt32());
+				result.Z = System.Net.IPAddress.HostToNetworkOrder(reader.ReadInt32());
+			} else {
+				result.X = reader.ReadInt32();
+				result.Y = reader.ReadInt32();
+				result.Z = reader.ReadInt32();
+			}
+			return result;
+		}
+		
+		/// <summary>
+		/// Writes a given Vector3I to the given BinaryWriter
+		/// </summary>
+		/// <exception cref="System.IOException">An I/O error occured while trying to write.</exception>
+		/// <param name="input">The Vector3I to write. The Vector3I will be written in the order
+		/// X, Y and lastly Z.</param>
+		/// <param name="writer">The BinaryWriter to write to. The method writes in signed integers,
+		/// so the offset will be increased by twelve bytes.</param>
+		/// <param name="BigEndian">True if the input base stream is in big endian,
+		/// false if the base stream is in little endian. (Default of Streams in .NET)</param>
+		/// <param name="BigEndian"></param>
+		public static void ToBinaryWriter(Vector3I input, BinaryWriter writer, bool BigEndian)
+		{
+			if(BigEndian) {
+				writer.Write(System.Net.IPAddress.HostToNetworkOrder(input.X));
+				writer.Write(System.Net.IPAddress.HostToNetworkOrder(input.Y));
+				writer.Write(System.Net.IPAddress.HostToNetworkOrder(input.Z));
+			} else {
+				writer.Write(input.X);
+				writer.Write(input.Y);
+				writer.Write(input.Z);
+			}
+		}
+		
+		/// <summary>
+		/// Writes the Vector3I to the given BinaryWriter. See the static version of this method
+		/// for more information.
+		/// </summary>
+		public void ToBinaryWriter(BinaryWriter writer, bool BigEndian)
+		{
+			ToBinaryWriter(this, writer, BigEndian);
 		}
 		#endregion
 		
