@@ -57,7 +57,7 @@ namespace LibClassicBotTest
 				else hash = "http://minecraft.net/classic/play/" + hash;
 			}
 
-			ClassicBot Bot1 = new ClassicBot(username,password,hash,"operators.txt");
+			ClassicBot Bot1 = new ClassicBot(username, password, hash, "operators.txt");
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
 			Bot1.Events.GotKicked += Bot1_GotKicked;
 			Bot1.Events.BotException += Bot1_SocketError;

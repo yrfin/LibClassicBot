@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="2.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -55,6 +55,7 @@
     <Compile Include="BotCommands.cs" />
     <Compile Include="BotDrawing.cs" />
     <Compile Include="BotNetworking.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Drawing\CuboidH.cs" />
     <Compile Include="Drawing\Ellipsoid.cs" />
     <Compile Include="Drawing\DrawImg.cs" />

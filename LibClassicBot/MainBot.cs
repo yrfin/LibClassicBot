@@ -19,99 +19,67 @@ namespace LibClassicBot
 		#region Public Fields
 		/// <summary>Returns the X coordinate of the bot in the world.</summary>
 		public float X {
-			get { if (this._players[255] != null) return this._players[255].X; else return 0; }
+			get { if (Players[255] != null) return Players[255].X; return 0; }
 		}
 
 		/// <summary> Returns the Y coordinate of the bot in the world.</summary>
 		public float Y {
-			get { if (_players[255] != null) return _players[255].Y; else return 0; }
+			get { if (Players[255] != null) return Players[255].Y; return 0; }
 		}
 
 		/// <summary>Returns the Z coordinate of the bot in the world.</summary>
 		public float Z {
-			get { if (_players[255] != null) return _players[255].Z; else return 0; }
+			get { if (Players[255] != null) return Players[255].Z; return 0; }
 		}
 
 		/// <summary>Returns the Yaw of the bot in the world.</summary>
 		public byte Yaw {
-			get { if (_players[255] != null) return _players[255].Yaw; else return 0; }
+			get { if (Players[255] != null) return Players[255].Yaw; return 0; }
 		}
 
 		/// <summary>Returns the Pitch of the bot in the world.</summary>
 		public byte Pitch {
-			get { if (_players[255] != null) return _players[255].Pitch; else return 0; }
+			get { if (Players[255] != null) return Players[255].Pitch; return 0; }
 		}
 
 		/// <summary>Returns a list of users allowed to use the bot. Does NOT contain colour codes.</summary>
-		public List<string> Users {
-			get { return _users; }
-			set { _users = value; }
-		}
+		public List<string> Users { get; private set; }
 
-		/// <summary>Returns the current IP Address that the bot is connected to. Returns null if not connected.</summary>
-		public IPAddress ServerIP {
-			get { if (_serverIP != null) return _serverIP; else return null; }
-		}
-
-		/// <summary>Returns the current (int) port that the bot is connected to. Returns 0 if not connected to one.</summary>
-		public int ServerPort {
-			get { return _serverPort; }
-		}
+		/// <summary> Returns the endpoint (IP address and port) that the bot is connected to. Returns null if not connected.</summary>
+		public IPEndPoint EndPoint { get; private set; }
 
 		/// <summary>Returns the current socket that the bot is connected to. Returns null if not connected to one.</summary>
-		public Socket ServerSocket {
-			get { if (_serverSocket != null) return _serverSocket; else return null; }
-		}
+		public Socket ServerSocket { get; private set; }
 
 		/// <summary>Returns the name of the bot as a string. Returns null if there isn't one.</summary>
-		public string Username {
-			get { if (_username != null) return _username; else return null; }
-		}
+		public string Username { get { return _username; } }
 
 		/// <summary>Returns the password of the bot as a string. Returns null if there isn't one.</summary>
-		public string Password {
-			get { if (_password != null) return _password; else return null; }
-		}
+		public string Password { get { return _password; } }
 
 		/// <summary>Returns the hash prefixed with http://minecraft.net/classic/play as a string. Returns null if there isn't a hash.</summary>
-		public string URL {
-			get { if (_hash != null) return _hash; else return null; }
-		}
+		public string URL { get { return _hash; } }
 
 		/// <summary>Returns whether or not the bot is connected.</summary>
-		public bool Connected {
-			get { return _connected; }
-		}
+		public bool Connected { get; private set; }
 
 		/// <summary>Returns the Mppass of the bot as a string. Returns null if there isn't one.</summary>
-		public string Mppass {
-			get { if (_ver != null) return _ver; else return null; }
-		}
+		public string Mppass { get { return _ver; } }
 
 		/// <summary>Returns the length of the X-Axis of the bots' current map. Returns 0 if a map is not loaded</summary>
-		public int MapSizeX {
-			get { return _mapsizeX; }
-		}
+		public int MapSizeX { get; private set; }
 
 		/// <summary>Returns the length of the Y-Axis of the bots' current map. Returns 0 if a map is not loaded</summary>
-		public int MapSizeY {
-			get { return _mapsizeY; }
-		}
+		public int MapSizeY { get; private set; }
 
 		/// <summary>Returns the length of the Z-Axis of the bots' current map. Returns 0 if a map is not loaded</summary>
-		public int MapSizeZ {
-			get { return _mapsizeZ; }
-		}
+		public int MapSizeZ { get; private set; }
 
 		/// <summary>Returns the type of the user. 100 indicates an op and can place bedrock, 0 indicates normal.</summary>
-		public byte UserType {
-			get { return _userType; }
-		}
+		public byte UserType { get; private set; }
 
-		/// <summary>Returns a collection of players in the world. Returns null if no one (Including the bot) is in the collection.</summary>
-		public Dictionary<byte, Player> Players {
-			get { if (_players != null) return _players; else return null; }
-		}
+		/// <summary>Returns a collection of players in the world. Includes the bot. </summary>
+		public Dictionary<byte, Player> Players { get; private set; }
 		
 		/// <summary>The character delimiter used for the splitting of chat packets into message and username. By default, this will be ':'.</summary>
 		public char Delimiter {
@@ -132,10 +100,7 @@ namespace LibClassicBot
 		}
 		
 		/// <summary>Gets or sets the list of ignored users.</summary>
-		public List<string> IgnoredUserList {
-			get { return _ignored; }
-			set { _ignored = value; }
-		}
+		public List<string> IgnoredUserList { get; private set; }
 
 		/// <summary>Gets the current process associated with the bot.</summary>
 		public Process BotProcess {
@@ -158,24 +123,17 @@ namespace LibClassicBot
 		/// Whether to load settings from botsettings.txt. By default, this is set to true.
 		/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
 		/// </summary>
-		public bool LoadInternalSettings {
-			get { return _loadsettings; }
-			set {_loadsettings = value; }
-		}
+		public bool LoadInternalSettings { get; private set; }
 		
 		/// <summary>
 		/// When the bot first joins a server, a packet containing the server name and MOTD are sent.
 		/// All further world joins are ignored, as unfortunately there's no unified "joining world X" between
 		/// all the different server software.
 		/// </summary>
-		public string ServerName {
-			get {  if (_servername != null) return _servername; else return null; }
-		}
+		public string ServerName { get; private set; }
 		
 		/// <summary>When the bot first joins a server, a packet containing the server name and MOTD are sent.</summary>
-		public string ServerMOTD {
-			get {  if (_servermotd != null) return _servermotd; else return null; }
-		}
+		public string ServerMOTD { get; private set; }
 		
 		/// <summary>This determines whether or not the bot is cuboiding.</summary>
 		public bool IsCuboiding {
@@ -196,7 +154,7 @@ namespace LibClassicBot
 		/// <returns>True if all three points were in the map, false if not.</returns>
 		public bool IsValidPosition(short x, short y, short z)
 		{
-			if(x > _mapsizeX || y > _mapsizeY || z > _mapsizeZ || x < 0 || y < 0 || z < 0) return false;
+			if(x > MapSizeX || y > MapSizeY || z > MapSizeZ || x < 0 || y < 0 || z < 0) return false;
 			return true;
 		}
 		/// <summary>Events that are raised by the bot.</summary>
@@ -217,6 +175,7 @@ namespace LibClassicBot
 			this._hash = adress;
 			this._Opspath = oppath;
 			this.isStandard = true;
+			InitDefaults();
 		}
 
 		/// <summary>Connects the bot to a server via a direct URL. A direct URL goes in the form of mc://serverip:serverport/user/mppass</summary>
@@ -228,6 +187,7 @@ namespace LibClassicBot
 			this.DirectURL = directURL;
 			this.isDirect = true;
 			this._Opspath = oppath;
+			InitDefaults();
 		}
 		
 		/// <summary>Directly connects to a server. Does not include verification, so it will be kicked if server verification is enabled.</summary>
@@ -236,13 +196,8 @@ namespace LibClassicBot
 		/// <param name="Port">The int containing the port number for which to connect onto.</param>
 		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
 		/// <example>ClassicBot c = new ClassicBot("bot",IPAddress.Parse("127.0.0.1",25565,"ops.txt")</example>
-		public ClassicBot(string username, IPAddress serverIP, int port, string oppath)
-		{
-			this._username = username;
-			this._serverIP = serverIP;
-			this._serverPort = port;
-			this._Opspath = oppath;
-		}
+		public ClassicBot(string username, IPAddress serverIP, int port, string oppath) :
+			this( username, null, serverIP, port, oppath ) { }
 		
 		/// <summary>Directly connects to a server. Does include verification.</summary>
 		/// <param name="username">Username used to connect</param>
@@ -254,32 +209,29 @@ namespace LibClassicBot
 		public ClassicBot(string username, string verkey, IPAddress serverIP, int port, string oppath)
 		{
 			this._username = username;
-			this._serverIP = serverIP;
-			this._serverPort = port;
+			this.EndPoint = new IPEndPoint( serverIP, port );
 			this._Opspath = oppath;
 			this._ver = verkey;
+			InitDefaults();
 		}
 		#endregion
 
 		
 		#region Internal fields
-		IPAddress _serverIP;
-		Socket _serverSocket;
-		List<string> _users = new List<string>();
-		int _serverPort;
+		
+		void InitDefaults() {
+			IgnoredUserList = new List<string>();
+			Users = new List<string>();
+			LoadInternalSettings = true;
+			Players = new Dictionary<byte, Player>();
+		}
 		string _username, _password, _hash;
 		string _ver = String.Empty;
-		string _servername, _servermotd;
-		bool _connected;
-		int _mapsizeX, _mapsizeY, _mapsizeZ;
 		char _delimiter = ':';
 		string _Opspath = "operators.txt";
 		bool _reconnectonkick = false;
-		Dictionary<byte, Player> _players = new Dictionary<byte, Player>();
-		byte _userType;
 		bool _requiresop = true;
 		Server server = null;
-		List<string> _ignored = new List<string>();
 		string migratedUsername;
 		/*PerformanceCounter ramCounter = new PerformanceCounter("Process", "Working Set",
 		                                                       Process.GetCurrentProcess().ProcessName, true);
@@ -298,7 +250,6 @@ namespace LibClassicBot
 		bool isDirect = false;
 		bool isStandard = false;
 		byte ProtocolVersion;
-		bool _loadsettings = true;
 		bool _savemap = false;
 		bool serverLoaded = false;
 		bool UseRemoteServer = false;
@@ -319,8 +270,8 @@ namespace LibClassicBot
 		/// <param name="data">The daat to be sent, converted into a byte array.</param>
 		public void Send(byte[] data)
 		{
-			if(_serverSocket == null || _serverSocket.Connected == false) return;
-			_serverSocket.Send(data, data.Length, SocketFlags.None);
+			if(ServerSocket == null || ServerSocket.Connected == false) return;
+			ServerSocket.Send(data, data.Length, SocketFlags.None);
 		}
 		/// <summary>
 		/// Starts the bot. It can optionally run on the same thread as the method that called it.
@@ -328,7 +279,7 @@ namespace LibClassicBot
 		public void Start(bool RunOnThreadAsCaller)
 		{
 			if(!Debugger.IsAttached) AppDomain.CurrentDomain.UnhandledException += UnhandledException; //Might interfere with debugging
-			if(_loadsettings) LoadSettings();
+			if(LoadInternalSettings) LoadSettings();
 			if(RunOnThreadAsCaller == true)
 			{
 				IOLoop();
@@ -444,10 +395,10 @@ namespace LibClassicBot
 		/// True if it also succeeded in writing to the file, false if there was an error.</returns>
 		public bool AddOperator(string username, bool savetofile)
 		{
-			_users.Add(username);
+			Users.Add(username);
 			if(savetofile)
 			{
-				string[] usersArray = _users.ToArray();
+				string[] usersArray = Users.ToArray();
 				try { File.WriteAllLines(_Opspath,usersArray); }
 				catch { return false; }
 				
@@ -462,17 +413,11 @@ namespace LibClassicBot
 		/// True if it also succeeded in writing to the file, false if there was an error.</returns>
 		public bool RemoveOperator(string username, bool savetofile)
 		{
-			foreach(string name in _users)
-			{
-				if(name == username)
-				{
-					if(_users.Remove(name) == false) return false;
-				}
-			}
+			if (!Users.Remove(username)) return false;
 			
 			if(savetofile)
 			{
-				string[] usersArray = _users.ToArray();
+				string[] usersArray = Users.ToArray();
 				try { File.WriteAllLines(_Opspath,usersArray); }
 				catch { return false; }
 			}
@@ -482,39 +427,35 @@ namespace LibClassicBot
 		#region I/O Loop
 		void IOLoop()
 		{
-			if (File.Exists(_Opspath))
-			{
+			if (File.Exists(_Opspath)) {
 				string[] lines = File.ReadAllLines(_Opspath);
-				for (int i = 0; i < lines.Length; i++)
-				{
-					_users.Add(lines[i]);
+				for (int i = 0; i < lines.Length; i++) {
+					Users.Add(lines[i]);
 				}
-			}
-			else
-			{
+			} else {
 				File.Create(_Opspath);
 			}
 			
-			if (isDirect == true)
-			{
+			if (isDirect == true) {
 				string[] parts = DirectURL.Substring(5).Split('/');
 				_username = parts[1];
 				_ver = parts[2];
 
 				string[] ipPort = parts[0].Split(':');
-				_serverIP = IPAddress.Parse(ipPort[0]);
-				_serverPort = Convert.ToInt32(ipPort[1]);
-			}
-			else if(isStandard == true)
-			{
-				try { Extensions.Login(_username, _password, _hash, out _serverIP, out _serverPort, out _ver, out migratedUsername); }
-				catch(InvalidOperationException ex)
+				IPAddress ip = IPAddress.Parse(ipPort[0]);
+				int port = Convert.ToInt32(ipPort[1]);
+				EndPoint = new IPEndPoint( ip, port );
+			} else if(isStandard == true) {
+				try {
+					IPEndPoint point;
+					Extensions.Login(_username, _password, _hash, out point, out _ver, out migratedUsername);
+					EndPoint = point;
+				} catch(InvalidOperationException ex)
 				{
 					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ex.Message,ex);
 					Events.RaiseBotError(socketEvent);
 					return;
-				}
-				catch(ArgumentOutOfRangeException ex)
+				} catch(ArgumentOutOfRangeException ex)
 				{
 					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ErrorInPage, ex);
 					Events.RaiseBotError(socketEvent);
@@ -522,15 +463,15 @@ namespace LibClassicBot
 				}
 			}
 			//Get details we need to create a verified login.
-			_ignored.Add(migratedUsername ?? _username); //Ignore self.
+			IgnoredUserList.Add(migratedUsername ?? _username); //Ignore self.
 			byte[] ToSendLogin = CreateLoginPacket(migratedUsername ?? _username, _ver);
-			_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try
 			{
-				if(_serverPort > IPEndPoint.MaxPort || _serverPort < IPEndPoint.MinPort) throw new SocketException(-1);
+				if(EndPoint.Port > IPEndPoint.MaxPort || EndPoint.Port < IPEndPoint.MinPort) throw new SocketException(-1);
 				//Do not continue if the user attempts to connect on a port larger than possible.
-				_serverSocket.Connect(_serverIP, _serverPort);
-				_serverSocket.Send(ToSendLogin);
+				ServerSocket.Connect(EndPoint);
+				ServerSocket.Send(ToSendLogin);
 			}
 			catch(SocketException ex)
 			{
@@ -540,7 +481,7 @@ namespace LibClassicBot
 			}
 			StartCommandsThread();
 			Plugins.PluginManager.LoadPlugins(ref RegisteredCommands, this);
-			BinaryReader reader = new BinaryReader(new NetworkStream(_serverSocket));
+			BinaryReader reader = new BinaryReader(new NetworkStream(ServerSocket));
 
 			while (true)
 			{
@@ -559,11 +500,11 @@ namespace LibClassicBot
 								string MOTD = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								if(!serverLoaded)
 								{
-									_servername = Name;
-									_servermotd = MOTD;
+									ServerName = Name;
+									ServerMOTD = MOTD;
 									serverLoaded = true;
 								}
-								_userType = reader.ReadByte();//Get the type. 0x64 = Op, 0x00 = Normal user.
+								UserType = reader.ReadByte();//Get the type. 0x64 = Op, 0x00 = Normal user.
 							}
 							break;
 
@@ -571,7 +512,7 @@ namespace LibClassicBot
 							break; // Server only requires we read the packet ID.
 
 						case ServerPackets.LevelInitialize://0x02
-							_players.Clear();
+							Players.Clear();
 							if(_savemap) mapStream = new MemoryStream();
 							CanReconnectAfterKick = true;
 							break;
@@ -592,22 +533,20 @@ namespace LibClassicBot
 
 						case ServerPackets.LevelFinalize://0x04:
 							{
-								_mapsizeX = IPAddress.HostToNetworkOrder(reader.ReadInt16());
-								_mapsizeZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
-								_mapsizeY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
-								_connected = true; //At this state, we've loaded the map and we're ready to send chat etc.
+								MapSizeX = IPAddress.HostToNetworkOrder(reader.ReadInt16());
+								MapSizeZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
+								MapSizeY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
+								Connected = true; //At this state, we've loaded the map and we're ready to send chat etc.
 								if(_savemap) {
 									mapStream.Seek(0, SeekOrigin.Begin);
-									Map map = new Map(_mapsizeX, _mapsizeY, _mapsizeZ);
+									Map map = new Map(MapSizeX, MapSizeY, MapSizeZ);
 									using (GZipStream decompressed = new GZipStream(mapStream,CompressionMode.Decompress))
 									{
 										decompressed.Read(new byte[4],0,4); //Ignore size of stream.
-										for (int z = 0; z < _mapsizeZ; z++)
-										{
-											for (int y = 0; y < _mapsizeY; y++)
-											{
-												for (int x = 0; x < _mapsizeX; x++)
-												{
+										int sizeX = MapSizeX, sizeY = MapSizeY, sizeZ = MapSizeZ;
+										for (int z = 0; z < sizeZ; z++) {
+											for (int y = 0; y < sizeY; y++) {
+												for (int x = 0; x < sizeX; x++) {
 													byte next = (byte)decompressed.ReadByte();
 													if(next != 255) map.SetBlock(x, y, z, next);
 												}
@@ -634,13 +573,13 @@ namespace LibClassicBot
 								if(marksLeft > 0 && blockType == 39 && CubID != null)
 								{
 									byte id = CubID.Value;
-									if(_players[id].X < 0 || _players[id].Y < 0 || _players[id].Z < 0) {
+									if(Players[id].X < 0 || Players[id].Y < 0 || Players[id].Z < 0) {
 										SendMessagePacket("Error: You are too far away from the bot.");
 										break;
 									}
 									
 									if(new Vector3I(blockX, blockY, blockZ).Distance(new Vector3I(
-										(int)_players[id].X, (int)_players[id].Y, (int)_players[id].Z)) > 11) {
+										(int)Players[id].X, (int)Players[id].Y, (int)Players[id].Z)) > 11) {
 										break; //Another player probably tried placing a block somewhere else.
 									}
 									marks[marks.Length - marksLeft] = new Vector3I(blockX, blockY, blockZ);
@@ -656,14 +595,14 @@ namespace LibClassicBot
 							{
 								byte pID = reader.ReadByte();
 								string playername = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								_players[pID] = new Player();
-								_players[pID].Name = playername;
-								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Yaw = reader.ReadByte();
-								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
+								Players[pID] = new Player();
+								Players[pID].Name = playername;
+								Players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								Players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								Players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								Players[pID].Yaw = reader.ReadByte();
+								Players[pID].Pitch = reader.ReadByte();
+								PositionEventArgs e = new PositionEventArgs(pID, Players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -671,12 +610,12 @@ namespace LibClassicBot
 						case ServerPackets.PlayerTeleport://0x08
 							{
 								byte pID = reader.ReadByte();
-								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Yaw = reader.ReadByte();
-								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
+								Players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								Players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								Players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								Players[pID].Yaw = reader.ReadByte();
+								Players[pID].Pitch = reader.ReadByte();
+								PositionEventArgs e = new PositionEventArgs(pID, Players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -684,12 +623,12 @@ namespace LibClassicBot
 						case ServerPackets.PositionandOrientationUpdate://0x09
 							{
 								byte pID = reader.ReadByte();
-								_players[pID].X += reader.ReadSByte() / 32f;
-								_players[pID].Z += reader.ReadSByte() / 32f;
-								_players[pID].Y += reader.ReadSByte() / 32f;
-								_players[pID].Yaw = reader.ReadByte();
-								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
+								Players[pID].X += reader.ReadSByte() / 32f;
+								Players[pID].Z += reader.ReadSByte() / 32f;
+								Players[pID].Y += reader.ReadSByte() / 32f;
+								Players[pID].Yaw = reader.ReadByte();
+								Players[pID].Pitch = reader.ReadByte();
+								PositionEventArgs e = new PositionEventArgs(pID, Players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -697,10 +636,10 @@ namespace LibClassicBot
 						case ServerPackets.PositionUpdate://0x0a
 							{
 								byte pID = reader.ReadByte();
-								_players[pID].X += (reader.ReadSByte() / 32f);
-								_players[pID].Z += (reader.ReadSByte() / 32f);
-								_players[pID].Y += (reader.ReadSByte() / 32f);
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
+								Players[pID].X += (reader.ReadSByte() / 32f);
+								Players[pID].Z += (reader.ReadSByte() / 32f);
+								Players[pID].Y += (reader.ReadSByte() / 32f);
+								PositionEventArgs e = new PositionEventArgs(pID, Players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -708,9 +647,9 @@ namespace LibClassicBot
 						case ServerPackets.OrientationUpdate://0x0b
 							{
 								byte pID = reader.ReadByte();
-								_players[pID].Yaw = reader.ReadByte();
-								_players[pID].Pitch = reader.ReadByte();
-								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
+								Players[pID].Yaw = reader.ReadByte();
+								Players[pID].Pitch = reader.ReadByte();
+								PositionEventArgs e = new PositionEventArgs(pID, Players[pID]);
 								Events.RaisePlayerMoved(e);
 							}
 							break;
@@ -718,7 +657,7 @@ namespace LibClassicBot
 						case ServerPackets.DespawnPlayer://0x0c
 							{
 								byte playerID = reader.ReadByte();
-								_players.Remove(playerID); // Also sent when the player joins another map.
+								Players.Remove(playerID); // Also sent when the player joins another map.
 							}
 							break;
 
@@ -733,7 +672,7 @@ namespace LibClassicBot
 									string Message = Extensions.StripColors(lineSplit[1]).TrimStart(' ');
 									string User = Extensions.StripColors(lineSplit[0]);
 
-									if (!_ignored.Contains(User))
+									if (!IgnoredUserList.Contains(User))
 									{
 										string strippedcommandheader = Message.Split(' ')[0].ToLower();
 										foreach(KeyValuePair<string,CommandDelegate> command in RegisteredCommands)
@@ -742,7 +681,7 @@ namespace LibClassicBot
 											{
 												if(_requiresop == true)
 												{
-													if(_users.Contains(User)) {
+													if(Users.Contains(User)) {
 														EnqueueCommand(command.Value,Line);
 														break;
 													}
@@ -785,8 +724,8 @@ namespace LibClassicBot
 									Events.RaiseBotError(socketEvent);
 								}
 								else {
-									_serverSocket.Close();
-									_serverSocket = null;
+									ServerSocket.Close();
+									ServerSocket = null;
 									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
 										"It looks like the bot was prevented from reconnecting. (Kick packet received before a LevelBegin packet)",new IOException());
 									Events.RaiseBotError(socketEvent);
@@ -795,7 +734,7 @@ namespace LibClassicBot
 							}
 
 						case ServerPackets.SetPermission://0x0f
-							_userType = reader.ReadByte();//Issued in Vanilla when someone calls /op, used in fCraft for bedrock permission checking.
+							UserType = reader.ReadByte();//Issued in Vanilla when someone calls /op, used in fCraft for bedrock permission checking.
 							break;
 
 						default:

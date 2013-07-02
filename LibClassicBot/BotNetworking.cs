@@ -104,8 +104,8 @@ namespace LibClassicBot
 		/// <param name="type">The type of block being placed, as a byte.</param>
 		public void SendBlockPacket(short x, short y, short z, byte mode, byte type)
 		{
-			if (_serverSocket == null || _serverSocket.Connected == false ) return;
-			if(!_players.ContainsKey(255)) return;
+			if (ServerSocket == null || ServerSocket.Connected == false ) return;
+			if(!Players.ContainsKey(255)) return;
 			if (IsValidPosition(x,y,z) == false) return;
 			byte[] packet = new byte[9];
 			packet[0] = (byte)0x05; //Packet ID.
@@ -120,7 +120,7 @@ namespace LibClassicBot
 			packet[6] = (byte)(zConverted >> 8);
 			packet[7] = mode;
 			packet[8] = type;
-			try { _serverSocket.Send(packet); }
+			try { ServerSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
 				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
@@ -137,12 +137,12 @@ namespace LibClassicBot
 		/// <param name="pitch">The pitch of the bot.</param>
 		public void SendPositionPacket(float x, float y, float z, byte yaw, byte pitch)
 		{
-			if (_serverSocket == null || _serverSocket.Connected == false ) return;
-			if(!_players.ContainsKey(255)) return;
+			if (ServerSocket == null || ServerSocket.Connected == false ) return;
+			if(!Players.ContainsKey(255)) return;
 			//if (IsValidPosition(x,y,z) == false) return; Players can move outside the map.
-			_players[255].X = x; //Set the X of the bot.
-			_players[255].Y = y; //Set the Z of the bot.
-			_players[255].Z = z; //Set the Y of the bot.
+			Players[255].X = x;
+			Players[255].Y = y;
+			Players[255].Z = z;
 			byte[] packet = new byte[10];
 			packet[0] = (byte)0x08; //Packet ID.
 			packet[1] = (byte)255; //Player ID of self.
@@ -152,18 +152,18 @@ namespace LibClassicBot
 			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//Account for character height.
 			packet[4] = (byte)(yConverted);
 			packet[5] = (byte)(yConverted >> 8);
-			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
+			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));
 			packet[6] = (byte)(zConverted);
 			packet[7] = (byte)(zConverted >> 8);
 			packet[8] = yaw;
 			packet[9] = pitch;
-			try { _serverSocket.Send(packet); }
+			try { ServerSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
 				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
 				Events.RaiseBotError(socketEvent);
 			}				
-			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
+			PositionEventArgs e = new PositionEventArgs(255, Players[255]);
 			Events.RaisePlayerMoved(e);
 		}
 		
@@ -173,11 +173,11 @@ namespace LibClassicBot
 		/// <param name="z">A short marking the point along the Z-Axis the block is to be placed at.</param>
 		public void SendPositionPacket(short x, short y, short z)
 		{
-			if (_serverSocket == null || _serverSocket.Connected == false ) return;
-			if(!_players.ContainsKey(255)) return;
-			_players[255].X = x; //Set the X of the bot.
-			_players[255].Y = y; //Set the Z of the bot.
-			_players[255].Z = z; //Set the Y of the bot.
+			if (ServerSocket == null || ServerSocket.Connected == false ) return;
+			if(!Players.ContainsKey(255)) return;
+			Players[255].X = x; //Set the X of the bot.
+			Players[255].Y = y; //Set the Z of the bot.
+			Players[255].Z = z; //Set the Y of the bot.
 			byte[] packet = new byte[10];
 			packet[0] = (byte)0x08; //Packet ID.
 			packet[1] = (byte)255; //Player ID of self.
@@ -190,15 +190,15 @@ namespace LibClassicBot
 			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
 			packet[6] = (byte)(zConverted);
 			packet[7] = (byte)(zConverted >> 8);
-			packet[8] = _players[255].Yaw;
-			packet[9] = _players[255].Pitch;
-			try { _serverSocket.Send(packet); }
+			packet[8] = Players[255].Yaw;
+			packet[9] = Players[255].Pitch;
+			try { ServerSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
 				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
 				Events.RaiseBotError(socketEvent);
 			}						
-			PositionEventArgs e = new PositionEventArgs(255, _players[255]);
+			PositionEventArgs e = new PositionEventArgs(255, Players[255]);
 			Events.RaisePlayerMoved(e);
 		}
 
@@ -207,12 +207,12 @@ namespace LibClassicBot
 		public void SendMessagePacket(string message)
 		{
 			if(message.Length > 64) message = message.Substring(0, 64);
-			if (_serverSocket == null || _serverSocket.Connected == false ) return;
+			if (ServerSocket == null || ServerSocket.Connected == false ) return;
 			byte[] packet = new byte[66]; //PID + unused + message
 			packet[0] = (byte)0x0d; //Packet ID.
 			packet[1] = (byte)0xff; //Unused
 			Buffer.BlockCopy(Extensions.StringToBytes(message), 0, packet, 2, 64);
-			try { _serverSocket.Send(packet); }
+			try { ServerSocket.Send(packet); }
 			catch(System.Net.Sockets.SocketException ex)
 			{
 				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);

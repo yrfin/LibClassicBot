@@ -94,23 +94,23 @@ namespace LibClassicBot
 		/// <param name="username">The username to use. Can be both a Migrated account, and a normal username.</param>
 		/// <param name="password">The password to use to login.</param>
 		/// <param name="gameurl">The url of the server to login to, for parsing of mppass / verification key.</param>
-		/// <param name="_serverIP">The IP Address of the server to connect to.</param>
-		/// <param name="_serverPort">The port to connect on.</param>
+		/// <param name="endPoint">The endpoint to connect to.</param>
 		/// <param name="verificationkey">The verification key / mppass to use.</param>
 		/// <param name="migratedUsername">This will be null if the username is not migrated, otherwise, it returns a case correct version of their username.</param>
 		/// <exception cref="InvalidOperationException">The username or password given was invalid or incorrect, 
 		/// which results in an attempt to login to minecraft.net failing.</exception>
 		/// <exception cref="ArguementOutOfRangeException">The given address to connect to was invalid.</exception>
 		/// <returns>True if it was able to login and return all the required values, false if not.</returns>
-		public static bool Login(string username, string password, string gameurl, out IPAddress _serverIP, out int _serverPort, out string verificationkey, out string migratedUsername)
+		public static bool Login(string username, string password, string gameurl, out IPEndPoint endPoint, out string verificationkey, out string migratedUsername)
 		{
 			string html = LoginAndReadPage(username, password, gameurl);
 			string serveraddress = ReadValue(html.Substring(html.IndexOf("\"server\""), 40));
 			string port = ReadValue(html.Substring(html.IndexOf("\"port\""), 40));
 			string mppass = ReadValue(html.Substring(html.IndexOf("\"mppass\""), 80));
 			verificationkey = mppass;
-			_serverIP = IPAddress.Parse(serveraddress);
-			_serverPort = Int16.Parse(port);
+			IPAddress ip = IPAddress.Parse(serveraddress);
+			int serverPort = Int16.Parse(port);
+			endPoint = new IPEndPoint(ip, serverPort);
 			if(username.Contains("@"))
 			{
 				migratedUsername = GetMigratedUsername(username, password);
