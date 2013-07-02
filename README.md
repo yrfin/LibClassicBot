@@ -74,15 +74,13 @@ Each bot must have a username and a path for it to store information regarding o
 
 ## Licensing
 
-LibClassicBot is dual licensed under  the [MIT license](http://www.opensource.org/licenses/mit-license.php/) and the [GPL license](http://www.gnu.org/licenses/). 
-All code except for DrawImg.cs is usable under the MIT license. The only restricted file is the aforementioned, and must be removed if you use this bot
-with any other license asides from the GPL.
+LibClassicBot is licensed under  the [MIT license](http://www.opensource.org/licenses/mit-license.php/). 
 
 Additionally, LibClassicBot uses the StripColors method from fCraft, as well as a cut down version of the [map](http://svn.fcraft.net:8080/svn/fcraft/branch-0.64x/fCraft/MapConversion/MapFCMv3.cs) file. fCraft is also released under the MIT license, licensing information
 regarding fCraft is avaliable [here](http://www.fcraft.net/wiki/Licensing).
 
 LibClassicBot also uses a LoginClient based on code from [here](http://manicdigger.git.sourceforge.net/git/gitweb.cgi?p=manicdigger/manicdigger;a=commitdiff_plain;h=f6ad911). ManicDigger is released under the Public Domain license, as started on [this](http://manicdigger.sourceforge.net/wiki/index.php/Credits) page.
 
-LibClassicBot's image drawing function is based on code from [here](https://github.com/GlennMR/800craft/blob/master/fCraft/Drawing/DrawOps/DrawImageOperation.cs). 800Craft is released under the GPL 3 license.
+LibClassicBot's image drawing function is based on code from [here](https://github.com/GlennMR/800craft/blob/master/fCraft/Drawing/DrawOps/DrawImageOperation.cs). 800Craft is released under the BSD 3 clause license.
 
 [Minecraft](http://minecraft.net) is not officially affiliated with LibClassicBot, nor any of the aforementioned projects.

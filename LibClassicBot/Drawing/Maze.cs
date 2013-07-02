@@ -20,7 +20,7 @@ namespace LibClassicBot.Drawing
 		
 		const string _name = "Maze";
 		
-		//Line used for getting arguements. TODO: Use arguements instead of fixed size.
+		//Line used for getting arguements. TODO: Use arguments instead of fixed size.
 		public string originalchatline = String.Empty;
 		
 		/// <summary>

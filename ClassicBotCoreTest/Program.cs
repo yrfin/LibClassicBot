@@ -11,12 +11,14 @@ namespace LibClassicBotTest
 {
 	class Program
 	{
+		#if !MONO
 		[DllImport("psapi.dll")]
 		static extern int EmptyWorkingSet(IntPtr hwProc);
 		
 		static void MinimizeFootprint() {
 			EmptyWorkingSet(System.Diagnostics.Process.GetCurrentProcess().Handle);
 		}
+		#endif
 		
 		public static void Main(string[] args)
 		{
@@ -63,7 +65,9 @@ namespace LibClassicBotTest
 			Bot1.Events.RemoteSessionStarted += RemoteSessionStarted;
 			Bot1.Events.RemoteUserLoggedIn += RemoteUserLoggedIn;
 			Bot1.Events.RemoteSessionEnded += RemoteSessionEnded;
+			#if !MONO
 			Bot1.Events.MapLoaded += Bot1_MapLoaded;
+			#endif
 			
 			#region Plugins
 			ClassicBot.CommandDelegate MazeCommand = delegate(string Line)
@@ -275,10 +279,12 @@ namespace LibClassicBotTest
 		
 		static string personfollowed = String.Empty;
 
+		#if !MONO
 		static void Bot1_MapLoaded(object sender, MapLoadedEventArgs e)
 		{
 			MinimizeFootprint();
 		}
+		#endif
 
 		static void Bot1_PlayerMoved(object sender, PositionEventArgs e)
 		{
