@@ -109,7 +109,7 @@ namespace LibClassicBot
 		}
 
 		/// <summary>Returns a collection of players in the world. Returns null if no one (Including the bot) is in the collection.</summary>
-		public Dictionary<short, Player> Players {
+		public Dictionary<byte, Player> Players {
 			get { if (_players != null) return _players; else return null; }
 		}
 		
@@ -197,7 +197,7 @@ namespace LibClassicBot
 		public bool IsValidPosition(short x, short y, short z)
 		{
 			if(x > _mapsizeX || y > _mapsizeY || z > _mapsizeZ || x < 0 || y < 0 || z < 0) return false;
-			else return true;
+			return true;
 		}
 		/// <summary>Events that are raised by the bot.</summary>
 		public BotEvents Events = new BotEvents();
@@ -275,7 +275,7 @@ namespace LibClassicBot
 		char _delimiter = ':';
 		string _Opspath = "operators.txt";
 		bool _reconnectonkick = false;
-		Dictionary<short, Player> _players = new Dictionary<short, Player>();
+		Dictionary<byte, Player> _players = new Dictionary<byte, Player>();
 		byte _userType;
 		bool _requiresop = true;
 		Server server = null;
@@ -523,8 +523,8 @@ namespace LibClassicBot
 			}
 			//Get details we need to create a verified login.
 			_ignored.Add(migratedUsername ?? _username); //Ignore self.
-			byte[] ToSendLogin = CreateLoginPacket(migratedUsername ?? _username, _ver); //Make login
-			_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp); //Here we start a new client.
+			byte[] ToSendLogin = CreateLoginPacket(migratedUsername ?? _username, _ver);
+			_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try
 			{
 				if(_serverPort > IPEndPoint.MaxPort || _serverPort < IPEndPoint.MinPort) throw new SocketException(-1);
@@ -552,9 +552,9 @@ namespace LibClassicBot
 					
 					switch ((ServerPackets)OpCode)
 					{
-						case ServerPackets.ServerIdentification://Server identification.
+						case ServerPackets.ServerIdentification://0x00
 							{
-								ProtocolVersion = reader.ReadByte(); //Get the protocol, should be seven.
+								ProtocolVersion = reader.ReadByte(); // Protocol version should be seven.
 								string Name = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								string MOTD = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								if(!serverLoaded)
@@ -568,10 +568,10 @@ namespace LibClassicBot
 							break;
 
 						case ServerPackets.Ping://0x01
-							break; //Do nothing with it.
+							break; // Server only requires we read the packet ID.
 
 						case ServerPackets.LevelInitialize://0x02
-							_players.Clear();//Start loading map, wipe players.
+							_players.Clear();
 							if(_savemap) mapStream = new MemoryStream();
 							CanReconnectAfterKick = true;
 							break;
@@ -579,13 +579,12 @@ namespace LibClassicBot
 
 						case ServerPackets.LevelDataChunk://0x03
 							{
-								int ChunkLength = IPAddress.HostToNetworkOrder(reader.ReadInt16()); //Get the length of non null bytes
-								byte[] ChunkData = reader.ReadBytes(1024); //Should always be 1024.
-								byte progress = reader.ReadByte(); //Read the percentage, do nothing as of yet.
+								int chunkLength = IPAddress.HostToNetworkOrder(reader.ReadInt16()); // Length of non padded data.
+								byte[] chunkData = reader.ReadBytes(1024); // May be padded with extra data.
+								byte progress = reader.ReadByte();
 								if(_savemap) {
-									byte[] chunkDataWithoutPadding = new byte[ChunkLength];
-									Buffer.BlockCopy(ChunkData, 0, chunkDataWithoutPadding, 0, ChunkLength);
-									mapStream.Write(chunkDataWithoutPadding, 0, chunkDataWithoutPadding.Length); }
+									mapStream.Write( chunkData, 0, chunkLength ); 
+								}
 								MapProgressEventArgs e = new MapProgressEventArgs(progress);
 								Events.RaiseMapProgress(e);
 							}
@@ -595,7 +594,7 @@ namespace LibClassicBot
 							{
 								_mapsizeX = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								_mapsizeZ = IPAddress.HostToNetworkOrder(reader.ReadInt16());
-								_mapsizeY = IPAddress.HostToNetworkOrder(reader.ReadInt16()); //Yes, even map sizes are sent in the wrong order.
+								_mapsizeY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								_connected = true; //At this state, we've loaded the map and we're ready to send chat etc.
 								if(_savemap) {
 									mapStream.Seek(0, SeekOrigin.Begin);
@@ -632,15 +631,16 @@ namespace LibClassicBot
 								byte blockType = reader.ReadByte();
 								BlockPlacedEventArgs e = new BlockPlacedEventArgs(blockX, blockY, blockZ, blockType);
 								Events.RaiseBlockPlaced(e);
-								if(marksLeft > 0 && blockType == 39 && CubID != -1)
+								if(marksLeft > 0 && blockType == 39 && CubID != null)
 								{
-									if(_players[CubID].X < 0 || _players[CubID].Y < 0 || _players[CubID].Z < 0) {
+									byte id = CubID.Value;
+									if(_players[id].X < 0 || _players[id].Y < 0 || _players[id].Z < 0) {
 										SendMessagePacket("Error: You are too far away from the bot.");
 										break;
 									}
 									
 									if(new Vector3I(blockX, blockY, blockZ).Distance(new Vector3I(
-										(int)_players[CubID].X, (int)_players[CubID].Y, (int)_players[CubID].Z)) > 11) {
+										(int)_players[id].X, (int)_players[id].Y, (int)_players[id].Z)) > 11) {
 										break; //Another player probably tried placing a block somewhere else.
 									}
 									marks[marks.Length - marksLeft] = new Vector3I(blockX, blockY, blockZ);
@@ -656,11 +656,11 @@ namespace LibClassicBot
 							{
 								byte pID = reader.ReadByte();
 								string playername = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								_players[pID] = new Player(); //Create a new player to add to the list later.
-								_players[pID].Name = playername; //Get name.
-								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Set the X of player.
-								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Set the Z of the player. Yes, I know they're the wrong way around.
-								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Set the Y of player.
+								_players[pID] = new Player();
+								_players[pID].Name = playername;
+								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
+								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
 								_players[pID].Yaw = reader.ReadByte();
 								_players[pID].Pitch = reader.ReadByte();
 								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
@@ -672,7 +672,7 @@ namespace LibClassicBot
 							{
 								byte pID = reader.ReadByte();
 								_players[pID].X = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
-								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f; //Z and Y are flipped.
+								_players[pID].Z = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
 								_players[pID].Y = IPAddress.HostToNetworkOrder(reader.ReadInt16()) / 32f;
 								_players[pID].Yaw = reader.ReadByte();
 								_players[pID].Pitch = reader.ReadByte();
@@ -685,7 +685,7 @@ namespace LibClassicBot
 							{
 								byte pID = reader.ReadByte();
 								_players[pID].X += reader.ReadSByte() / 32f;
-								_players[pID].Z += reader.ReadSByte() / 32f;//Z and Y are flipped.
+								_players[pID].Z += reader.ReadSByte() / 32f;
 								_players[pID].Y += reader.ReadSByte() / 32f;
 								_players[pID].Yaw = reader.ReadByte();
 								_players[pID].Pitch = reader.ReadByte();
@@ -698,7 +698,7 @@ namespace LibClassicBot
 							{
 								byte pID = reader.ReadByte();
 								_players[pID].X += (reader.ReadSByte() / 32f);
-								_players[pID].Z += (reader.ReadSByte() / 32f);//Z and Y are flipped.
+								_players[pID].Z += (reader.ReadSByte() / 32f);
 								_players[pID].Y += (reader.ReadSByte() / 32f);
 								PositionEventArgs e = new PositionEventArgs(pID, _players[pID]);
 								Events.RaisePlayerMoved(e);
@@ -718,15 +718,15 @@ namespace LibClassicBot
 						case ServerPackets.DespawnPlayer://0x0c
 							{
 								byte playerID = reader.ReadByte();
-								_players.Remove(playerID); //Remove user from the collection. Also sent when the player joins another map.
+								_players.Remove(playerID); // Also sent when the player joins another map.
 							}
 							break;
 
 						case ServerPackets.Message://0x0d
 							{
-								reader.ReadByte(); //Would be PlayerID, but most servers don't send the ID.
+								reader.ReadByte(); // Most servers don't send the ID.
 								string Line = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								MessageEventArgs e = new MessageEventArgs(Line); //Raise the event, let the implementer take care of splitting.
+								MessageEventArgs e = new MessageEventArgs(Line); //Raise the event, let the event handler take care of splitting.
 								Events.RaiseChatMessage(e);
 								if (Line.Contains(_delimiter.ToString())) { //Most servers use : as the delimiter.
 									string[] lineSplit = Line.Split(new char[] { _delimiter }, 2);
@@ -830,18 +830,23 @@ namespace LibClassicBot
 	/// <summary>Represents a connected player.</summary>
 	public class Player
 	{
-		/// <summary>Represents the X position of the connected player.</summary>
+		/// <summary> The X position of the connected player. </summary>
 		public float X;
-		/// <summary>Represents the Y position of the connected player. Classic sends Z and Y as OpenGL vectors,
-		/// but the bot represents the Y and Z in normal form.</summary>
+		
+		/// <summary> The Y position of the connected player. Classic sends Y as height,
+		/// but the bot uses Z as height instead. </summary>
 		public float Y;
-		/// <summary>Represents the Z position of the connected player.</summary>
+		
+		/// <summary>The Z position of the connected player. </summary>
 		public float Z;
-		/// <summary>Represents the name of the connected player.</summary>
+		
+		/// <summary> The name of the connected player. </summary>
 		public string Name;
-		/// <summary>Represents the yaw of the player.</summary>
+		
+		/// <summary> The yaw of the player. </summary>
 		public byte Yaw;
-		/// <summary>Represents the pitch of the player.</summary>
+		
+		/// <summary> The pitch of the player.</summary>
 		public byte Pitch;
 	}
 }

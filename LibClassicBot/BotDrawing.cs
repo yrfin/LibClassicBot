@@ -35,9 +35,9 @@ namespace LibClassicBot
 		
 		/// <summary>
 		/// The ID of the player who cuboided, used for the checking if blocks placed 
-		/// are close enough to the player. -1 means that no player was found.
+		/// are close enough to the player. null means that no player was found.
 		/// </summary>
-		short CubID = -1;
+		byte? CubID;
 		
 		/// <summary>
 		/// Sets the queued draw operation, which will be executed once the all the marks
@@ -57,7 +57,7 @@ namespace LibClassicBot
 			GetFromLine(GetMessage(chatLine));
 			if(cuboidType != 255) //If 255, do not try to set the drawer with an invalid block type.
 			{
-				CubID = -1; //Wipe existing player, if there was one.
+				CubID = null;
 				string user = prefixRegex.Replace(GetUser(chatLine).ToLower(), String.Empty).Trim();
 				//Complicated string, but it basically trims all prefixes and spaces.
 				foreach(byte pID in _players.Keys) {
@@ -66,7 +66,7 @@ namespace LibClassicBot
 						break;
 					}
 				}
-				if(CubID == -1) { //Probably had their display name changed.
+				if(CubID == null) { //Probably had their display name changed.
 					SendMessagePacket("Unable to locate a player from the username of the chatline.");
 					SendMessagePacket("Are you using the same name as your Minecraft account?");
 					return;
