@@ -47,7 +47,7 @@ namespace LibClassicBot_GUI
 		{
 			bot.Events.MapProgress += MapLoading;
 			bot.Events.ChatMessage += ChatMessage;
-			bot.Events.BotException += BotException;
+			//bot.Events.BotException += BotException;
 			bot.Events.GotKicked += GotKicked;
 			bot.Events.MapLoaded += MapLoaded;
 		}

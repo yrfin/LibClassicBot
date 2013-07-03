@@ -78,7 +78,7 @@ namespace LibClassicBot
 		/// Used for checking whether to catch exceptions thrown by commands,
 		/// or to throw them like normal errors.
 		/// </summary>
-		private bool DoDebug = System.Diagnostics.Debugger.IsAttached;
+		private bool DebugMode = false; //System.Diagnostics.Debugger.IsAttached;
 		
 		/// <summary>
 		/// The internal thread used for processing commands.
@@ -93,16 +93,23 @@ namespace LibClassicBot
 				while (CommandQueue.Count != 0)
 				{
 					InternalCommand IntCommand = CommandQueue.Dequeue();
-					if(DoDebug) IntCommand.command.Invoke(IntCommand.line);
+					if(DebugMode) IntCommand.command.Invoke(IntCommand.line);
 					else
 					{
 						try { IntCommand.command.Invoke(IntCommand.line); }
-						catch(Exception ex) //Do not crash because of a faulty command.
+						catch(Exception ex)
 						{
-							if(!System.IO.File.Exists("pluginerror.txt")) System.IO.File.Create("pluginerror.txt");
-							System.IO.File.AppendAllText("pluginerror.txt", "Stack- " + ex.StackTrace + Environment.NewLine);
-							System.IO.File.AppendAllText("pluginerror.txt", "Message- " + ex.Message + Environment.NewLine);
-							System.IO.File.AppendAllText("pluginerror.txt", "Source- " + ex.Source + Environment.NewLine);
+							string commandName = String.Empty;
+							foreach( var keypair in RegisteredCommands ) {
+								if( keypair.Value == IntCommand.command ) {
+									commandName = "." + keypair.Key;
+									break;
+								}
+							}
+							Log( LogType.Error,
+							    String.Format( "Command name: {0}, Class name: {1} -{2}{3}", commandName, IntCommand.command.Method.Name,
+							                  Environment.NewLine, ex.ToString() )
+							   );
 						}
 					}
 				}

@@ -253,7 +253,41 @@ namespace LibClassicBot
 		bool _savemap = false;
 		bool serverLoaded = false;
 		bool UseRemoteServer = false;
+		readonly object loggerLocker = new object();
+		List<ILogger> loggers = new List<ILogger>();
 		#endregion
+		
+		public bool RegisterLogger( ILogger logger ) {
+			if( logger == null ) return false;
+			try {
+				logger.Initalise();
+				loggers.Add( logger );
+			} catch( Exception e ) {
+				Log( LogType.Error, "Error while adding logger: " + e.ToString() );
+				return false;
+			}
+			return true;
+			
+		}
+		
+		void Log( LogType type, string message ) {
+			lock( loggerLocker ) {
+				if( loggers.Count == 0 ) return;
+				for( int i = 0; i < loggers.Count; i++ ) {
+					loggers[i].Log( type, message );
+				}
+			}
+		}
+		
+		void Log( LogType type, params string[] messages ) {
+			lock( loggerLocker ) {
+				if( loggers.Count == 0 ) return;
+				string message = String.Join( Environment.NewLine, messages );
+				for( int i = 0; i < loggers.Count; i++ ) {
+					loggers[i].Log( type, message );
+				}
+			}
+		}
 
 		/// <summary>
 		/// Sends a message to all remotely connected clients. If the server has not been started,
@@ -262,7 +296,8 @@ namespace LibClassicBot
 		/// <param name="message">The message to send to all remotely connected clients.</param>
 		public void MessageAllRemoteClients(string message)
 		{
-			if (server != null && server.started) server.SendMessageToAllRemoteClients(message);
+			if (server != null && server.started)
+				server.SendMessageToAllRemoteClients(message);
 		}
 		/// <summary>
 		/// Sends a byte array to the currently connected server. (Usually, a packet of some sort.)
@@ -279,7 +314,7 @@ namespace LibClassicBot
 		public void Start(bool RunOnThreadAsCaller)
 		{
 			if(!Debugger.IsAttached) AppDomain.CurrentDomain.UnhandledException += UnhandledException; //Might interfere with debugging
-			if(LoadInternalSettings) LoadSettings();
+			if(LoadInternalSettings) LoadConfig();
 			if(RunOnThreadAsCaller == true)
 			{
 				IOLoop();
@@ -290,23 +325,14 @@ namespace LibClassicBot
 			thread.Start();
 		}
 
-		/// <summary>
-		/// Raised when an exception is uncaught.
-		/// </summary>
-		void UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
+		/// <summary> Raised when an exception is uncaught. </summary>
+		void UnhandledException(object sender, UnhandledExceptionEventArgs e) {
 			Exception actualException = (Exception)e.ExceptionObject; //Get actual exception.
-			BotExceptionEventArgs socketEvent = new BotExceptionEventArgs("Unhandled exception, exiting.", actualException);
-			Events.RaiseBotError(socketEvent);
-			System.IO.File.WriteAllText("error.txt","");
-			System.IO.File.AppendAllText("error.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
-			System.IO.File.AppendAllText("error.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
-			System.IO.File.AppendAllText("error.txt","Message - " + actualException.Message + Environment.NewLine);
-			System.IO.File.AppendAllText("error.txt","Source - " + actualException.Source + Environment.NewLine);
+			Log( LogType.Error, "Unhandled error -", actualException.ToString() );
 		}
 		
-		/// <summary> Loads all settings from a file called botsettings.txt </summary>
-		private void LoadSettings()
+		/// <summary> Loads configuration settings from a file called botsettings.txt </summary>
+		private void LoadConfig()
 		{
 			try {
 				Config config = new Config( "botsettings.txt" );
@@ -335,24 +361,32 @@ namespace LibClassicBot
 				}
 				
 				config.Load(); // TODO: Output warning.
-				config.TryParseValueOrDefault( "useremoteserver", false, out UseRemoteServer ); // TODO: Output warning for each default file.
+				if( !config.TryParseValueOrDefault( "useremoteserver", false, out UseRemoteServer ) )
+					Log( LogType.Warning, "Couldn't load value for useremoteserver from config. Setting to default value of false" );
 				if( UseRemoteServer ) {
 					int remotePort;
-					config.TryParseValueOrDefault( "remoteport", 25561, out remotePort );
+					if( !config.TryParseValueOrDefault( "remoteport", 25561, out remotePort ) ) {
+						Log( LogType.Warning, "Couldn't load value for remoteport from config. Setting to default value of 25561" );
+					}
 					string remotePassword;
 					config.TryGetRawValue( "remotepassword", out remotePassword );
-					if( String.IsNullOrEmpty( remotePassword ) )
+					if( String.IsNullOrEmpty( remotePassword ) ) {
 						remotePassword = "password";
+						Log( LogType.Warning, "Couldn't load value for remotepassword from config. Setting to default value of \"password\"" );
+					}
 					
 					server = new Server();
 					server.Start( this, remotePort, remotePassword );
 				}
-				config.TryParseValueOrDefault( "commandsrequireoperator", true, out _requiresop );
-				config.TryParseValueOrDefault( "reconnectafterkick", true, out _reconnectonkick );
-				config.TryParseValueOrDefault( "savemap", false, out _savemap );
 				
+				if( !config.TryParseValueOrDefault( "commandsrequireoperator", true, out _requiresop ) )
+					Log( LogType.Warning, "Couldn't load value for commandsrequireoperator from config. Setting to default value of true" );
+				if( !config.TryParseValueOrDefault( "reconnectafterkick", true, out _reconnectonkick ) )
+					Log( LogType.Warning, "Couldn't load value for reconnectafterkick from config. Setting to default value of true" );
+				if( !config.TryParseValueOrDefault( "savemap", false, out _savemap ) )
+					Log( LogType.Warning, "Couldn't load value for savemap from config. Setting to default value of false" );
+			} catch { 
 			}
-			catch {}
 		}
 
 		/// <summary>Adds a username to the list of allowed users.</summary>
@@ -363,8 +397,7 @@ namespace LibClassicBot
 		public bool AddOperator(string username, bool savetofile)
 		{
 			Users.Add(username);
-			if(savetofile)
-			{
+			if(savetofile) {
 				string[] usersArray = Users.ToArray();
 				try { File.WriteAllLines(_Opspath,usersArray); }
 				catch { return false; }
@@ -415,37 +448,32 @@ namespace LibClassicBot
 			} else if(isStandard == true) {
 				try {
 					IPEndPoint point;
-					Extensions.Login(_username, _password, _hash, out point, out _ver, out migratedUsername);
+					Log( LogType.BotActivity, "Trying to log into minecraft.net.." );
+					Extensions.Login( _username, _password, _hash, out point, out _ver, out migratedUsername );
+					Log( LogType.BotActivity, "Successfully logged in." );
 					EndPoint = point;
-				} catch(InvalidOperationException ex)
-				{
-					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ex.Message,ex);
-					Events.RaiseBotError(socketEvent);
+				} catch( InvalidOperationException ex ) {
+					Log( LogType.Error, ex.Message, ex.ToString() );
 					return;
-				} catch(ArgumentOutOfRangeException ex)
-				{
-					BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(ErrorInPage, ex);
-					Events.RaiseBotError(socketEvent);
+				} catch( ArgumentOutOfRangeException ex ) {
+					Log( LogType.Error, ErrorInPage, ex.ToString() );
 					return;
 				}
 			}
-			//Get details we need to create a verified login.
+
 			IgnoredUserList.Add(migratedUsername ?? _username); //Ignore self.
 			byte[] ToSendLogin = CreateLoginPacket(migratedUsername ?? _username, _ver);
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			try
-			{
+			try {
 				if(EndPoint.Port > IPEndPoint.MaxPort || EndPoint.Port < IPEndPoint.MinPort) throw new SocketException(-1);
 				//Do not continue if the user attempts to connect on a port larger than possible.
 				ServerSocket.Connect(EndPoint);
 				ServerSocket.Send(ToSendLogin);
-			}
-			catch(SocketException ex)
-			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(HandleSocketError(ex.ErrorCode), ex);
-				Events.RaiseBotError(socketEvent);
+			} catch( SocketException ex ) {
+				Log( LogType.Error, HandleSocketError( ex.ErrorCode ), ex.ToString() );
 				return;
 			}
+			
 			StartCommandsThread();
 			Plugins.PluginManager.LoadPlugins(ref RegisteredCommands, this);
 			BinaryReader reader = new BinaryReader(new NetworkStream(ServerSocket));
@@ -634,6 +662,8 @@ namespace LibClassicBot
 								string Line = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
 								MessageEventArgs e = new MessageEventArgs(Line); //Raise the event, let the event handler take care of splitting.
 								Events.RaiseChatMessage(e);
+								Log( LogType.Chat, Line );
+								
 								if (Line.Contains(_delimiter.ToString())) { //Most servers use : as the delimiter.
 									string[] lineSplit = Line.Split(new char[] { _delimiter }, 2);
 									string Message = Extensions.StripColors(lineSplit[1]).TrimStart(' ');
@@ -651,12 +681,10 @@ namespace LibClassicBot
 													if(Users.Contains(User)) {
 														EnqueueCommand(command.Value,Line);
 														break;
-													}
-													else {
+													} else {
 														SendMessagePacket(User +", you are not allowed to use the bot.");
 													}
-												}
-												else {
+												} else {
 													EnqueueCommand(command.Value,Line);
 													break;
 												}
@@ -665,37 +693,26 @@ namespace LibClassicBot
 									}
 								}
 								ProcessCommandQueue();
-
-								string logFileName = ("log-" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt");
-								string logLine = DateTime.Now.ToString("[yyyy-MM-dd : HH-mm-ss] ");
-								File.AppendAllText(logFileName,logLine + Extensions.StripColors(Line).TrimEnd(' ') + Environment.NewLine);
 							}
 							break;
 
 						case ServerPackets.DisconnectSelf://0x0e
 							{
 								string reason = Encoding.ASCII.GetString(reader.ReadBytes(64)).Trim();
-								KickedEventArgs e = new KickedEventArgs(reason, CanReconnectAfterKick); //No way to know who the user and who the message is.
+								KickedEventArgs e = new KickedEventArgs(reason, CanReconnectAfterKick);
 								Events.RaiseGotKicked(e);
-								if(_reconnectonkick == true && CanReconnectAfterKick == true)
-								{
+								if( _reconnectonkick == true && CanReconnectAfterKick == true ) {
+									Log( LogType.BotActivity, "Kicked from the server. Reconnecting.", reason );
 									CanReconnectAfterKick = false;
 									Thread thread = new Thread(IOLoop);
 									thread.Name = "LibClassicBotIO";
 									thread.IsBackground = true;
 									thread.Start();
-								}
-								else if(_reconnectonkick == false) {
-									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
-										"Kicked from the server.",new IOException());
-									Events.RaiseBotError(socketEvent);
-								}
-								else {
+								} else if(_reconnectonkick == false) {
+									Log( LogType.Warning, "Kicked from the server. Not attempting to reconnect.", reason );
+								} else {
 									ServerSocket.Close();
-									ServerSocket = null;
-									BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
-										"It looks like the bot was prevented from reconnecting. (Kick packet received before a LevelBegin packet)",new IOException());
-									Events.RaiseBotError(socketEvent);
+									Log( LogType.Error, "The bot was prevented from reconnecting.", "(Kick packet received before a LevelBegin packet.)" );
 								}
 								return;
 							}
@@ -707,23 +724,16 @@ namespace LibClassicBot
 						default:
 							throw new IOException("Unrecognised packet. Opcode: " + OpCode.ToString());
 					}
-				}
-				catch (IOException ex)
-				{
-					if(_reconnectonkick == true && CanReconnectAfterKick == true)
-					{
+				} catch ( IOException ex ) {
+					if( _reconnectonkick == true && CanReconnectAfterKick == true ) {
 						CancelDrawer();
 						CanReconnectAfterKick = false;
 						Thread thread = new Thread(IOLoop);
 						thread.Name = "LibClassicBotIO";
 						thread.IsBackground = true;
 						thread.Start();
-					}
-					else
-					{
-						BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(
-							"An error has occurred, or the bot has been kicked without the kick packet being sent cleanly. Exiting bot.",ex);
-						Events.RaiseBotError(socketEvent);
+					} else {
+						Log( LogType.Error, "An I/O error has occured. The connection have been closed uncleanly. Exiting the bot.", ex.ToString() );
 					}
 					return;
 					

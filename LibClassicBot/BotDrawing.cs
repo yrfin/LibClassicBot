@@ -209,7 +209,7 @@ namespace LibClassicBot
 			}
 			catch (IndexOutOfRangeException)
 			{
-				SendMessagePacket("Error: Wrong number of arguements.");
+				SendMessagePacket("Error: Wrong number of arguments.");
 				return;
 			}
 		}

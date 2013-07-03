@@ -16,9 +16,6 @@ namespace LibClassicBot.Events
 		/// <summary>Occurs when the bot is kicked. To automatically make it reconnect, use ReconnectAfterKick = true;</summary>
 		public event EventHandler<KickedEventArgs> GotKicked;
 		
-		/// <summary>Occurs when an exception is raised that is caught.</summary>
-		public event EventHandler<BotExceptionEventArgs> BotException;
-		
 		/// <summary>Occurs when the bot has received a map chunk, and indicates the progress of loading the map.</summary>
 		public event EventHandler<MapProgressEventArgs> MapProgress;
 
@@ -55,11 +52,6 @@ namespace LibClassicBot.Events
 		/// <summary>Raises a new GotKicked Event.</summary>
 		internal void RaiseGotKicked(KickedEventArgs e) {
 			if(GotKicked != null) GotKicked(null, e);
-		}
-		
-		/// <summary>Raises a new BotException Event.</summary>
-		internal void RaiseBotError(BotExceptionEventArgs e) {
-			if(BotException != null) BotException(null, e);
 		}
 		
 		/// <summary>Raises a new MapProgress Event.</summary>

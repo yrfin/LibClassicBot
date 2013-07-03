@@ -19,8 +19,6 @@ namespace LibClassicBot
 			return Extensions.StripColors(rawLine).Split(this._delimiter)[1].Trim(' ');
 		}
 		
-		//Error messages.
-		const string packetError = "Error while trying to send a packet.";
 		/// <summary>
 		/// Gets the user from a raw chatline, and also removes color codes. Albeit, this may be prefixed.
 		/// </summary>
@@ -120,11 +118,10 @@ namespace LibClassicBot
 			packet[6] = (byte)(zConverted >> 8);
 			packet[7] = mode;
 			packet[8] = type;
-			try { ServerSocket.Send(packet); }
-			catch(System.Net.Sockets.SocketException ex)
-			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
-				Events.RaiseBotError(socketEvent);
+			try { 
+				ServerSocket.Send( packet ); 
+			} catch( System.Net.Sockets.SocketException ex ) {
+				Log( LogType.Warning, "Error while trying to send block update packet -", ex.ToString() );
 			}
 		}
 
@@ -157,12 +154,11 @@ namespace LibClassicBot
 			packet[7] = (byte)(zConverted >> 8);
 			packet[8] = yaw;
 			packet[9] = pitch;
-			try { ServerSocket.Send(packet); }
-			catch(System.Net.Sockets.SocketException ex)
-			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
-				Events.RaiseBotError(socketEvent);
-			}				
+			try { 
+				ServerSocket.Send( packet ); 
+			} catch( System.Net.Sockets.SocketException ex ) {
+				Log( LogType.Warning, "Error while trying to send position update packet -", ex.ToString() );
+			}		
 			PositionEventArgs e = new PositionEventArgs(255, Players[255]);
 			Events.RaisePlayerMoved(e);
 		}
@@ -175,9 +171,9 @@ namespace LibClassicBot
 		{
 			if (ServerSocket == null || ServerSocket.Connected == false ) return;
 			if(!Players.ContainsKey(255)) return;
-			Players[255].X = x; //Set the X of the bot.
-			Players[255].Y = y; //Set the Z of the bot.
-			Players[255].Z = z; //Set the Y of the bot.
+			Players[255].X = x;
+			Players[255].Y = y;
+			Players[255].Z = z;
 			byte[] packet = new byte[10];
 			packet[0] = (byte)0x08; //Packet ID.
 			packet[1] = (byte)255; //Player ID of self.
@@ -187,17 +183,16 @@ namespace LibClassicBot
 			short yConverted = IPAddress.HostToNetworkOrder((short)(z * 32));//Do account for character height in this one.
 			packet[4] = (byte)(yConverted);
 			packet[5] = (byte)(yConverted >> 8);
-			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));//Yes, I know they're the wrong way around.
+			short zConverted = IPAddress.HostToNetworkOrder((short)(y * 32));
 			packet[6] = (byte)(zConverted);
 			packet[7] = (byte)(zConverted >> 8);
 			packet[8] = Players[255].Yaw;
 			packet[9] = Players[255].Pitch;
-			try { ServerSocket.Send(packet); }
-			catch(System.Net.Sockets.SocketException ex)
-			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
-				Events.RaiseBotError(socketEvent);
-			}						
+			try { 
+				ServerSocket.Send( packet ); 
+			} catch( System.Net.Sockets.SocketException ex ) {
+				Log( LogType.Warning, "Error while trying to send position update packet -", ex.ToString() );
+			}							
 			PositionEventArgs e = new PositionEventArgs(255, Players[255]);
 			Events.RaisePlayerMoved(e);
 		}
@@ -212,11 +207,10 @@ namespace LibClassicBot
 			packet[0] = (byte)0x0d; //Packet ID.
 			packet[1] = (byte)0xff; //Unused
 			Buffer.BlockCopy(Extensions.StringToBytes(message), 0, packet, 2, 64);
-			try { ServerSocket.Send(packet); }
-			catch(System.Net.Sockets.SocketException ex)
-			{
-				BotExceptionEventArgs socketEvent = new BotExceptionEventArgs(packetError, ex);
-				Events.RaiseBotError(socketEvent);
+			try { 
+				ServerSocket.Send( packet ); 
+			} catch( System.Net.Sockets.SocketException ex ) {
+				Log( LogType.Warning, "Error while trying to send chat message packet -", ex.ToString() );
 			}			
 		}
 		#endregion

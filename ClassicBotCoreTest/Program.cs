@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using LibClassicBot;
 using LibClassicBot.Drawing;
 using LibClassicBot.Events;
-using System.Runtime.InteropServices;
 
-namespace LibClassicBotTest
+namespace ClassicBotCoreTest
 {
 	class Program
 	{
@@ -22,7 +22,6 @@ namespace LibClassicBotTest
 		
 		public static void Main(string[] args)
 		{
-			AppDomain.CurrentDomain.UnhandledException += UnhandledException;
 			Console.ForegroundColor = ConsoleColor.Green;
 			Console.WriteLine("Welcome to LibClassicBot beta.");
 			Console.WriteLine("Below is a list of commands and how to use them");
@@ -58,9 +57,11 @@ namespace LibClassicBotTest
 			}
 
 			ClassicBot Bot1 = new ClassicBot(username, password, hash, "operators.txt");
+			ConsoleLogger logger = new ConsoleLogger();
+			Bot1.RegisterLogger( logger );
+			FileLogger file = new FileLogger();
+			Bot1.RegisterLogger( file );
 			Bot1.Events.ChatMessage += Bot1_ChatMessage;
-			Bot1.Events.GotKicked += Bot1_GotKicked;
-			Bot1.Events.BotException += Bot1_SocketError;
 			Bot1.Events.PlayerMoved += Bot1_PlayerMoved;
 			Bot1.Events.RemoteSessionStarted += RemoteSessionStarted;
 			Bot1.Events.RemoteUserLoggedIn += RemoteUserLoggedIn;
@@ -245,7 +246,7 @@ namespace LibClassicBotTest
 				Bot1.IgnoredUserList.Remove(full[1]);
 				Bot1.SendMessagePacket("Unignored user: " + full[1]);
 			};
-			Bot1.RegisteredCommands.Add("unignore", UnIgnoreCommand);	
+			Bot1.RegisteredCommands.Add("unignore", UnIgnoreCommand);
 			
 			/*ClassicBot.CommandDelegate TestPosCommand = delegate(string Line)
 			{ //Ain't no way to stop it. Uncomment with severe caution.
@@ -280,8 +281,7 @@ namespace LibClassicBotTest
 		static string personfollowed = String.Empty;
 
 		#if !MONO
-		static void Bot1_MapLoaded(object sender, MapLoadedEventArgs e)
-		{
+		static void Bot1_MapLoaded(object sender, MapLoadedEventArgs e) {
 			MinimizeFootprint();
 		}
 		#endif
@@ -294,23 +294,6 @@ namespace LibClassicBotTest
 			{
 				StaticBot1.SendPositionPacket(e.player.X, e.player.Y, e.player.Z, e.player.Yaw, e.player.Pitch);
 			}
-		}
-
-		/// <summary>
-		/// This catches all unhandled exceptions and logs them to error.txt. Useful for finding issues, although I really do hope
-		/// that the bot is stable enough that this shouldn't need to be raised.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		static void UnhandledException(object sender, UnhandledExceptionEventArgs e)
-		{
-			Exception actualException = (Exception)e.ExceptionObject; //Get actual exception.
-			System.IO.File.WriteAllText("unhandlederror.txt","");
-			System.IO.File.AppendAllText("unhandlederror.txt","Type of Exception - " + actualException.GetType() + Environment.NewLine);
-			System.IO.File.AppendAllText("unhandlederror.txt","StackTrace - " + actualException.StackTrace + Environment.NewLine);
-			System.IO.File.AppendAllText("unhandlederror.txt","Message - " + actualException.Message + Environment.NewLine);
-			System.IO.File.AppendAllText("unhandlederror.txt","Source - " + actualException.Source + Environment.NewLine);
-			//Don't bother with innerexception, seems never to be raised.
 		}
 
 		static void RemoteSessionEnded(object sender, SessionEndedEventArgs e)
@@ -342,87 +325,10 @@ namespace LibClassicBotTest
 			Console.WriteLine(errormessage);
 			Console.ResetColor();
 		}
-		
-		static void Bot1_SocketError(object sender, BotExceptionEventArgs e)
-		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine("Bot Error: "+e.Output);
-			Console.ResetColor();
-		}
 
-		static void Bot1_GotKicked(object sender, KickedEventArgs e)
-		{
-			Console.ForegroundColor = ConsoleColor.Yellow;
-			Console.Write("Bot kicked: ");
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine(e.Reason);
-			Console.ResetColor();
-		}
-		
-
-		static void Bot1_ChatMessage(object sender, MessageEventArgs e)
-		{
-			AppendLog("&fBot: "+e.Line+"&");
+		static void Bot1_ChatMessage(object sender, MessageEventArgs e) {
 			StaticBot1.MessageAllRemoteClients(e.Line);
 		}
 		
-		/// <summary>
-		/// Determines whether or not the given character is the character that follows an and symbol, to make up a minecraft colour code.
-		/// </summary>
-		/// <param name="c">The character to check.</param>
-		/// <param name="color">The ConsoleColor that is used by AppendLog().</param>
-		/// <returns>True if the given character was valid, and also returns a ConsoleColor with the equivalent of the Minecraft colour.
-		/// By default, it will return Consolecolor.White.</returns>
-		public static bool IsColourCodeChar(char c, out ConsoleColor color)
-		{
-			switch(c)
-			{
-					case '0': color = ConsoleColor.Black; return true; //Black
-					case '1': color = ConsoleColor.DarkBlue; return true; //Dark Blue / Navy
-					case '2': color = ConsoleColor.DarkGreen; return true; //Dark Green / Green
-					case '3': color = ConsoleColor.DarkCyan; return true; //Dark Cyan / Teal
-					case '4': color = ConsoleColor.DarkRed; return true; //Dark Red / Maroon
-					case '5': color = ConsoleColor.DarkMagenta; return true; //Dark Magenta / Purple
-					case '6': color = ConsoleColor.DarkYellow; return true; //Dark Yellow / Olive
-					case '7': color = ConsoleColor.DarkGray; return true; //Dark Gray / Silver
-					case '8': color = ConsoleColor.Gray; return true; //Gray
-					case '9': color = ConsoleColor.Blue; return true; //Blue
-					case 'a': color = ConsoleColor.Green; return true; //Green / Lime
-					case 'b': color = ConsoleColor.Cyan; return true; //Cyan / Aqua
-					case 'c': color = ConsoleColor.Red; return true; //Red
-					case 'd': color = ConsoleColor.Magenta; return true; //Magenta
-					case 'e': color = ConsoleColor.Yellow; return true; //Yellow
-					case 'f': color = ConsoleColor.White; return true; //White
-					default: color = ConsoleColor.White; return false; //Unknown. Go back to default
-			}
-		}
-
-		public static void AppendLog(string input)
-		{
-			if(!input.EndsWith("&")) input += "&"; //Since I can't seem to do it any other way.
-			ConsoleColor currentColor = ConsoleColor.White;
-			for (int i = 0; i < input.Length; i++)
-			{
-				if (input[i] == '&' && i < input.Length - 1)
-				{
-					i++;//Move to colour code character.
-					if(IsColourCodeChar(input[i],out currentColor))
-					{
-						i++;
-						StringBuilder sb = new StringBuilder();
-						while (input[i] != '&') //Look at fixing this up so we don't always have to append & to the end..
-						{
-							sb.Append(input[i]);
-							i++;
-						}
-						i--; //Move back a character, as otherwise we go one too far and consume the next &.
-						Console.ForegroundColor = currentColor;
-						Console.Write(sb);
-					}
-				}
-			}
-			Console.Write(Environment.NewLine); //Write a new line to end the current message.
-			Console.ResetColor(); //Go back to default colour
-		}
 	}
 }
