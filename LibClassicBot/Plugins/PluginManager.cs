@@ -11,41 +11,40 @@ namespace LibClassicBot.Plugins
 	/// </summary>
 	public static class PluginManager
 	{
-		/// <summary>
-		/// Load all plugins avaliable in the plugins directory.
-		/// </summary>
+		/// <summary> Load all plugins avaliable in the plugins directory. </summary>
 		/// <param name="commandstoadd">The Dictionary to add commands to.</param>
 		/// <param name="main">The ClassicBot instance to attach to. (IE, for message sending.)</param>
-		public static void LoadPlugins(ref Dictionary<string,ClassicBot.CommandDelegate> commandstoadd, ClassicBot main)
+		public static void LoadPlugins( ref Dictionary<string,ClassicBot.CommandDelegate> commandstoadd, ClassicBot main )
 		{
-			if (!Directory.Exists("plugins")) { return; }//No point in loading zero plugins, now is there?			
-			String[] pluginFiles = Directory.GetFiles("plugins", "*.dll", SearchOption.TopDirectoryOnly); //Limit to DLL files.
-			if(pluginFiles.Length == 0) return; //No plugins were found.
+			if( !Directory.Exists( "plugins" ) ) {
+				return;
+			}
+			String[] pluginFiles = Directory.GetFiles( "plugins", "*.dll", SearchOption.TopDirectoryOnly );
+			if( pluginFiles.Length == 0 ) return; //No plugins were found.
 			List<Plugin> Plugins = new List<Plugin>();
-			for(int i = 0; i < pluginFiles.Length; i++)
-			{
-				Console.WriteLine(pluginFiles[i]);
-				try 
-				{
-					Assembly assembly = Assembly.LoadFile(Path.GetFullPath(pluginFiles[i]));
-					Type[] asmTypes = assembly.GetTypes(); //In other words, look for classes.
-					foreach(Type type in asmTypes)
-					{
-						if (type.IsSubclassOf(typeof(Plugin))) //All plugins must inherit from Plugin.
-						{
-							Plugins.Add((Plugin)Activator.CreateInstance(type)); //We've probably got a match.
+			
+			for( int i = 0; i < pluginFiles.Length; i++ ) {
+				main.Log( LogType.BotActivity, "Loading commands from plugin file " + pluginFiles[i] );
+				try {
+					Assembly assembly = Assembly.LoadFile( Path.GetFullPath( pluginFiles[i] ) );
+					Type[] asmTypes = assembly.GetTypes();
+					for( int j = 0; j < asmTypes.Length; j++ ) {
+						Type type = asmTypes[j];
+						if( type.IsSubclassOf( typeof( Plugin ) ) ) {
+							Plugins.Add( (Plugin)Activator.CreateInstance( type ) ); //We've probably got a match.
 							//Why no break? Because, some plugins could consist of multiple commands in the same file.
 						}
 					}
+				} catch( Exception e ) {
+					main.Log( LogType.Warning, "Couldn't load commands from the plugin.", e.ToString() );
 				}
-				catch { } //Either the plugin is invalid, or probably targets a later version of .NET.
 			}
-			foreach(Plugin plugin in Plugins)
-			{
-				plugin.Initialize(main);
-				if(!commandstoadd.ContainsKey(plugin.CommandName)) //Avoid duplicates, let the custom implementation load commands first.
-				{
-					commandstoadd.Add(plugin.CommandName, plugin.Command);
+			for( int i = 0; i < Plugins.Count; i++ ) {
+				Plugin plugin = Plugins[i];
+				plugin.Initialize( main );
+				if( !commandstoadd.ContainsKey( plugin.CommandName ) ) {
+					main.Log( LogType.BotActivity, "Loading command " + plugin.CommandName );
+					commandstoadd.Add( plugin.CommandName, plugin.Command );
 				}
 			}
 		}

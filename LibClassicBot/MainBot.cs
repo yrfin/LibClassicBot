@@ -270,7 +270,7 @@ namespace LibClassicBot
 			
 		}
 		
-		void Log( LogType type, string message ) {
+		internal void Log( LogType type, string message ) {
 			lock( loggerLocker ) {
 				if( loggers.Count == 0 ) return;
 				for( int i = 0; i < loggers.Count; i++ ) {
@@ -279,7 +279,7 @@ namespace LibClassicBot
 			}
 		}
 		
-		void Log( LogType type, params string[] messages ) {
+		internal void Log( LogType type, params string[] messages ) {
 			lock( loggerLocker ) {
 				if( loggers.Count == 0 ) return;
 				string message = String.Join( Environment.NewLine, messages );
