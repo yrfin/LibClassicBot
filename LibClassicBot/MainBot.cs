@@ -119,11 +119,11 @@ namespace LibClassicBot
 				return ramCounter.NextValue() / 1024 / 1024; }
 		}*/
 			
-		/// <summary>
-		/// Whether to load settings from botsettings.txt. By default, this is set to true.
-		/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
-		/// </summary>
-		public bool LoadInternalSettings { get; private set; }
+			/// <summary>
+			/// Whether to load settings from botsettings.txt. By default, this is set to true.
+			/// Disable this if you intend to enforce settings that might be overriden otherwise with the loaded user settings.
+			/// </summary>
+			public bool LoadInternalSettings { get; private set; }
 		
 		/// <summary>
 		/// When the bot first joins a server, a packet containing the server name and MOTD are sent.
@@ -241,10 +241,10 @@ namespace LibClassicBot
 		//Drawing
 		int sleepTime = 10;
 		byte cuboidType;
-		bool _isCuboiding = false;		
+		bool _isCuboiding = false;
 		const string ErrorInPage = "Error while parsing the URL. Either minecraft.net is down, or the URL given was invalid.";
 		
-		/// <summary>This is used to prevent the bot from continuing to try to login to a server. (Eg, after a ban.)</summary>
+		// This is used to prevent the bot from continuously to try to login to a server. (Eg, after a ban.)
 		bool CanReconnectAfterKick = false;
 		string DirectURL;
 		bool isDirect = false;
@@ -305,67 +305,16 @@ namespace LibClassicBot
 			System.IO.File.AppendAllText("error.txt","Source - " + actualException.Source + Environment.NewLine);
 		}
 		
-		/// <summary>
-		/// Loads all settings from a file called botsettings.txt
-		/// </summary>
-		/// <remarks>A structure looks like the following:<br/>
-		/// UseRemoteServer: false<br/>
-		/// RemotePort:<br/>
-		/// RemotePassword (No spaces allowed):<br/>
-		/// CommandsRequireOperator: false<br/>
-		/// ReconnectAfterKick: true<br/>
-		/// SaveMap: false</remarks>
+		/// <summary> Loads all settings from a file called botsettings.txt </summary>
 		private void LoadSettings()
 		{
-			try
-			{
-				if(File.Exists("botsettings.txt"))
-				{
-					int numberofspaces = 0;
-					string[] Lines = File.ReadAllLines("botsettings.txt");
-					string[] splitLineURS = Lines[0].Split(':');
-					string urs = splitLineURS[1].Trim(); //Remove starting white space
-					if((numberofspaces = urs.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						urs = urs.Substring(0, numberofspaces); //Trim potential garbage data.
-					bool.TryParse(urs, out UseRemoteServer);
-					if (UseRemoteServer)
-					{
-						string[] splitLineRP = Lines[1].Split(':');
-						int RemoteServerPort;
-						Int32.TryParse(splitLineRP[1].Trim(), out RemoteServerPort); //Do not account for potential garbage data.
-						
-						string[] splitLineRPass = Lines[2].Split(':');
-						string RemotePassword = splitLineRPass[1].Trim(); //Remove starting white space
-						if((numberofspaces = RemotePassword.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-							RemotePassword = RemotePassword.Substring(0, numberofspaces); //Trim potential garbage data.
-						server = new Server();
-						server.Start(this,RemoteServerPort,RemotePassword);
-					}
-					string[] splitLineCRQ = Lines[3].Split(':');
-					string crq = splitLineCRQ[1].Trim(); //Remove starting white space
-					if((numberofspaces = crq.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						crq = crq.Substring(0, numberofspaces); //Trim potential garbage data.
-					bool.TryParse(crq, out _requiresop); //TODO: Try using parse instead, as this should not be false by default.
-					
-					string[] splitLineRecOnKick = Lines[4].Split(':');
-					string rok = splitLineRecOnKick[1].Trim(); //Remove starting white space
-					if((numberofspaces = rok.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						rok = rok.Substring(0, numberofspaces); //Trim potential garbage data.
-					bool.TryParse(rok, out _reconnectonkick);
-					
-					string[] splitLineSaveMap = Lines[5].Split(':');
-					string sm = splitLineSaveMap[1].Trim(); //Remove starting white space
-					if((numberofspaces = sm.LastIndexOf(' ')) != -1) //-1 means no white space was found.
-						sm = sm.Substring(0, numberofspaces); //Trim potential garbage data.
-					bool.TryParse(sm, out _savemap);
-				}
-				else
-				{
-					using (StreamWriter sw = new StreamWriter("botsettings.txt"))
-					{
+			try {
+				Config config = new Config( "botsettings.txt" );
+				if( !config.Exists() ) {
+					using( StreamWriter sw = new StreamWriter( "botsettings.txt" ) ) {
 						sw.WriteLine("UseRemoteServer: false");
 						sw.WriteLine("RemotePort: ");
-						sw.WriteLine("RemotePassword (No spaces allowed): ");
+						sw.WriteLine("RemotePassword: ");
 						sw.WriteLine("CommandsRequireOperator: true");
 						sw.WriteLine("ReconnectAfterKick: true");
 						sw.WriteLine("SaveMap: false");
@@ -374,7 +323,7 @@ namespace LibClassicBot
 						             "If you choose to use the remote function, you may need to forward the port and/or add an exception to your firewall.");
 						sw.WriteLine("#RemotePort - The port the server will listen on for remote clients. It is fine to leave this blank if UseRemoteServer is false.");
 						sw.WriteLine("#RemotePassword - The password to use for verifying remote clients. " +
-						             "It is fine to leave this blank if you are not using the remote functionsd of the bot.");
+						             "If UseRemoteServer is true and this is blank, the password will be set to \"password\". ");
 						sw.WriteLine("#CommandsRequireOperators - This determines whether bot commands require the person who called them to be in the operators file." +
 						             "Usually you would want this to be true.");
 						sw.WriteLine("#ReconnectAfterKick - This determines if the bot will reconnect after being kicked. Note that if the bot receives a kick packet before" +
@@ -384,6 +333,24 @@ namespace LibClassicBot
 						             "can use up to ~150 megabytes of RAM when saving, so be wary. After saving, memory usage should return to normal.");
 					}
 				}
+				
+				config.Load(); // TODO: Output warning.
+				config.TryParseValueOrDefault( "useremoteserver", false, out UseRemoteServer ); // TODO: Output warning for each default file.
+				if( UseRemoteServer ) {
+					int remotePort;
+					config.TryParseValueOrDefault( "remoteport", 25561, out remotePort );
+					string remotePassword;
+					config.TryGetRawValue( "remotepassword", out remotePassword );
+					if( String.IsNullOrEmpty( remotePassword ) )
+						remotePassword = "password";
+					
+					server = new Server();
+					server.Start( this, remotePort, remotePassword );
+				}
+				config.TryParseValueOrDefault( "commandsrequireoperator", true, out _requiresop );
+				config.TryParseValueOrDefault( "reconnectafterkick", true, out _reconnectonkick );
+				config.TryParseValueOrDefault( "savemap", false, out _savemap );
+				
 			}
 			catch {}
 		}
@@ -524,7 +491,7 @@ namespace LibClassicBot
 								byte[] chunkData = reader.ReadBytes(1024); // May be padded with extra data.
 								byte progress = reader.ReadByte();
 								if(_savemap) {
-									mapStream.Write( chunkData, 0, chunkLength ); 
+									mapStream.Write( chunkData, 0, chunkLength );
 								}
 								MapProgressEventArgs e = new MapProgressEventArgs(progress);
 								Events.RaiseMapProgress(e);
