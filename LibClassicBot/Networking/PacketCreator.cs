@@ -18,7 +18,7 @@ namespace LibClassicBot.Networking
 		/// <param name="verificationKey">The verification key to use, can be simply used as String.Empty.</param>		
 		public static byte[] CreateLoginPacket(string username, string verkey)
 		{
-			using (MemoryStream LogMemStream = new MemoryStream())
+			using (MemoryStream LogMemStream = new MemoryStream(131))
 				using (BinaryWriter LoginWriter = new BinaryWriter(LogMemStream))
 			{
 				LoginWriter.Write((byte)ClientPackets.PlayerIdentification); //PacketID
@@ -52,7 +52,7 @@ namespace LibClassicBot.Networking
 			{
 				BlockWriter.Write((byte)ClientPackets.SetBlock); //PacketID
 				BlockWriter.Write(IPAddress.HostToNetworkOrder(x));
-				BlockWriter.Write(IPAddress.HostToNetworkOrder(z)); //Yes I know they're the wrong way around.
+				BlockWriter.Write(IPAddress.HostToNetworkOrder(z));
 				BlockWriter.Write(IPAddress.HostToNetworkOrder(y));
 				BlockWriter.Write(mode);
 				BlockWriter.Write(type);
@@ -70,7 +70,7 @@ namespace LibClassicBot.Networking
 				PosWriter.Write((byte)255); //Unused
 				PosWriter.Write(IPAddress.HostToNetworkOrder((short)(x * 32)));
 				PosWriter.Write(IPAddress.HostToNetworkOrder((short)((z + 1.21f) * 32))); //1.21 = character height
-				PosWriter.Write(IPAddress.HostToNetworkOrder((short)(y * 32))); //Yes, I know they're the wrong way around.
+				PosWriter.Write(IPAddress.HostToNetworkOrder((short)(y * 32)));
 				PosWriter.Write(yaw);
 				PosWriter.Write(pitch);
 				return PosMemStream.ToArray();

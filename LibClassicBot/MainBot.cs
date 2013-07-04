@@ -573,7 +573,7 @@ namespace LibClassicBot
 										break;
 									}
 									
-									if(new Vector3I(blockX, blockY, blockZ).Distance(new Vector3I(
+									if(new Vector3I(blockX, blockY, blockZ).DistanceTo(new Vector3I(
 										(int)Players[id].X, (int)Players[id].Y, (int)Players[id].Z)) > 11) {
 										break; //Another player probably tried placing a block somewhere else.
 									}

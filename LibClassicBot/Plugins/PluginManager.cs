@@ -51,8 +51,7 @@ namespace LibClassicBot.Plugins
 			public string Code;
 			public string[] KnownReferences;
 			public bool IsCSharp;
-		}
-		
+		}	
 		
 		static void LoadScripts( Dictionary<string, ClassicBot.CommandDelegate> commands, ClassicBot main ) {
 			if( !Directory.Exists( "scripts" ) ) {
