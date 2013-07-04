@@ -29,24 +29,21 @@ namespace LibClassicBot
 		private readonly short Width; //Notch's X
 		private readonly short Length; //Notch's Z
 		private readonly short Height; //Notch's Y 
-		private int Volume { get { return (Width + 1) * (Length + 1) * (Height + 1); } }		
 		// FCMv3 additions
 		private Guid Guid;
 		private const int Identifier = 0x0FC2AF40;
 		private const byte Revision = 13; 
 		private byte[] Blocks;
 
-		public Map(int width, int length, int height)
-		{
+		public Map(int width, int length, int height) {
 			Guid = Guid.NewGuid();
 			Width = (short)width;
 			Length = (short)length;
 			Height = (short)height;
-			Blocks = new byte[Volume];
+			Blocks = new byte[Width * Length * Height];
 		}
 		
-		public void Dispose()
-		{
+		public void Dispose() {
 			Blocks = null;
 			GC.Collect(); //Costly, but needed.
 		}

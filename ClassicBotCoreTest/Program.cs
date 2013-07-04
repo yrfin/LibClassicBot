@@ -149,8 +149,8 @@ namespace ClassicBotCoreTest
 				try
 				{
 					bool paid;
-					WebClient c = new WebClient();
-					string response = c.DownloadString("https://minecraft.net/haspaid.jsp?user="+full[1]);
+					WebClient client = new WebClient();
+					string response = client.DownloadString("https://minecraft.net/haspaid.jsp?user="+full[1]);
 					if(Boolean.TryParse(response, out paid)) 
 						Bot1.SendMessagePacket( response );
 				}

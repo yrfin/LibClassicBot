@@ -385,7 +385,7 @@ namespace LibClassicBot
 					Log( LogType.Warning, "Couldn't load value for reconnectafterkick from config. Setting to default value of true" );
 				if( !config.TryParseValueOrDefault( "savemap", false, out _savemap ) )
 					Log( LogType.Warning, "Couldn't load value for savemap from config. Setting to default value of false" );
-			} catch { 
+			} catch {
 			}
 		}
 
@@ -533,17 +533,17 @@ namespace LibClassicBot
 								MapSizeY = IPAddress.HostToNetworkOrder(reader.ReadInt16());
 								Connected = true; //At this state, we've loaded the map and we're ready to send chat etc.
 								if(_savemap) {
+									Log( LogType.BotActivity, "Beginning to save map.." );
 									mapStream.Seek(0, SeekOrigin.Begin);
 									Map map = new Map(MapSizeX, MapSizeY, MapSizeZ);
-									using (GZipStream decompressed = new GZipStream(mapStream,CompressionMode.Decompress))
-									{
-										decompressed.Read(new byte[4],0,4); //Ignore size of stream.
+									using (GZipStream decompressed = new GZipStream( mapStream,CompressionMode.Decompress ) ) {
+										decompressed.Read( new byte[4], 0, 4 ); //Ignore size of stream.
 										int sizeX = MapSizeX, sizeY = MapSizeY, sizeZ = MapSizeZ;
-										for (int z = 0; z < sizeZ; z++) {
-											for (int y = 0; y < sizeY; y++) {
-												for (int x = 0; x < sizeX; x++) {
+										for( int z = 0; z < sizeZ; z++ ) {
+											for( int y = 0; y < sizeY; y++ ) {
+												for( int x = 0; x < sizeX; x++ ) {
 													byte next = (byte)decompressed.ReadByte();
-													if(next != 255) map.SetBlock(x, y, z, next);
+													map.SetBlock( x, y, z, next );
 												}
 											}
 										}
@@ -551,6 +551,7 @@ namespace LibClassicBot
 									mapStream.Dispose();
 									map.Save("map_" + DateTime.Now.ToString("ddHHmmssfffffff")); //Formatting for DateTime.
 									map.Dispose();
+									Log( LogType.BotActivity, "Saved map" );
 								}
 								MapLoadedEventArgs e = new MapLoadedEventArgs();
 								Events.RaiseMapLoaded(e);
@@ -669,15 +670,12 @@ namespace LibClassicBot
 									string Message = Extensions.StripColors(lineSplit[1]).TrimStart(' ');
 									string User = Extensions.StripColors(lineSplit[0]);
 
-									if (!IgnoredUserList.Contains(User))
-									{
+									if (!IgnoredUserList.Contains(User)) {
 										string strippedcommandheader = Message.Split(' ')[0].ToLower();
 										foreach(KeyValuePair<string,CommandDelegate> command in RegisteredCommands)
 										{
-											if(strippedcommandheader == "."+command.Key.ToLower())
-											{
-												if(_requiresop == true)
-												{
+											if(strippedcommandheader == "." + command.Key.ToLower()) {
+												if(_requiresop) {
 													if(Users.Contains(User)) {
 														EnqueueCommand(command.Value,Line);
 														break;
