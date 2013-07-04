@@ -1,7 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using LibClassicBot;
-using System.IO;
 
 namespace ClassicBotCoreTest {
 	

@@ -4,32 +4,27 @@ using System.Threading;
 
 namespace LibClassicBot
 {
+	/// <summary>
+	/// Allows you to dynamically invoke an action with the bot, as an anonymous delegate.<br/>
+	/// The line is the chatline that triggered the command, including colour codes. (Allows for command arguements)
+	/// </summary>
+	public delegate void CommandDelegate( string line );
+	
 	public partial class ClassicBot
 	{
-		/// <summary>
-		/// Allows you to dynamically invoke an action with the bot, as an anonymous delegate.<br/>
-		/// The line is the chatline that triggered the command, including colour codes. (Allows for command arguements)
-		/// </summary>
-		public delegate void CommandDelegate(string line);
-
-		/// <summary>
-		/// A Dictionary containg a list of commands that can be executed upon receiving the correct message in chat.
-		///	<example><code>ClassicBot.CommandDelegate c = delegate(string Line) { Console.WriteLine(Hello); };
-		/// Bot1.Commands.Add("test",c);</code> When a chatline contains the words ".test", the command will be executed, writing Hello to Console.</example>
-		/// </summary>
-		/// <remarks>The dynamic command invoking is deisgned to be flexible. You can even dynamically create more bots, but you will have to still add commands in like normal.</remarks>
+		/// <summary> A Dictionary containing a list of commands that can be executed upon receiving the correct message in chat. </summary>
 		public Dictionary<string, CommandDelegate> RegisteredCommands = new Dictionary<string, CommandDelegate>();
 		
 		/// <summary>Although this could be done with a Tuple in .NET 4, this method is easier to understand, and it works in .NET 2.</summary>
-		private class InternalCommand
-		{
+		private class InternalCommand {
+			
 			/// <summary>The actual anonymous method with which command information is stored.</summary>
 			public CommandDelegate command;
 			
 			/// <summary>The chat line which set off the command. Includes color codes. </summary>
 			public string line;
 			
-			internal InternalCommand(CommandDelegate Command, string Line)
+			internal InternalCommand( CommandDelegate Command, string Line )
 			{
 				command = Command;
 				line = Line;
@@ -47,21 +42,18 @@ namespace LibClassicBot
 		
 		///<summary> This processes all queued commands. Although this should never happen,
 		/// it will not proccess if the Commands class has not been started yet.</summary>
-		public void ProcessCommandQueue()
-		{
-			if(!CommandsThreadStarted) return;
+		public void ProcessCommandQueue() {
+			if( !CommandsThreadStarted ) return;
 			CommandQueueReset.Set();
 		}
 		
-		/// <summary>
-		/// Adds a command to the Queue of commands to be executed.
-		/// </summary>
+		/// <summary> Adds a command to the Queue of commands to be executed. </summary>
 		/// <param name="Command">The anonymous delegate to execute.</param>
 		/// <param name="Line">The chatline which triggered the execution, used for arguements.</param>
-		public void EnqueueCommand(CommandDelegate Command, string Line)
+		public void EnqueueCommand( CommandDelegate command, string Line )
 		{
-			if(!CommandsThreadStarted) return;
-			CommandQueue.Enqueue(new InternalCommand(Command,Line));
+			if( !CommandsThreadStarted ) return;
+			CommandQueue.Enqueue( new InternalCommand( command, Line ) );
 		}
 		
 		/// <summary>Starts the Command class thread, which can later be added to with CommandEnqueue() and executed with ProcessCommandQueue()</summary>

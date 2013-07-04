@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text;
 using LibClassicBot;
 using LibClassicBot.Drawing;
 using LibClassicBot.Events;
@@ -71,88 +70,89 @@ namespace ClassicBotCoreTest
 			#endif
 			
 			#region Plugins
-			ClassicBot.CommandDelegate MazeCommand = delegate(string Line)
+			CommandDelegate MazeCommand = delegate(string Line)
 			{
 				Maze maze = new Maze();
 				maze.originalchatline = Line;
 				Bot1.SetDrawer(Line, maze, 2);
 			};
-			Bot1.RegisteredCommands.Add("maze",MazeCommand);
+			Bot1.RegisteredCommands.Add("maze", MazeCommand);
 			
-			ClassicBot.CommandDelegate DrawCommand = delegate(string Line)
+			CommandDelegate DrawCommand = delegate(string Line)
 			{
 				DrawImage img = new DrawImage();
 				img.originalchatline = Line;
 				Bot1.SetDrawer(Line, img, 2);
 			};
-			Bot1.RegisteredCommands.Add("drawimg",DrawCommand);
+			Bot1.RegisteredCommands.Add("drawimg", DrawCommand);
 			
-			ClassicBot.CommandDelegate PositionCommand = delegate(string Line)
+			CommandDelegate PositionCommand = delegate(string Line)
 			{
 				Bot1.SendMessagePacket(String.Format("Positon in world is at {0},{1},{2}.", Bot1.X, Bot1.Y, Bot1.Z));
 			};
-			Bot1.RegisteredCommands.Add("position",PositionCommand);
+			Bot1.RegisteredCommands.Add("position", PositionCommand);
 			
-			ClassicBot.CommandDelegate AddOpCommand = delegate(string Line)
+			CommandDelegate AddOpCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				Bot1.AddOperator(full[1], true);
 				Bot1.SendMessagePacket("Allowed user: " + full[1]);
 			};
-			Bot1.RegisteredCommands.Add("allow",AddOpCommand);
+			Bot1.RegisteredCommands.Add("allow", AddOpCommand);
 			
-			ClassicBot.CommandDelegate RemoveOpCommand = delegate(string Line)
+			CommandDelegate RemoveOpCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 1);
 				Bot1.RemoveOperator(full[1], true);
 				Bot1.SendMessagePacket("Disallowed user: "+ full[1]);
 			};
-			Bot1.RegisteredCommands.Add("disallow",RemoveOpCommand);
+			Bot1.RegisteredCommands.Add("disallow", RemoveOpCommand);
 
-			ClassicBot.CommandDelegate SayCommand = delegate(string Line)
+			CommandDelegate SayCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				Bot1.SendMessagePacket(full[1]);
 			};
-			Bot1.RegisteredCommands.Add("say",SayCommand);
+			Bot1.RegisteredCommands.Add("say", SayCommand);
 			
-			ClassicBot.CommandDelegate PlayersCommand = delegate(string Line)
+			CommandDelegate PlayersCommand = delegate(string Line)
 			{
 				List<string> Names = new List<string>();
 				foreach(Player player in Bot1.Players.Values)
 				{
 					Names.Add(player.Name);
 				}
-				string output = String.Join(",",Names.ToArray());
+				string output = String.Join(",", Names.ToArray());
 				Bot1.SendLongChat("Players in current world: " + output);
 			};
-			Bot1.RegisteredCommands.Add("players",PlayersCommand);
+			Bot1.RegisteredCommands.Add("players", PlayersCommand);
 
-			ClassicBot.CommandDelegate MoveCommand = delegate(string Line)
+			CommandDelegate MoveCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				string[] coords = full[1].Split(new char[] { ',' }, 3);
 				Bot1.SendPositionPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]));
 			};
-			Bot1.RegisteredCommands.Add("move",MoveCommand);
+			Bot1.RegisteredCommands.Add("move", MoveCommand);
 			
-			ClassicBot.CommandDelegate PlaceCommand = delegate(string Line)
+			CommandDelegate PlaceCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				string[] coords = full[1].Split(new char[] { ',' }, 4);
 				Bot1.SendBlockPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]), 1, Byte.Parse(coords[3]));
 			};
-			Bot1.RegisteredCommands.Add("place",PlaceCommand);
+			Bot1.RegisteredCommands.Add("place", PlaceCommand);
 			
-			ClassicBot.CommandDelegate HasPaidCommand = delegate(string Line)
+			CommandDelegate HasPaidCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				try
 				{
-					bool b;
+					bool paid;
 					WebClient c = new WebClient();
 					string response = c.DownloadString("https://minecraft.net/haspaid.jsp?user="+full[1]);
-					if(Boolean.TryParse(response, out b)) Bot1.SendMessagePacket(response);
+					if(Boolean.TryParse(response, out paid)) 
+						Bot1.SendMessagePacket( response );
 				}
 				catch(WebException ex)
 				{
@@ -166,73 +166,73 @@ namespace ClassicBotCoreTest
 						Bot1.SendMessagePacket("Unhandled error occured: "+ex.Status.ToString());
 				}
 			};
-			Bot1.RegisteredCommands.Add("haspaid",HasPaidCommand);
+			Bot1.RegisteredCommands.Add("haspaid", HasPaidCommand);
 			
-			ClassicBot.CommandDelegate FollowCommand = delegate(string Line)
+			CommandDelegate FollowCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				personfollowed = full[1];
 				Bot1.SendMessagePacket("Following user "+full[1]);
 			};
-			Bot1.RegisteredCommands.Add("follow",FollowCommand);
+			Bot1.RegisteredCommands.Add("follow", FollowCommand);
 			
-			ClassicBot.CommandDelegate CuboidCommand = delegate(string Line)
+			CommandDelegate CuboidCommand = delegate(string Line)
 			{
 				Cuboid cuboid = new Cuboid();
 				Bot1.SetDrawer(Line, cuboid, 2);
 			};
-			Bot1.RegisteredCommands.Add("cuboid",CuboidCommand);
+			Bot1.RegisteredCommands.Add("cuboid", CuboidCommand);
 			
-			ClassicBot.CommandDelegate PyramidCommand = delegate(string Line)
+			CommandDelegate PyramidCommand = delegate(string Line)
 			{
 				Pyramid pyramid = new Pyramid();
 				Bot1.SetDrawer(Line, pyramid, 2);
 			};
-			Bot1.RegisteredCommands.Add("pyramid",PyramidCommand);
+			Bot1.RegisteredCommands.Add("pyramid", PyramidCommand);
 			
-			ClassicBot.CommandDelegate AbortCommand = delegate(string Line)
+			CommandDelegate AbortCommand = delegate(string Line)
 			{
 				Bot1.CancelDrawer();
 				personfollowed = String.Empty;
 			};
-			Bot1.RegisteredCommands.Add("abort",AbortCommand);
+			Bot1.RegisteredCommands.Add("abort", AbortCommand);
 			
-			ClassicBot.CommandDelegate SpeedCommand = delegate(string Line)
+			CommandDelegate SpeedCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				Bot1.CuboidSleepTime = 1000 / Int32.Parse(full[1]);
 			};
-			Bot1.RegisteredCommands.Add("speed",SpeedCommand);
+			Bot1.RegisteredCommands.Add("speed", SpeedCommand);
 
-			ClassicBot.CommandDelegate EllipsoidCommand = delegate(string Line)
+			CommandDelegate EllipsoidCommand = delegate(string Line)
 			{
 				Ellipsoid ellipsoid = new Ellipsoid();
 				Bot1.SetDrawer(Line, ellipsoid, 2);
 			};
-			Bot1.RegisteredCommands.Add("ellipsoid",EllipsoidCommand);
+			Bot1.RegisteredCommands.Add("ellipsoid", EllipsoidCommand);
 
-			ClassicBot.CommandDelegate CuboidHCommand = delegate(string Line)
+			CommandDelegate CuboidHCommand = delegate(string Line)
 			{
 				CuboidHollow cuboidh = new CuboidHollow();
 				Bot1.SetDrawer(Line, cuboidh, 2);
 			};
-			Bot1.RegisteredCommands.Add("cuboidh",CuboidHCommand);
+			Bot1.RegisteredCommands.Add("cuboidh", CuboidHCommand);
 
-			ClassicBot.CommandDelegate CuboidWCommand = delegate(string Line)
+			CommandDelegate CuboidWCommand = delegate(string Line)
 			{
 				CuboidWireframe cuboidw = new CuboidWireframe();
 				Bot1.SetDrawer(Line, cuboidw, 2);
 			};
-			Bot1.RegisteredCommands.Add("cuboidw",CuboidWCommand);
+			Bot1.RegisteredCommands.Add("cuboidw", CuboidWCommand);
 			
-			ClassicBot.CommandDelegate LineCommand = delegate(string Line)
+			CommandDelegate LineCommand = delegate(string Line)
 			{
 				Line line = new Line();
 				Bot1.SetDrawer(Line, line, 2);
 			};
-			Bot1.RegisteredCommands.Add("line",LineCommand);
+			Bot1.RegisteredCommands.Add("line", LineCommand);
 			
-			ClassicBot.CommandDelegate IgnoreCommand = delegate(string Line)
+			CommandDelegate IgnoreCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				Bot1.IgnoredUserList.Add(full[1]);
@@ -240,7 +240,7 @@ namespace ClassicBotCoreTest
 			};
 			Bot1.RegisteredCommands.Add("ignore", IgnoreCommand);
 
-			ClassicBot.CommandDelegate UnIgnoreCommand = delegate(string Line)
+			CommandDelegate UnIgnoreCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
 				Bot1.IgnoredUserList.Remove(full[1]);
@@ -248,7 +248,7 @@ namespace ClassicBotCoreTest
 			};
 			Bot1.RegisteredCommands.Add("unignore", UnIgnoreCommand);
 			
-			/*ClassicBot.CommandDelegate TestPosCommand = delegate(string Line)
+			/*CommandDelegate TestPosCommand = delegate(string Line)
 			{ //Ain't no way to stop it. Uncomment with severe caution.
 				new System.Threading.Thread(
 					delegate() {

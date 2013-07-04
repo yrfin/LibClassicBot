@@ -15,7 +15,7 @@ namespace LibClassicBot.Plugins
 		/// <summary> Load all plugins avaliable in the plugins directory. </summary>
 		/// <param name="commands"> The Dictionary to add commands to. </param>
 		/// <param name="main"> The ClassicBot instance to attach to. (e.g. for message sending.)</param>
-		public static void LoadPlugins( Dictionary<string, ClassicBot.CommandDelegate> commands, ClassicBot main )
+		public static void LoadPlugins( Dictionary<string, CommandDelegate> commands, ClassicBot main )
 		{
 			if( !Directory.Exists( "plugins" ) ) {
 				return;
@@ -40,7 +40,7 @@ namespace LibClassicBot.Plugins
 						}
 					}
 				} catch( Exception e ) {
-					main.Log( LogType.Warning, "Couldn't load commands from the plugin.", e.ToString() );
+					main.Log( LogType.Error, "Couldn't load commands from the plugin.", e.ToString() );
 				}
 			}
 			LoadScripts( commands, main );
@@ -53,7 +53,7 @@ namespace LibClassicBot.Plugins
 			public bool IsCSharp;
 		}	
 		
-		static void LoadScripts( Dictionary<string, ClassicBot.CommandDelegate> commands, ClassicBot main ) {
+		static void LoadScripts( Dictionary<string, CommandDelegate> commands, ClassicBot main ) {
 			if( !Directory.Exists( "scripts" ) ) {
 				return;
 			}
@@ -95,7 +95,7 @@ namespace LibClassicBot.Plugins
 			CompileScripts( scripts, commands, main );
 		}
 		
-		static void CompileScripts( Dictionary<string, Script> scripts, Dictionary<string, ClassicBot.CommandDelegate> commands, ClassicBot main )
+		static void CompileScripts( Dictionary<string, Script> scripts, Dictionary<string, CommandDelegate> commands, ClassicBot main )
 		{
 			foreach( var keypair in scripts ) {
 				Script script = keypair.Value;

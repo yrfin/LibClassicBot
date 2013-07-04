@@ -123,64 +123,64 @@ namespace LibClassicBot_GUI
 		{
 			#region Plugins
 			
-			ClassicBot.CommandDelegate PositionCommand = delegate(string Line)
+			CommandDelegate PositionCommand = delegate(string Line)
 			{
 				bot.SendMessagePacket(String.Format("Positon in world is at {0},{1},{2}.", bot.X, bot.Y, bot.Z));
 			};
-			bot.RegisteredCommands.Add("position",PositionCommand);
+			bot.RegisteredCommands.Add("position", PositionCommand);
 			
-			ClassicBot.CommandDelegate AddOpCommand = delegate(string Line)
+			CommandDelegate AddOpCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
 				bot.AddOperator(full[1], true);
 				bot.SendMessagePacket("Allowed user: " + full[1]);
 			};
-			bot.RegisteredCommands.Add("allow",AddOpCommand);
+			bot.RegisteredCommands.Add("allow", AddOpCommand);
 			
-			ClassicBot.CommandDelegate RemoveOpCommand = delegate(string Line)
+			CommandDelegate RemoveOpCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 1);
 				bot.RemoveOperator(full[1], true);
 				bot.SendMessagePacket("Disallowed user: "+ full[1]);
 			};
-			bot.RegisteredCommands.Add("disallow",RemoveOpCommand);
+			bot.RegisteredCommands.Add("disallow", RemoveOpCommand);
 
-			ClassicBot.CommandDelegate SayCommand = delegate(string Line)
+			CommandDelegate SayCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
 				bot.SendMessagePacket(full[1]);
 			};
-			bot.RegisteredCommands.Add("say",SayCommand);
+			bot.RegisteredCommands.Add("say", SayCommand);
 			
-			ClassicBot.CommandDelegate PlayersCommand = delegate(string Line)
+			CommandDelegate PlayersCommand = delegate(string Line)
 			{
 				List<string> Names = new List<string>();
 				foreach(Player player in bot.Players.Values)
 				{
 					Names.Add(player.Name);
 				}
-				string output = String.Join(",",Names.ToArray());
+				string output = String.Join(",", Names.ToArray());
 				bot.SendLongChat("Players in current world: " + output);
 			};
-			bot.RegisteredCommands.Add("players",PlayersCommand);
+			bot.RegisteredCommands.Add("players", PlayersCommand);
 
-			ClassicBot.CommandDelegate MoveCommand = delegate(string Line)
+			CommandDelegate MoveCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
 				string[] coords = full[1].Split(new char[] { ',' }, 3);
 				bot.SendPositionPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]));
 			};
-			bot.RegisteredCommands.Add("move",MoveCommand);
+			bot.RegisteredCommands.Add("move", MoveCommand);
 			
-			ClassicBot.CommandDelegate PlaceCommand = delegate(string Line)
+			CommandDelegate PlaceCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
 				string[] coords = full[1].Split(new char[] { ',' }, 3);
 				bot.SendBlockPacket(Int16.Parse(coords[0]), Int16.Parse(coords[1]), Int16.Parse(coords[2]), 1, 29);
 			};
-			bot.RegisteredCommands.Add("place",PlaceCommand);
+			bot.RegisteredCommands.Add("place", PlaceCommand);
 			
-			ClassicBot.CommandDelegate HasPaidCommand = delegate(string Line)
+			CommandDelegate HasPaidCommand = delegate(string Line)
 			{
 				string[] LineSplit = Extensions.StripColors(Line).Split(' ');
 				try
@@ -202,71 +202,71 @@ namespace LibClassicBot_GUI
 						bot.SendMessagePacket("Unhandled error occured: "+ex.Status.ToString());
 				}
 			};
-			bot.RegisteredCommands.Add("haspaid",HasPaidCommand);
+			bot.RegisteredCommands.Add("haspaid", HasPaidCommand);
 			
-			ClassicBot.CommandDelegate FollowCommand = delegate(string Line)
+			CommandDelegate FollowCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
 				personfollowed = full[1];
 				bot.SendMessagePacket("Following user "+full[1]);
 			};
-			bot.RegisteredCommands.Add("follow",FollowCommand);
+			bot.RegisteredCommands.Add("follow", FollowCommand);
 			
-			ClassicBot.CommandDelegate CuboidCommand = delegate(string Line)
+			CommandDelegate CuboidCommand = delegate(string Line)
 			{
 				Cuboid cuboid = new Cuboid();
 				bot.SetDrawer(Line, cuboid, 2);
 			};
-			bot.RegisteredCommands.Add("cuboid",CuboidCommand);
+			bot.RegisteredCommands.Add("cuboid", CuboidCommand);
 			
-			ClassicBot.CommandDelegate PyramidCommand = delegate(string Line)
+			CommandDelegate PyramidCommand = delegate(string Line)
 			{
 				Pyramid pyramid = new Pyramid();
 				bot.SetDrawer(Line, pyramid, 2);
 			};
-			bot.RegisteredCommands.Add("pyramid",PyramidCommand);
+			bot.RegisteredCommands.Add("pyramid", PyramidCommand);
 			
-			ClassicBot.CommandDelegate AbortCommand = delegate(string Line)
+			CommandDelegate AbortCommand = delegate(string Line)
 			{
 				bot.CancelDrawer();
 				personfollowed = String.Empty;
 			};
-			bot.RegisteredCommands.Add("abort",AbortCommand);
+			bot.RegisteredCommands.Add("abort", AbortCommand);
 			
-			ClassicBot.CommandDelegate SpeedCommand = delegate(string Line)
+			CommandDelegate SpeedCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
 				bot.CuboidSleepTime = 1000 / Int32.Parse(full[1]);
 			};
-			bot.RegisteredCommands.Add("speed",SpeedCommand);
+			bot.RegisteredCommands.Add("speed", SpeedCommand);
 
-			ClassicBot.CommandDelegate EllipsoidCommand = delegate(string Line)
+			CommandDelegate EllipsoidCommand = delegate(string Line)
 			{
 				Ellipsoid ellipsoid = new Ellipsoid();
 				bot.SetDrawer(Line, ellipsoid, 2);
 			};
-			bot.RegisteredCommands.Add("ellipsoid",EllipsoidCommand);
+			bot.RegisteredCommands.Add("ellipsoid", EllipsoidCommand);
 
-			ClassicBot.CommandDelegate CuboidHCommand = delegate(string Line)
+			CommandDelegate CuboidHCommand = delegate(string Line)
 			{
 				CuboidHollow cuboidh = new CuboidHollow();
 				bot.SetDrawer(Line, cuboidh, 2);
 			};
-			bot.RegisteredCommands.Add("cuboidh",CuboidHCommand);
+			bot.RegisteredCommands.Add("cuboidh", CuboidHCommand);
 
-			ClassicBot.CommandDelegate CuboidWCommand = delegate(string Line)
+			CommandDelegate CuboidWCommand = delegate(string Line)
 			{
 				CuboidWireframe cuboidw = new CuboidWireframe();
 				bot.SetDrawer(Line, cuboidw, 2);
 			};
-			bot.RegisteredCommands.Add("cuboidw",CuboidWCommand);
+			bot.RegisteredCommands.Add("cuboidw", CuboidWCommand);
 			
-			ClassicBot.CommandDelegate LineCommand = delegate(string Line)
+			CommandDelegate LineCommand = delegate(string Line)
 			{
 				Line line = new Line();
 				bot.SetDrawer(Line, line, 2);
 			};
-			bot.RegisteredCommands.Add("line",LineCommand);
+			bot.RegisteredCommands.Add("line", LineCommand);
 			#endregion			
 		}
 		

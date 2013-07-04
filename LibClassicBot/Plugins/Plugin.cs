@@ -12,15 +12,11 @@ namespace LibClassicBot.Plugins
 	/// </summary>
 	public abstract class Plugin
 	{
-		/// <summary>
-		/// The name of the command.
-		/// </summary>
+		/// <summary> The name of the command. </summary>
 		public abstract string CommandName {get; }
 		
-		/// <summary>
-		/// The command to be executed upon the receiving of the chat line.
-		/// </summary>
-		public ClassicBot.CommandDelegate Command;
+		/// <summary> The command to be executed upon the receiving of the chat line. </summary>
+		public CommandDelegate Command;
 		
 		/// <summary>
 		/// This method initalizes the command of the plugin.
