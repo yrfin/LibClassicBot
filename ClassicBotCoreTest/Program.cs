@@ -33,8 +33,8 @@ namespace ClassicBotCoreTest
 			Console.WriteLine(".place <x,y,z> - Attempts to place a block at the specified coordinates.");
 			Console.WriteLine(".haspaid <username> - Announces if a user has paid or not.");
 			Console.WriteLine(".cuboid <blocktype> - Cuboids between two points.");
-			Console.WriteLine(".cuboid <blocktype> - Draws a hollow cuboid between two points.");
-			Console.WriteLine(".cuboid <blocktype> - Draws a wireframe between two points.");
+			Console.WriteLine(".cuboidh <blocktype> - Draws a hollow cuboid between two points.");
+			Console.WriteLine(".cuboidw <blocktype> - Draws a wireframe between two points.");
 			Console.WriteLine(".ellipsoid <blocktype> - Draws an ellipsoid between two points.");
 			Console.WriteLine(".pyramid <blocktype> - Draws an upwards pyramid between two points.");
 			Console.WriteLine(".follow <username> - Follows player. (Case sensitive)");
@@ -67,6 +67,7 @@ namespace ClassicBotCoreTest
 			Bot1.Events.RemoteSessionEnded += RemoteSessionEnded;
 			#if !MONO
 			Bot1.Events.MapLoaded += Bot1_MapLoaded;
+			Bot1.Events.ConfigLoading += delegate { Console.WriteLine("Loading"); };
 			#endif
 			
 			#region Plugins
@@ -318,13 +319,6 @@ namespace ClassicBotCoreTest
 		}
 		
 		static ClassicBot StaticBot1;
-		
-		static void LogError(string errormessage)
-		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine(errormessage);
-			Console.ResetColor();
-		}
 
 		static void Bot1_ChatMessage(object sender, MessageEventArgs e) {
 			StaticBot1.MessageAllRemoteClients(e.Line);

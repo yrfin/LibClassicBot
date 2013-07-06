@@ -137,6 +137,7 @@ namespace LibClassicBot.Plugins
 					}
 					continue;
 				}
+				compiler.Dispose();
 				
 				Type[] types = results.CompiledAssembly.GetTypes();
 				for( int i = 0; i < types.Length; i++ ) {

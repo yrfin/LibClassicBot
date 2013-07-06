@@ -9,7 +9,6 @@
 	/// S > C 0x04<br/>
 	/// Block updates, chat messages, position updates..
 	/// </remarks>
-	/// <summary>Enumeration containing a list of packets sent by a classic server.</summary>
 	public enum ServerPackets : byte
 	{
 		/// <summary>Packet first sent when the server respond to the initial client authentification packet.</summary>

@@ -7,7 +7,11 @@ namespace ClassicBotCoreTest {
 	
 	public sealed class ConsoleLogger : ILogger {
 		
-		public void Initalise() { }
+		ConsoleColor defaultCol;
+		public void Initalise() {
+			Console.ResetColor();
+			defaultCol = Console.ForegroundColor;
+		}
 		
 		const string LogTimeFormat = "HH':'mm':'ss";
 		
@@ -16,17 +20,17 @@ namespace ClassicBotCoreTest {
 				Console.Write( DateTime.Now.ToString( LogTimeFormat ) + " > " );
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine( "ERROR: " + message );
-				Console.ForegroundColor = ConsoleColor.White;
+				Console.ForegroundColor = defaultCol;
 			} else if( type == LogType.Warning ) {
 				Console.Write( DateTime.Now.ToString( LogTimeFormat ) + " > " );
 				Console.ForegroundColor = ConsoleColor.Yellow;
 				Console.WriteLine( "Warning: " + message );
-				Console.ForegroundColor = ConsoleColor.White;
+				Console.ForegroundColor = defaultCol;
 			} else if( type == LogType.BotActivity ) {
 				Console.Write( DateTime.Now.ToString( LogTimeFormat ) + " > " );
 				Console.ForegroundColor = ConsoleColor.DarkGray;
 				Console.WriteLine( message );
-				Console.ForegroundColor = ConsoleColor.White;
+				Console.ForegroundColor = defaultCol;
 			} else if( type == LogType.Chat ) {
 				Console.Write( DateTime.Now.ToString( LogTimeFormat ) + " > " );
 				AppendChat( message );

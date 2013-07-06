@@ -33,6 +33,15 @@ namespace LibClassicBot.Events
 		
 		/// <summary>Occurs when a block is placed.</summary>
 		public event EventHandler<BlockPlacedEventArgs> BlockPlaced;
+		
+		/// <summary> Occurs when the configuration file of a ClassicBot instance is being loaded. </summary>
+		/// <remarks> The event is rasied *after* the bot loads its internal settings. </remarks>
+		public event EventHandler<ConfigLoadingEventArgs> ConfigLoading;
+		
+		/// <summary> Occurs when the configuration file of a ClassicBot instance is being loaded. </summary>
+		/// <remarks> The event is raised *after* the bot writes the default internal settings.
+		/// You can write more config keys (and default values) to the configuration file through this event. </remarks>
+		public event EventHandler<ConfigCreatingEventArgs> ConfigCreating;
 
 		/// <summary>Raises a new ChatMessage Event.</summary>
 		internal void RaiseChatMessage(MessageEventArgs e) {
@@ -83,5 +92,19 @@ namespace LibClassicBot.Events
 		internal void RaiseBlockPlaced(BlockPlacedEventArgs e) {
 			if(BlockPlaced != null) BlockPlaced(null, e);
 		}
+		
+		/// <summary> Raises a new ConfigLoading event. </summary>
+		internal void RaiseConfigLoading( ConfigLoadingEventArgs e ) {
+			if( ConfigLoading != null ) {
+				ConfigLoading( null, e );
+			}
+		}
+		
+		/// <summary> Raises a new ConfigCreating event. </summary>
+		internal void RaiseConfigCreating( ConfigCreatingEventArgs e ) {
+			if( ConfigCreating != null ) {
+				ConfigCreating( null, e );
+			}
+		}	
 	}
 }

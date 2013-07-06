@@ -247,8 +247,7 @@ namespace LibClassicBot
 		// This is used to prevent the bot from continuously to try to login to a server. (Eg, after a ban.)
 		bool CanReconnectAfterKick = false;
 		string DirectURL;
-		bool isDirect = false;
-		bool isStandard = false;
+		bool isDirect = false, isStandard = false;
 		byte ProtocolVersion;
 		bool _savemap = false;
 		bool serverLoaded = false;
@@ -288,21 +287,58 @@ namespace LibClassicBot
 				}
 			}
 		}
+		
+		void Load() {
+			if (File.Exists(_Opspath)) {
+				string[] lines = File.ReadAllLines(_Opspath);
+				for (int i = 0; i < lines.Length; i++) {
+					Users.Add(lines[i]);
+				}
+			} else {
+				File.Create(_Opspath);
+			}
+			
+			if (isDirect == true) {
+				string[] parts = DirectURL.Substring(5).Split('/');
+				_username = parts[1];
+				_ver = parts[2];
+
+				string[] ipPort = parts[0].Split(':');
+				IPAddress ip = IPAddress.Parse(ipPort[0]);
+				int port = Convert.ToInt32(ipPort[1]);
+				EndPoint = new IPEndPoint( ip, port );
+			} else if(isStandard == true) {
+				try {
+					IPEndPoint point;
+					Log( LogType.BotActivity, "Trying to log into minecraft.net.." );
+					Extensions.Login( _username, _password, _hash, out point, out _ver, out migratedUsername );
+					Log( LogType.BotActivity, "Successfully logged in." );
+					EndPoint = point;
+				} catch( InvalidOperationException ex ) {
+					Log( LogType.Error, ex.Message, ex.ToString() );
+					return;
+				} catch( ArgumentOutOfRangeException ex ) {
+					Log( LogType.Error, ErrorInPage, ex.ToString() );
+					return;
+				}
+			}
+			IgnoredUserList.Add(migratedUsername ?? _username); //Ignore self.
+			Plugins.PluginManager.LoadPlugins(RegisteredCommands, this);
+			StartCommandsThread();
+		}
 
 		/// <summary>
 		/// Sends a message to all remotely connected clients. If the server has not been started,
 		/// it will not send a message.
 		/// </summary>
 		/// <param name="message">The message to send to all remotely connected clients.</param>
-		public void MessageAllRemoteClients(string message)
-		{
+		public void MessageAllRemoteClients(string message) {
 			if (server != null && server.started)
 				server.SendMessageToAllRemoteClients(message);
 		}
-		/// <summary>
-		/// Sends a byte array to the currently connected server. (Usually, a packet of some sort.)
-		/// </summary>
-		/// <param name="data">The daat to be sent, converted into a byte array.</param>
+		
+		/// <summary> Sends a byte array to the currently connected server. (Usually, a packet of some sort.) </summary>
+		/// <param name="data">The data to be sent, converted into a byte array.</param>
 		public void Send(byte[] data)
 		{
 			if(ServerSocket == null || ServerSocket.Connected == false) return;
@@ -315,6 +351,7 @@ namespace LibClassicBot
 		{
 			if(!Debugger.IsAttached) AppDomain.CurrentDomain.UnhandledException += UnhandledException; //Might interfere with debugging
 			if(LoadInternalSettings) LoadConfig();
+			Load();
 			if(RunOnThreadAsCaller == true)
 			{
 				IOLoop();
@@ -357,10 +394,11 @@ namespace LibClassicBot
 						sw.WriteLine("#SaveMap - This determines if the bot will save the map when the chunk packets are sent to it." +
 						             "If this is true, it will be saved as a fCraft compatible map. (Large maps of 512 x 512 x 512 " +
 						             "can use up to ~150 megabytes of RAM when saving, so be wary. After saving, memory usage should return to normal.");
+						Events.RaiseConfigCreating( new ConfigCreatingEventArgs( config, sw ) );
 					}
 				}
 				
-				config.Load(); // TODO: Output warning.
+				config.Load();
 				if( !config.TryParseValueOrDefault( "useremoteserver", false, out UseRemoteServer ) )
 					Log( LogType.Warning, "Couldn't load value for useremoteserver from config. Setting to default value of false" );
 				if( UseRemoteServer ) {
@@ -385,7 +423,10 @@ namespace LibClassicBot
 					Log( LogType.Warning, "Couldn't load value for reconnectafterkick from config. Setting to default value of true" );
 				if( !config.TryParseValueOrDefault( "savemap", false, out _savemap ) )
 					Log( LogType.Warning, "Couldn't load value for savemap from config. Setting to default value of false" );
-			} catch {
+				
+				Events.RaiseConfigLoading( new ConfigLoadingEventArgs( config ) );
+			} catch( Exception e ) {
+				Log( LogType.Error, "Couldn't load config:", e.ToString() );
 			}
 		}
 
@@ -426,56 +467,19 @@ namespace LibClassicBot
 
 		#region I/O Loop
 		void IOLoop()
-		{
-			if (File.Exists(_Opspath)) {
-				string[] lines = File.ReadAllLines(_Opspath);
-				for (int i = 0; i < lines.Length; i++) {
-					Users.Add(lines[i]);
-				}
-			} else {
-				File.Create(_Opspath);
-			}
-			
-			if (isDirect == true) {
-				string[] parts = DirectURL.Substring(5).Split('/');
-				_username = parts[1];
-				_ver = parts[2];
-
-				string[] ipPort = parts[0].Split(':');
-				IPAddress ip = IPAddress.Parse(ipPort[0]);
-				int port = Convert.ToInt32(ipPort[1]);
-				EndPoint = new IPEndPoint( ip, port );
-			} else if(isStandard == true) {
-				try {
-					IPEndPoint point;
-					Log( LogType.BotActivity, "Trying to log into minecraft.net.." );
-					Extensions.Login( _username, _password, _hash, out point, out _ver, out migratedUsername );
-					Log( LogType.BotActivity, "Successfully logged in." );
-					EndPoint = point;
-				} catch( InvalidOperationException ex ) {
-					Log( LogType.Error, ex.Message, ex.ToString() );
-					return;
-				} catch( ArgumentOutOfRangeException ex ) {
-					Log( LogType.Error, ErrorInPage, ex.ToString() );
-					return;
-				}
-			}
-
-			IgnoredUserList.Add(migratedUsername ?? _username); //Ignore self.
-			byte[] ToSendLogin = CreateLoginPacket(migratedUsername ?? _username, _ver);
+		{		
+			byte[] loginPacket = CreateLoginPacket(migratedUsername ?? _username, _ver);
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try {
 				if(EndPoint.Port > IPEndPoint.MaxPort || EndPoint.Port < IPEndPoint.MinPort) throw new SocketException(-1);
 				//Do not continue if the user attempts to connect on a port larger than possible.
 				ServerSocket.Connect(EndPoint);
-				ServerSocket.Send(ToSendLogin);
+				ServerSocket.Send(loginPacket);
 			} catch( SocketException ex ) {
 				Log( LogType.Error, HandleSocketError( ex.ErrorCode ), ex.ToString() );
 				return;
 			}
 			
-			StartCommandsThread();
-			Plugins.PluginManager.LoadPlugins(RegisteredCommands, this);
 			BinaryReader reader = new BinaryReader(new NetworkStream(ServerSocket));
 
 			while (true)

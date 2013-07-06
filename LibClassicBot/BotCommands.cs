@@ -59,10 +59,11 @@ namespace LibClassicBot
 		/// <summary>Starts the Command class thread, which can later be added to with CommandEnqueue() and executed with ProcessCommandQueue()</summary>
 		private void StartCommandsThread()
 		{
+			if( CommandsThreadStarted ) return;
 			CommandsThreadStarted = true;
 			Thread CommandsThread = new Thread(CommandQueueThread);
 			CommandsThread.IsBackground = true;
-			CommandsThread.Name = "CommandThread";
+			CommandsThread.Name = "LibClassicBot.CommandThread";
 			CommandsThread.Start();
 		}
 		

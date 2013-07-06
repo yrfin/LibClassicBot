@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using LibClassicBot.Drawing;
@@ -197,6 +198,29 @@ namespace LibClassicBot.Events
 		internal SessionEndedEventArgs(string user)
 		{
 			Username = user;
+		}
+	}
+	
+	public sealed class ConfigLoadingEventArgs : EventArgs {
+		
+		/// <summary> Gets the config class that is being loaded. </summary>
+		public Config Config { get; private set; }
+		
+		internal ConfigLoadingEventArgs( Config config ) {
+			Config = config;
+		}
+	}
+	
+	public sealed class ConfigCreatingEventArgs : EventArgs {
+		/// <summary> Gets the config class that is being loaded. </summary>
+		public Config Config { get; private set; }
+		
+		/// <summary> Gets the StreamWriter that represents the file being written to. </summary>
+		public StreamWriter Writer { get; private set; }
+		
+		internal ConfigCreatingEventArgs( Config config, StreamWriter writer ) {
+			Config = config;
+			Writer = writer;
 		}
 	}
 }
