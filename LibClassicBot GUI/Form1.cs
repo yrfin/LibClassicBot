@@ -111,7 +111,7 @@ namespace LibClassicBot_GUI
 
 		void Button1Click(object sender, EventArgs e)
 		{
-			ClassicBot cc = new ClassicBot(userBox.Text, passwordBox.Text, addBox.Text,"operators.txt");
+			ClassicBot cc = new ClassicBot(userBox.Text, passwordBox.Text, addBox.Text);
 			AddPlugins(cc);
 			cc.Start(false);
 			StatBot = cc;
@@ -132,7 +132,7 @@ namespace LibClassicBot_GUI
 			CommandDelegate AddOpCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 2);
-				bot.AddOperator(full[1], true);
+				bot.AddOperator(full[1]);
 				bot.SendMessagePacket("Allowed user: " + full[1]);
 			};
 			bot.RegisteredCommands.Add("allow", AddOpCommand);
@@ -140,7 +140,7 @@ namespace LibClassicBot_GUI
 			CommandDelegate RemoveOpCommand = delegate(string Line)
 			{
 				string[] full = bot.GetMessage(Line).Split(new char[] {' '}, 1);
-				bot.RemoveOperator(full[1], true);
+				bot.RemoveOperator(full[1]);
 				bot.SendMessagePacket("Disallowed user: "+ full[1]);
 			};
 			bot.RegisteredCommands.Add("disallow", RemoveOpCommand);

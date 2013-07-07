@@ -166,52 +166,43 @@ namespace LibClassicBot
 		/// <param name="username">Username for the bot to use.</param>
 		/// <param name="pass">Password for the bot to use.</param>
 		/// <param name="hash">Hash for thre bot to use. Eg, r432fd57gf5j876f</param>
-		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
 		/// <example>ClassicBot c = new ClassicBot("Bot","admin","r432fd57gf5j876f","ops.txt")</example>
-		public ClassicBot(string username, string pass, string adress, string oppath)
-		{
-			this._username = username;
-			this._password = pass;
-			this._hash = adress;
-			this._Opspath = oppath;
-			this.isStandard = true;
+		public ClassicBot( string username, string pass, string address ) {
+			_username = username;
+			_password = pass;
+			_hash = address;
+			isStandard = true;
 			InitDefaults();
 		}
 
 		/// <summary>Connects the bot to a server via a direct URL. A direct URL goes in the form of mc://serverip:serverport/user/mppass</summary>
 		/// <param name="directURL">String that contains a direct URL for the bot to connect to.</param>
-		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
-		/// <example>ClassicBot c = new ClassicBot("mc://127.0.0.1:25565/Bot/ver","ops.txt")</example>
-		public ClassicBot(string directURL,string oppath)
-		{
-			this.DirectURL = directURL;
-			this.isDirect = true;
-			this._Opspath = oppath;
+		/// <example>ClassicBot c = new ClassicBot("mc://127.0.0.1:25565/Bot/ver")</example>
+		public ClassicBot( string directURL ) {
+			DirectURL = directURL;
+			isDirect = true;
 			InitDefaults();
 		}
 		
 		/// <summary>Directly connects to a server. Does not include verification, so it will be kicked if server verification is enabled.</summary>
 		/// <param name="username"></param>
-		/// <param name="ServerIP">An IPAdress which the bot to connect to.</param>
-		/// <param name="Port">The int containing the port number for which to connect onto.</param>
-		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
-		/// <example>ClassicBot c = new ClassicBot("bot",IPAddress.Parse("127.0.0.1",25565,"ops.txt")</example>
-		public ClassicBot(string username, IPAddress serverIP, int port, string oppath) :
-			this( username, null, serverIP, port, oppath ) { }
+		/// <param name="serverIP">An IPAdress which the bot to connect to.</param>
+		/// <param name="port">The int containing the port number for which to connect onto.</param>
+		/// <example>ClassicBot c = new ClassicBot("bot",IPAddress.Parse("127.0.0.1",25565)</example>
+		public ClassicBot( string username, IPAddress serverIP, int port ) :
+			this( username, null, serverIP, port ) { }
 		
 		/// <summary>Directly connects to a server. Does include verification.</summary>
 		/// <param name="username">Username used to connect</param>
 		/// <param name="verkey">Verification key to use, as a string.</param>
-		/// <param name="ServerIP">An IPAddress which the bot to connect to.</param>
-		/// <param name="Port">The int containing the port number for which to connect onto.</param>
-		/// <param name="oppath">String that spceifies where to look for a file containg a list of users allowed to use the bot.</param>
-		/// <example>ClassicBot c = new ClassicBot("bot","ver",IPAddress.Parse("127.0.0.1",25565,"ops.txt")</example>
-		public ClassicBot(string username, string verkey, IPAddress serverIP, int port, string oppath)
+		/// <param name="serverIP">An IPAddress which the bot to connect to.</param>
+		/// <param name="port">The int containing the port number for which to connect onto.</param>
+		/// <example>ClassicBot c = new ClassicBot("bot","ver",IPAddress.Parse("127.0.0.1",25565)</example>
+		public ClassicBot( string username, string verkey, IPAddress serverIP, int port )
 		{
-			this._username = username;
-			this.EndPoint = new IPEndPoint( serverIP, port );
-			this._Opspath = oppath;
-			this._ver = verkey;
+			_username = username;
+			EndPoint = new IPEndPoint( serverIP, port );
+			_ver = verkey;
 			InitDefaults();
 		}
 		#endregion
@@ -228,7 +219,6 @@ namespace LibClassicBot
 		string _username, _password, _hash;
 		string _ver = String.Empty;
 		char _delimiter = ':';
-		string _Opspath = "operators.txt";
 		bool _reconnectonkick = false;
 		bool _requiresop = true;
 		Server server = null;
@@ -254,6 +244,7 @@ namespace LibClassicBot
 		bool UseRemoteServer = false;
 		readonly object loggerLocker = new object();
 		List<ILogger> loggers = new List<ILogger>();
+		Config config;
 		#endregion
 		
 		public bool RegisterLogger( ILogger logger ) {
@@ -289,14 +280,6 @@ namespace LibClassicBot
 		}
 		
 		void Load() {
-			if (File.Exists(_Opspath)) {
-				string[] lines = File.ReadAllLines(_Opspath);
-				for (int i = 0; i < lines.Length; i++) {
-					Users.Add(lines[i]);
-				}
-			} else {
-				File.Create(_Opspath);
-			}
 			
 			if (isDirect == true) {
 				string[] parts = DirectURL.Substring(5).Split('/');
@@ -372,7 +355,7 @@ namespace LibClassicBot
 		private void LoadConfig()
 		{
 			try {
-				Config config = new Config( "botsettings.txt" );
+				config = new Config( "botsettings.txt" );
 				if( !config.Exists() ) {
 					using( StreamWriter sw = new StreamWriter( "botsettings.txt" ) ) {
 						sw.WriteLine("UseRemoteServer: false");
@@ -381,6 +364,7 @@ namespace LibClassicBot
 						sw.WriteLine("CommandsRequireOperator: true");
 						sw.WriteLine("ReconnectAfterKick: true");
 						sw.WriteLine("SaveMap: false");
+						sw.WriteLine("Operators:");
 						sw.WriteLine("#And now, a little explaination on what all these mean.");
 						sw.WriteLine("#UseRemoteServer - Allows remote clients to connect and perform actions on the bot / chat through it. By default, this is disabled." +
 						             "If you choose to use the remote function, you may need to forward the port and/or add an exception to your firewall.");
@@ -394,6 +378,7 @@ namespace LibClassicBot
 						sw.WriteLine("#SaveMap - This determines if the bot will save the map when the chunk packets are sent to it." +
 						             "If this is true, it will be saved as a fCraft compatible map. (Large maps of 512 x 512 x 512 " +
 						             "can use up to ~150 megabytes of RAM when saving, so be wary. After saving, memory usage should return to normal.");
+						sw.WriteLine( "#Operators: Comma separated list of operators, with no spaces. (e.g. test,test1,test2)" );
 						Events.RaiseConfigCreating( new ConfigCreatingEventArgs( config, sw ) );
 					}
 				}
@@ -423,6 +408,26 @@ namespace LibClassicBot
 					Log( LogType.Warning, "Couldn't load value for reconnectafterkick from config. Setting to default value of true" );
 				if( !config.TryParseValueOrDefault( "savemap", false, out _savemap ) )
 					Log( LogType.Warning, "Couldn't load value for savemap from config. Setting to default value of false" );
+				string rawUsers; // Comma separated.
+				config.TryGetRawValue( "operators", out rawUsers );
+				if( String.IsNullOrEmpty( rawUsers ) ) {
+					Log( LogType.Warning, "Couldn't load value for operators from config. Setting to default value of empty." );
+				} else {
+					string[] users = rawUsers.Split( ',' );
+					bool fixedNames = false;
+					for( int i = 0; i < users.Length; i++ ) {
+						if( users[i].IndexOf( ' ' ) != -1 ) {
+							fixedNames = true;
+							users[i] = users[i].Replace( " ", String.Empty );
+						}
+					}
+					if( fixedNames ) {
+						config.AddOrUpdateValue( "operators", String.Join( ",", users ) );
+						Log( LogType.BotActivity, "Fixed up spaces in the list of operators." );
+						config.Save();
+					}
+					Users.AddRange( users );
+				}
 				
 				Events.RaiseConfigLoading( new ConfigLoadingEventArgs( config ) );
 			} catch( Exception e ) {
@@ -430,44 +435,50 @@ namespace LibClassicBot
 			}
 		}
 
-		/// <summary>Adds a username to the list of allowed users.</summary>
+		/// <summary> Adds a username to the list of operators. </summary>
 		/// <param name="username">The username to add. Does not contain colour codes.</param>
-		/// <param name="savetofile">Whether to save a copy of the allowed users list to the operators file.</param>
-		/// <returns>True if added the user.
-		/// True if it also succeeded in writing to the file, false if there was an error.</returns>
-		public bool AddOperator(string username, bool savetofile)
-		{
-			Users.Add(username);
-			if(savetofile) {
-				string[] usersArray = Users.ToArray();
-				try { File.WriteAllLines(_Opspath,usersArray); }
-				catch { return false; }
-				
+		/// <returns>true if added the user. false if the config file was null or the users list
+		/// already contained the given username. </returns>
+		public bool AddOperator( string username ) {
+			if( config == null ) return false;
+			if( Users.Contains( username ) ) return false;
+			
+			Users.Add( username );
+			StringBuilder builder = new StringBuilder();
+			for( int i = 0; i < Users.Count; i++ ) {
+				if( i != Users.Count - 1 ) {
+					builder.Append( Users[i] + "," );
+				} else {
+					builder.Append( Users[i] );
+				}
 			}
-			return true; //Add doesn't ever return false.
+			config.AddOrUpdateValue( "operators", builder.ToString() );
+			config.Save();
+			return true;
 		}
 
-		/// <summary>Removes a username from the list of allowed users.</summary>
-		/// <param name="username">The username to remove. Does not contain colour codes.</param>
-		/// <param name="savetofile">Whether to save a copy of the allowed users list to the operators file.</param>
-		/// <returns>True if the user was removed, false if the user was not found.
-		/// True if it also succeeded in writing to the file, false if there was an error.</returns>
-		public bool RemoveOperator(string username, bool savetofile)
-		{
-			if (!Users.Remove(username)) return false;
+		/// <summary> Removes a username from the list of operators. </summary>
+		/// <param name="username"> The username to remove. Does not contain colour codes. </param>
+		/// <returns> true if the user was removed, false if the user was not found. </returns>
+		public bool RemoveOperator( string username ) {
+			if( !Users.Remove( username ) ) return false;
 			
-			if(savetofile)
-			{
-				string[] usersArray = Users.ToArray();
-				try { File.WriteAllLines(_Opspath,usersArray); }
-				catch { return false; }
+			StringBuilder builder = new StringBuilder();
+			for( int i = 0; i < Users.Count; i++ ) {
+				if( i != Users.Count - 1 ) {
+					builder.Append( Users[i] + "," );
+				} else {
+					builder.Append( Users[i] );
+				}
 			}
+			config.AddOrUpdateValue( "operators", builder.ToString() );
+			config.Save();
 			return true;
 		}
 
 		#region I/O Loop
 		void IOLoop()
-		{		
+		{
 			byte[] loginPacket = CreateLoginPacket(migratedUsername ?? _username, _ver);
 			ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			try {

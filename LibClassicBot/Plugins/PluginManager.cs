@@ -34,7 +34,7 @@ namespace LibClassicBot.Plugins
 							Plugin plugin = (Plugin)Activator.CreateInstance( type );
 							plugin.Initialize( main );
 							if( !commands.ContainsKey( plugin.CommandName ) ) {
-								main.Log( LogType.BotActivity, "Loading command " + plugin.CommandName );
+								main.Log( LogType.BotActivity, "Loaded command " + plugin.CommandName );
 								commands.Add( plugin.CommandName, plugin.Command );
 							}
 						}
@@ -146,7 +146,7 @@ namespace LibClassicBot.Plugins
 						Plugin plugin = (Plugin)Activator.CreateInstance( type );
 						plugin.Initialize( main );
 						if( !commands.ContainsKey( plugin.CommandName ) ) {
-							main.Log( LogType.BotActivity, "Loading command " + plugin.CommandName );
+							main.Log( LogType.BotActivity, "Loaded command " + plugin.CommandName );
 							commands.Add( plugin.CommandName, plugin.Command );
 						}
 					}

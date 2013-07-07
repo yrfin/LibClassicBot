@@ -4,8 +4,39 @@ using System.IO;
 
 namespace LibClassicBot {
 	
+	
+	sealed class ConfigNode : IEquatable<ConfigNode>, IEquatable<string> {
+		public string Value;
+		public int Offset;
+		
+		public override int GetHashCode() {
+			return Value.GetHashCode();
+		}
+		
+		public bool Equals( ConfigNode value ) {
+			return Value == value.Value;
+		}
+		
+		public bool Equals( string value ) {
+			return Value == value;
+		}
+		
+		public static implicit operator ConfigNode( string value ) {
+			return new ConfigNode() { Value = value };
+		}
+		
+		private ConfigNode() { }
+		
+		public ConfigNode( string value, int position ) {
+			Value = value;
+			Offset = position;
+		}
+
+	}
 	/// <summary> Manages the configuration file for a bot instance. </summary>
 	public sealed class Config {
+		
+		int lastOffset = 0;
 		
 		/// <summary> Gets the relative file path of the configuration file. </summary>
 		public string RelativeConfigFile { get; private set; }
@@ -13,7 +44,8 @@ namespace LibClassicBot {
 		/// <summary> Gets the absolute file path of the configuration file. </summary>
 		public string AbsoluteConfigFile { get; private set; }
 		
-		private Dictionary<string, string> config = new Dictionary<string, string>();
+		private Dictionary<ConfigNode, string> config = new Dictionary<ConfigNode, string>();
+		private List<ConfigNode> comments = new List<ConfigNode>();
 		
 		public Config( string file ) {
 			RelativeConfigFile = file;
@@ -36,12 +68,19 @@ namespace LibClassicBot {
 				using( FileStream fs = File.OpenRead( RelativeConfigFile ) ) {
 					using( StreamReader reader = new StreamReader( fs ) ) {
 						while( ( line = reader.ReadLine() ) != null ) {
-							if( line.Length == 0 || line.StartsWith( "#" ) ) continue; // Comment or empty line.
+							if( line.Length == 0 ) continue; // Comment or empty line.
+							
+							if( line.StartsWith( "#" ) ) {
+								comments.Add( new ConfigNode( line, lastOffset ) );
+								lastOffset++;
+								continue;
+							}
 							
 							string[] keypair = line.Split( new char[] { ':' }, 2 );
 							string key = keypair[0].ToLowerInvariant(); // Case insensitive keys.
 							string value = keypair[1].Trim();
-							config.Add( key, value );
+							config.Add( new ConfigNode( key, lastOffset ), value );
+							lastOffset++;
 						}
 					}
 				}
@@ -83,18 +122,30 @@ namespace LibClassicBot {
 			if( configKey == null ) throw new ArgumentNullException( "configKey" );
 			if( configKey.Length == 0 || configKey.StartsWith( "#" ) ) throw new ArgumentException( "Invalid configKey given." );
 			string key = configKey.ToLowerInvariant();
-			config[key] = value;
+			if( !config.ContainsKey( configKey ) ) {
+				ConfigNode node = new ConfigNode( key, lastOffset++ );
+				config[node] = value;
+			} else {
+				config[key] = value;
+			}
 		}
 		
 		/// <summary> Saves the configuration file, or creates it if doesn't exist. </summary>
 		public void Save() {
 			using( StreamWriter writer = new StreamWriter( RelativeConfigFile ) ) {
+				string[] lines = new string[lastOffset + 1];
 				foreach( var keypair in config ) {
-					writer.WriteLine( keypair.Key + ":" + keypair.Value );
+					//writer.WriteLine( keypair.Key.Key + ":" + keypair.Value );
+					lines[keypair.Key.Offset] = keypair.Key.Value + ":" + keypair.Value;
+				}
+				for( int i = 0; i < comments.Count; i++ ) {
+					lines[comments[i].Offset] = comments[i].Value;
+				}
+				for( int i = 0; i < lines.Length; i++ ) {
+					writer.WriteLine( lines[i] );
 				}
 			}
-		}
-		
+		}	
 		
 		/// <summary> Clears all stored keys. Does not effect the file, unless Save() is later called. </summary>
 		public void Clear() {

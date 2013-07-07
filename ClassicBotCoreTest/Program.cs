@@ -55,7 +55,7 @@ namespace ClassicBotCoreTest
 				else hash = "http://minecraft.net/classic/play/" + hash;
 			}
 
-			ClassicBot Bot1 = new ClassicBot(username, password, hash, "operators.txt");
+			ClassicBot Bot1 = new ClassicBot( username, password, hash );
 			ConsoleLogger logger = new ConsoleLogger();
 			Bot1.RegisterLogger( logger );
 			FileLogger file = new FileLogger();
@@ -96,18 +96,25 @@ namespace ClassicBotCoreTest
 			CommandDelegate AddOpCommand = delegate(string Line)
 			{
 				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
-				Bot1.AddOperator(full[1], true);
+				Bot1.AddOperator(full[1]);
 				Bot1.SendMessagePacket("Allowed user: " + full[1]);
 			};
 			Bot1.RegisteredCommands.Add("allow", AddOpCommand);
 			
 			CommandDelegate RemoveOpCommand = delegate(string Line)
 			{
-				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 1);
-				Bot1.RemoveOperator(full[1], true);
+				string[] full = Bot1.GetMessage(Line).Split(new char[] {' '}, 2);
+				Bot1.RemoveOperator(full[1]);
 				Bot1.SendMessagePacket("Disallowed user: "+ full[1]);
 			};
 			Bot1.RegisteredCommands.Add("disallow", RemoveOpCommand);
+			
+			CommandDelegate ListOpsCommand = delegate(string Line)
+			{
+				string[] names = Bot1.Users.ToArray();
+				Bot1.SendLongChat( String.Join( ", ", names ) );
+			};
+			Bot1.RegisteredCommands.Add("ops", ListOpsCommand);
 
 			CommandDelegate SayCommand = delegate(string Line)
 			{
